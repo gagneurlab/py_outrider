@@ -3,6 +3,8 @@
 
 from profiles.profile_abstract import Profile_abstract
 from ae_models.ae_pca import Ae_pca
+from distributions.dis_neg_bin import Dis_neg_bin
+from distributions.tf_loss_func import tf_neg_bin_loss
 
 
 class Profile_outrider(Profile_abstract):
@@ -18,9 +20,9 @@ class Profile_outrider(Profile_abstract):
 
         self.ae_model = Ae_pca
         self.ae_input_norm = "sf"
-        self.distribution = 'neg_bin'
-        self.loss_D = 0
-        self.loss_E = 0
+        self.distribution = Dis_neg_bin
+        self.loss_D = tf_neg_bin_loss
+        self.loss_E = tf_neg_bin_loss
         self.noise_factor = 0
 
 

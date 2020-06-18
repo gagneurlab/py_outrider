@@ -23,15 +23,6 @@ class Ae_pca(Ae_abstract):
     def __init__(self, xrds):
         super().__init__(xrds = xrds)
 
-
-
-
-
-    # @tf.function
-    def run_autoencoder(self,  theta_range=(1e-2, 1e3), **kwargs):
-        time_ae_start = time.time()
-        self.loss_list = Loss_list(conv_limit=0, last_iter=0)
-
         ### covariate consideration
         if self.ae_ds.cov_sample is not None:
             self.ae_input = np.concatenate([self.ae_ds.X_norm , self.ae_ds.cov_sample], axis=1)
@@ -40,23 +31,32 @@ class Ae_pca(Ae_abstract):
             self.ae_input = self.ae_ds.X_norm
 
 
+
+    # @tf.function
+    def run_autoencoder(self,  theta_range=(1e-2, 1e3), **kwargs):
+        time_ae_start = time.time()
+        self.loss_list = Loss_list(conv_limit=0, last_iter=0)
+
+
+
+
         ### initialize tensor weights with pca
         print_func.print_time('pca start')
         pca = PCA(n_components=self.xrds.attrs["encod_dim"], svd_solver='full')
         pca.fit(self.ae_input)
         pca_coef = pca.components_  # (10,200)
 
-        self.ae_ds.E = np.transpose(pca_coef)
-        self.ae_ds.D = pca_coef
-        self.ae_ds.b = self.ae_ds.X_center_bias
+        self.E = np.transpose(pca_coef)
+        self.D = pca_coef
+        self.b = self.ae_ds.X_center_bias
 
-        self.ae_ds.X_true_pred = self.get_X_true_pred(self.ae_input, self.ae_ds.E, self.ae_ds.D, self.ae_ds.b, self.ae_ds.par_sample)
+        self.ae_ds.X_true_pred = self.get_X_true_pred()
 
         self.par_meas = self.get_updated_par_meas(self.ae_ds.X_true, self.ae_ds.X_true_pred,
                                                   {'init_step': False, 'theta_range': theta_range},
                                                   parallel_iterations=self.parallel_iterations)
-
-
+        print('loss print')
+        print(self.get_loss())
         # self.loss_list.add_loss(self.get_loss(), step_name='pca', print_text='pca end with loss:      ')
 
         print_func.print_time(f'complete ae time {print_func.get_duration_sec(time.time() - time_ae_start)}')

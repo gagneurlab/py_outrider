@@ -7,42 +7,43 @@ import tensorflow as tf
 
 class Dis_abstract(ABC):
 
-    def __init__(self, y_true, y_pred, par, float_type):
-        self.y_true = y_true
-        self.y_pred = y_pred
+    def __init__(self, X_true, X_pred, par, parallel_iterations):
+        self.X_true = X_true
+        self.X_pred = X_pred
         self.par = par
+        self.parallel_iterations = parallel_iterations
+        self.pvalue = None
 
 
     @property
-    def y_true(self):
-        return self.__y_true
+    def X_true(self):
+        return self.__X_true
 
-    @y_true.setter
-    def y_true(self, y_true):
-
-        if not tf.is_tensor(y_true):
-            if isinstance(y_true, np.ndarray):
-                y_true = tf.convert_to_tensor(y_true, dtype=self.float_type)
+    @X_true.setter
+    def X_true(self, X_true):
+        if not tf.is_tensor(X_true):
+            if isinstance(X_true, np.ndarray):
+                X_true = tf.convert_to_tensor(X_true, dtype=X_true.dtype)
             else:
-                y_true = tf.convert_to_tensor(y_true.values, dtype=self.float_type)
+                X_true = tf.convert_to_tensor(X_true.values, dtype=X_true.dtype)
 
-        self.__y_true= y_true
+        self.__X_true= X_true
 
 
     @property
-    def y_pred(self):
-        return self.__y_pred
+    def X_pred(self):
+        return self.__X_pred
 
-    @y_pred.setter
-    def y_pred(self, y_pred):
+    @X_pred.setter
+    def X_pred(self, X_pred):
 
-        if not tf.is_tensor(y_pred):
-            if isinstance(y_pred, np.ndarray):
-                y_pred = tf.convert_to_tensor(y_pred, dtype=self.float_type)
+        if not tf.is_tensor(X_pred):
+            if isinstance(X_pred, np.ndarray):
+                X_pred = tf.convert_to_tensor(X_pred, dtype=X_pred.dtype)
             else:
-                y_pred = tf.convert_to_tensor(y_pred.values, dtype=self.float_type)
+                X_pred = tf.convert_to_tensor(X_pred.values, dtype=X_pred.dtype)
 
-        self.__y_pred= y_pred
+        self.__X_pred= X_pred
 
 
     @property
@@ -55,21 +56,30 @@ class Dis_abstract(ABC):
 
 
     @property
-    def float_type(self):
-        return self.__float_type
+    def parallel_iterations(self):
+        return self.__parallel_iterations
 
-    @float_type.setter
-    def float_type(self, float_type):
-        self.__float_type = float_type
+    @parallel_iterations.setter
+    def parallel_iterations(self, parallel_iterations):
+        self.__parallel_iterations= parallel_iterations
+
+    @property
+    def pvalue(self):
+        return self.__pvalue
+
+    @pvalue.setter
+    def pvalue(self, pvalue):
+        self.__pvalue= pvalue
+
 
 
 
     @abstractmethod
-    def get_pval(self):
+    def get_pvalue(self):
          pass
 
     @abstractmethod
-    def get_pval_adj(self):
+    def get_pvalue_adj(self):
          pass
 
     @abstractmethod

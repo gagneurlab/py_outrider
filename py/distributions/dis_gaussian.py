@@ -8,9 +8,9 @@ from distributions.tf_loss_func import tf_neg_bin_loss
 from utilis.pvalue_adj_nan import multiple_testing_nan
 
 
+# TODO EDIT
 
-
-class Dis_neg_bin(Dis_abstract):
+class Dis_gaussian(Dis_abstract):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -19,8 +19,8 @@ class Dis_neg_bin(Dis_abstract):
 
     ### pval calculation
     def get_pvalue(self):
-        self.pvalue = self.tf_get_pval(self.X_true, self.X_pred, self.par).numpy()
-        return self.pvalue
+        return self.tf_get_pval(self.X_true, self.X_pred, self.par).numpy()
+
 
 
     def tf_get_pval(self, X_true, X_pred, theta):
@@ -45,9 +45,8 @@ class Dis_neg_bin(Dis_abstract):
 
     ### multiple testing adjusted pvalue
     def get_pvalue_adj(self, method='fdr_by'):
-        if self.pvalue is None:
-            self.pvalues = self.get_pval()
-        pval_adj = np.array([multiple_testing_nan(row, method=method) for row in self.pvalue])
+        pvalues = self.get_pval()  # todo dont execute twice
+        pval_adj = np.array([multiple_testing_nan(row, method=method) for row in pvalues])
         return pval_adj
 
 

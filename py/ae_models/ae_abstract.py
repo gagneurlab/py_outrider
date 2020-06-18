@@ -24,6 +24,9 @@ from utilis.tf_fminbound import tf_fminbound
 from distributions.tf_loss_func import tf_neg_bin_loss
 from utilis.tf_mom_theta import robust_mom_theta
 from dataset_handling.ae_dataset import Ae_dataset
+from distributions.dis_neg_bin import Dis_neg_bin
+from distributions.dis_gaussian import Dis_gaussian
+
 
 class Ae_abstract(ABC):
 
@@ -39,8 +42,12 @@ class Ae_abstract(ABC):
 
         self.parallel_iterations = xrds.attrs["num_cpus"]
 
+        self.initialize_new(xrds)
 
 
+    def initialize_new(self, xrds):
+        self.par_sample = xrds["par_sample"].values if "par_sample" in xrds else None
+        self.par_meas = xrds["par_meas"].values if "par_meas" in xrds else None
 
 
     @property
@@ -76,6 +83,51 @@ class Ae_abstract(ABC):
         self.__parallel_iterations = parallel_iterations
 
 
+    @property
+    def E(self):
+        return self.__E
+
+    @E.setter
+    def E(self, E):
+        self.__E = E
+
+    @property
+    def D(self):
+        return self.__D
+
+    @D.setter
+    def D(self, D):
+        self.__D = D
+
+    @property
+    def b(self):
+        return self.__b
+
+    @b.setter
+    def b(self, b):
+        self.__b = b
+
+
+    @property
+    def par_sample(self):
+        return self.__par_sample
+
+    @par_sample.setter
+    def par_sample(self, par_sample):
+        self.__par_sample = par_sample
+
+    @property
+    def par_meas(self):
+        return self.__par_meas
+
+    @par_meas.setter
+    def par_meas(self, par_meas):
+        self.__par_meas = par_meas
+
+
+
+
+
     @abstractmethod
     def run_autoencoder(self):
          pass
@@ -92,7 +144,7 @@ class Ae_abstract(ABC):
     def _pred_X(self, profile, ae_input, E, D, b, par_sample):
         if profile.ae_input_norm == "sf":
             y = self._pred_X_norm(ae_input, E, D, b)
-            return tfm.exp(y) #* par_sample
+            return tfm.exp(y) * par_sample
         elif profile.ae_input_norm == "log2":
             y = self._pred_X_norm(ae_input, E, D, b)
             return tfm.pow(y,2)
@@ -100,106 +152,54 @@ class Ae_abstract(ABC):
             return self._pred_X_norm(ae_input, E, D, b)
 
 
-    def get_X_norm_pred(self, ae_input, E, D, b):
-        pred = self._pred_X_norm(ae_input, E, D, b)
+    def get_X_norm_pred(self):
+        pred = self._pred_X_norm(self.ae_input, self.E, self.D, self.b)
         return pred
 
-    def get_X_pred(self, ae_input, E, D, b, par_sample):
-        pred = self._pred_X(self.profile, ae_input, E, D, b, par_sample)
+    def get_X_pred(self):
+        pred = self._pred_X(self.profile, self.ae_input, self.E, self.D, self.b, self.par_sample)
         return pred
+
 
     ### X value for pvalue calculation - raw or keep normalised
-    def get_X_true_pred(self, ae_input, E, D, b, par_sample):
-        if self.profile.distribution == 'gaus':
-            return self.get_X_norm_pred(ae_input, E,D,b)
-        elif self.profile.distribution == 'neg_bin':
-            return self.get_X_pred(ae_input, E, D, b, par_sample)
+    def get_X_true_pred(self):
+        print('5')
+        if isinstance(self.profile.distribution, Dis_gaussian):
+            return self.get_X_norm_pred()
+        elif isinstance(self.profile.distribution, Dis_neg_bin):
+            return self.get_X_pred()
 
 
 
 
-    ### activate after protein implementation again
-    #
-    # @abstractmethod
-    # def get_encoder(self):
-    #      pass
-    #
-    # @abstractmethod
-    # def get_decoder(self):
-    #      pass
-    #
-    # @abstractmethod
-    # def get_hidden_space(self):
-    #     pass
-
-
-    #
-    # def init_all(self):
-    #     ae_input = self.ds_obj.get_ae_input()
-    #
-    #     if self.ds_obj.get_dataset_type() == 'gene':
-    #         self.x = tf.convert_to_tensor(ae_input['counts'], dtype=self.ds_obj.float_type)
-    #         self.par_samples = tf.convert_to_tensor(ae_input['sf'], dtype=self.ds_obj.float_type)
-    #         self.x_norm, self.ae_model_bias = self.ds_obj.normalize_ae_input(self.x, self.par_samples)
-    #         self.loss_func = neg_bin_loss_adam  ## only used by adam
-    #         self.loss_func_E = neg_bin_loss_E
-    #         self.loss_func_D = neg_bin_loss_D_single  # TODO change if use update_D with single vector loss function
-    #         # self.loss_func_D = neg_bin_loss_D
-    #
-    #         # self.ae_model_bias = tf.reduce_mean(tfm.log(self.x+1), axis=0)  # OUTRIDER version  ### EDITED
-    #
-    #
-    #
-    #     ### TODO NOT IMPLEMENTED !!!!! - model changed
-    #     elif self.ds_obj.get_dataset_type() == 'protein':
-    #         self.x = tf.convert_to_tensor(ae_input['intensities'], dtype=self.ds_obj.float_type)
-    #         self.par_samples = tf.convert_to_tensor(ae_input['batch_effects'], dtype=self.ds_obj.float_type)
-    #         self.par_meas = None
-    #         self.loss_func = tf.keras.losses.MSE
-    #
-    #     elif self.ds_obj.get_dataset_type() == 'gene_gaus':
-    #         self.x = tf.convert_to_tensor(ae_input['counts'], dtype=self.ds_obj.float_type)
-    #         self.x_norm, self.ae_model_bias = self.ds_obj.normalize_ae_input(self.x)
-    #         self.par_samples = tf.zeros(shape=(self.x.shape[0], ) , dtype=self.ds_obj.float_type)
-    #         self.par_meas = None
-    #         self.loss_func = gaus_loss_adam ## only used by adam
-    #         self.loss_func_E = gaus_loss_E
-    #         # self.loss_func_D = gaus_loss_D
-    #         self.loss_func_D = gaus_loss_D_single
-    #         # self.ae_model_bias = tf.reduce_mean(self.x, axis=0) # centered substracted mean
-    #
-    #
-    #     tf.keras.backend.set_floatx(self.x_norm.dtype.name)
-
-
-
-
+    def get_loss(self):
+        X_true_pred = self.get_X_true_pred()
+        print(X_true_pred.shape)
+        print(self.ae_ds.X_true.shape)
+        ds_dis = self.profile.distribution(X_true=self.ae_ds.X_true, X_pred=X_true_pred,
+                                           par=self.par_meas, parallel_iterations=self.parallel_iterations)
+        loss = ds_dis.get_loss()
+        return loss
 
 
 
     # def calc_pvalues(self):
-    #     x_pred = self.x_pred
-    #     ds_dis = self.ds_obj.get_distribution()(x_true=self.x, x_pred=x_pred,
+    #     X_pred = self.X_pred
+    #     ds_dis = self.ds_obj.get_distribution()(X_true=self.x, X_pred=X_pred,
     #                                             par=self.par_meas, float_type=self.ds_obj.float_type)
     #     pval = ds_dis.get_pval()
     #     pval_adj = ds_dis.get_pval_adj()
     #     return {'pval':pval, 'pval_adj':pval_adj}
     #
     #
-    # def get_loss(self):
-    #     x_pred = self.get_pred_y()
-    #     ds_dis = self.ds_obj.get_distribution()(x_true=self.x, x_pred=x_pred,
-    #                                           par=self.par_meas, float_type=self.ds_obj.float_type)
-    #     loss = ds_dis.get_loss()
-    #     return loss
     #
     #
     # def init_pval_fc_z(self):
-    #     self.x_pred = self.get_pred_y()
+    #     self.X_pred = self.get_pred_y()
     #     pval_dict = self.calc_pvalues()
     #     self.pval = pval_dict['pval']
     #     self.pval_adj = pval_dict['pval_adj']
-    #     self.log2fc = get_log2fc(self.x, self.x_pred)
+    #     self.log2fc = get_log2fc(self.x, self.X_pred)
     #     self.z_score = get_z_score(self.log2fc)
 
 
@@ -216,16 +216,15 @@ class Ae_abstract(ABC):
 
     def get_updated_par_meas(self, X_true, X_true_pred, par_list, parallel_iterations=1):
 
-        # if xrds.attrs == 'gene':  if distribution class neg_bin
-        if True:
+        if isinstance(self.profile.distribution, Dis_neg_bin):
             if par_list['init_step'] is True:
                 par_meas  = robust_mom_theta(X_true, par_list['theta_range'][0], par_list['theta_range'][1])
 
             elif par_list['init_step'] is False:
-                par_meas = self.update_par_meas_fmin(tf_neg_bin_loss, x_true=X_true, x_pred=X_true_pred,
+                par_meas = self.update_par_meas_fmin(tf_neg_bin_loss, X_true=X_true, X_pred=X_true_pred,
                                                 par_list = par_list['theta_range'], parallel_iterations=parallel_iterations)
         else:
-            par_meas = np.zeros(shape=(self.x.shape[1], ))
+            par_meas = np.zeros(shape=(X_true.shape[1], ))
 
         ### return np or tf
         if tf.is_tensor(X_true_pred):
@@ -237,17 +236,17 @@ class Ae_abstract(ABC):
 
 
 
-    def update_par_meas_fmin(self, loss_func, x_true, x_pred, par_list, parallel_iterations):
+    def update_par_meas_fmin(self, loss_func, X_true, X_pred, par_list, parallel_iterations):
             @tf.function
             def my_map(*args, **kwargs):
                 return tf.map_fn(*args, **kwargs)
 
-            x_true_pred_stacked = tf.transpose(tf.stack([x_true, x_pred], axis=1))
+            X_true_pred_stacked = tf.transpose(tf.stack([X_true, X_pred], axis=1))
             par_meas = my_map(
                 lambda row: tf_fminbound(
                     lambda x: loss_func(row[0, :], row[1, :], x),
-                    x1=tf.constant(par_list[0]), x2=tf.constant(par_list[1])),
-                x_true_pred_stacked, parallel_iterations=parallel_iterations)
+                        x1=tf.constant(par_list[0]), x2=tf.constant(par_list[1])),
+                        X_true_pred_stacked, parallel_iterations=parallel_iterations)
 
             return par_meas
 
