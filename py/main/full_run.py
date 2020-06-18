@@ -1,7 +1,7 @@
 
-from defaults import check_parser
-
-
+from parser import check_parser
+from dataset_handling.create_xarray import Create_xarray
+from ae_models.prepare_ae_input import prepare_ae_input
 
 
 class Full_run():
@@ -9,8 +9,24 @@ class Full_run():
     def __init__(self, args_input):
 
         args_mod = check_parser.Check_parser(args_input).args_mod
-        # xrds = create dataset (args_mod
+        xrds = Create_xarray(args_mod).xrds
+        print(xrds)
 
+        prepare_ae_input(xrds)
+        print(xrds)
+
+
+        ae_model = xrds.attrs["profile"].ae_model(xrds)
+
+        if xrds.attrs["encod_dim"] is None:
+            print('encod_dim is None -> running hyperpar-opt')
+
+        # ae_model.run_ae()
+
+
+        #run AE
+
+        print(xrds)
         # check parser
         # create data set - insert noise, outlier, inject
         # run model
@@ -19,11 +35,9 @@ class Full_run():
 
 
 
-        None
+        print('finished')
 
 
-    def create_dataset(self, args_input):
-        None
 
 
 

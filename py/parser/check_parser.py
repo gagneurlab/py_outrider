@@ -14,7 +14,7 @@ class Check_parser():
         self.args_mod['output'] = self.check_output(args_input['file_meas'], args_input['output'])
         self.args_mod['X_is_outlier'] = self.check_X_is_outlier(args_input['X_is_outlier'])
 
-
+### TODO CHECK COV USED IS LIST
 
 
 
@@ -31,14 +31,14 @@ class Check_parser():
         if file_meas is None:
             raise ValueError("file_meas path not specified")
         else:
-            self.get_path(file_meas, "file_meas")
+            return self.get_path(file_meas, "file_meas")
 
 
     def check_file_sa(self, file_sa):
         if file_sa is None:
             return None
         else:
-            self.get_path(file_sa, "file_sa")
+            return self.get_path(file_sa, "file_sa")
 
 
     def check_encod_dim(self, encod_dim):
@@ -52,14 +52,14 @@ class Check_parser():
         if output is None:
             return Path(file_meas).parent
         else:
-            self.get_path(output, "output")
+            return self.get_path(output, "output")
 
 
     def check_X_is_outlier(self, X_is_outlier):
         if X_is_outlier is None:
             return None
         else:
-            self.get_path(X_is_outlier, "X_is_outlier")
+            return self.get_path(X_is_outlier, "X_is_outlier")
 
 
 

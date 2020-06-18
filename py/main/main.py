@@ -8,7 +8,7 @@ dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(dir_path)
 
 
-import defaults.input_parser as input_parser
+import parser.input_parser as input_parser
 import utilis.print_func as print_func
 from full_run import Full_run
 
@@ -24,12 +24,17 @@ def main():
         # print_func.print_dict(args)
 
     else:
-        # Full_run(args_input=args)
-        None
+        folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/01_example_blood_subset/'
+        # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/06_sample_blood_outlier_z3/'
+
+        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 10, 'verbose':True,
+                  'X_is_outlier': folder_path+"trueCorruptions.csv" }
+        args.update(args2)
+        Full_run(args_input=args)
+
         # print_func.print_dict(args)
 
 
-        # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/01_example_blood_subset/'
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/04_sample_blood_outlier_2/'
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/06_sample_blood_outlier_z3/'
         # # folder_path = '/home/stefan/gagneurlab/home/Documents/jupyter_protrider/outrider_sample/'
