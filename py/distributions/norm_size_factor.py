@@ -19,7 +19,7 @@ def _calc_size_factor_per_sample(gene_list, loggeomeans, counts):
 
 def xrds_normalize_sf(xrds):
     sf = calc_size_factor(xrds["X"])
-    xrds["size_factors"] = (("sample"), sf)
+    xrds["par_sample"] = (("sample"), sf)
 
     def normalize_sf(counts, sf):
         x0 = np.log((counts + 1) / sf )
@@ -27,7 +27,7 @@ def xrds_normalize_sf(xrds):
         x1 = x0 - x0_bias
         return x1, x0_bias
 
-    counts, bias = normalize_sf(xrds["X"], xrds["size_factors"])
+    counts, bias = normalize_sf(xrds["X"], xrds["par_sample"])
     xrds["X_norm"] = ( ('sample','meas'), counts)
     xrds["X_center_bias"] = ( ('meas'), bias)
 

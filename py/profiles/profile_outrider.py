@@ -18,7 +18,7 @@ class Profile_outrider(Profile_abstract):
 
         self.ae_model = Ae_pca
         self.ae_input_norm = "sf"
-        self.distribution = 0
+        self.distribution = 'neg_bin'
         self.loss_D = 0
         self.loss_E = 0
         self.noise_factor = 0

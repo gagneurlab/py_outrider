@@ -45,11 +45,11 @@ class Create_xarray():
             # "encod_dim": ["q_" + str(d) for d in range(args_input["encod_dim"])] })
 
         ### add additional metadata
-        for add_attr in ['encod_dim','num_cpus','output','output_list',
+        for add_attr in ['encod_dim','num_cpus','output','output_list', 'float_type',
                          'max_iter','verbose','seed','output_plots'] :
             self.xrds.attrs[add_attr] = args_input[add_attr]
 
-        self.xrds.attrs['float_type'] = self.get_float_type(args_input['float_type'])
+        # self.xrds.attrs['float_type'] = self.get_float_type(args_input['float_type'])
         self.xrds.attrs['profile'] = self.get_profile(args_input['profile'])
 
 
@@ -132,14 +132,14 @@ class Create_xarray():
         return X_is_outlier_file
 
 
-    def get_float_type(self, float_type):
-        if float_type == 'float32':
-            return np.float32
-        elif float_type== 'float64':
-            return np.float64
-        else:
-            print(f"INFO: float_type {float_type} not found, using float64")
-            return np.float64
+    # def get_float_type(self, float_type):
+    #     if float_type == 'float32':
+    #         return np.float32
+    #     elif float_type== 'float64':
+    #         return np.float64
+    #     else:
+    #         print(f"INFO: float_type {float_type} not found, using float64")
+    #         return np.float64
 
 
     def get_profile(self, profile):

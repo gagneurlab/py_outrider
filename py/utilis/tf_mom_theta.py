@@ -1,6 +1,4 @@
-import tensorflow as tf    # 2.0.0
 import numpy as np
-
 
 
 
@@ -19,7 +17,7 @@ def robust_mom_theta(x, theta_min, theta_max, mu_min=0.1):
 
     re_th = np.maximum(theta_min, np.minimum(theta_max, th))
     return re_th
-    # return tf.convert_to_tensor(re_th, dtype=x.dtype)
+
 
 
 

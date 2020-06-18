@@ -1,7 +1,6 @@
 
 from parser import check_parser
 from dataset_handling.create_xarray import Create_xarray
-from ae_models.prepare_ae_input import prepare_ae_input
 
 
 class Full_run():
@@ -12,16 +11,19 @@ class Full_run():
         xrds = Create_xarray(args_mod).xrds
         print(xrds)
 
-        prepare_ae_input(xrds)
-        print(xrds)
+        # prepare_ae_input(xrds)
+        # print(xrds)
 
 
         ae_model = xrds.attrs["profile"].ae_model(xrds)
 
+        print('ae_model created')
+
         if xrds.attrs["encod_dim"] is None:
             print('encod_dim is None -> running hyperpar-opt')
 
-        # ae_model.run_ae()
+
+        ae_model.run_autoencoder()
 
 
         #run AE

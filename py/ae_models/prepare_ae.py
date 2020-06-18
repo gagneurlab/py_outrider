@@ -32,4 +32,5 @@ def init_tf_config(num_cpus, verbose):
 
 
 
-
+def init_float_type(float_type):
+    tf.keras.backend.set_floatx(float_type)
