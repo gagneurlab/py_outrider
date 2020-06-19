@@ -27,8 +27,10 @@ def main():
         folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/01_example_blood_subset/'
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/06_sample_blood_outlier_z3/'
 
-        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 10, 'verbose':True,
-                  'X_is_outlier': folder_path+"trueCorruptions.csv" }
+        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 10, 'verbose':True, 'num_cpus':6,
+                  'X_is_outlier': folder_path+"trueCorruptions.csv"
+                # ,'file_sa': folder_path+ 'sa_file_artificially.csv', 'cov_used': ["batch", "oneh"]
+                  }
         args.update(args2)
         Full_run(args_input=args)
 

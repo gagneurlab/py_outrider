@@ -16,7 +16,7 @@ def multiple_testing_nan(X_pvalue, method='fdr_by'):
 
 
 def get_log2fc(X_true, X_pred):
-    fc = np.log2(X_true +1) - np.log2(X_pred)
+    fc = np.log2(X_true +1) - np.log2(X_pred+1)
     return fc
 
 def get_log2fc_outlier(X_true, X_pred, log_value = 1.5):

@@ -26,14 +26,13 @@ class Ae_pca(Ae_abstract):
         ### covariate consideration
         if self.ds.cov_sample is not None:
             self.ds.ae_input = np.concatenate([self.ds.X_norm , self.ds.cov_sample], axis=1)
-            print("used cov_sample")
         else:
             self.ds.ae_input = self.ds.X_norm
 
 
 
     # @tf.function
-    def run_autoencoder(self,  theta_range=(1e-2, 1e3), **kwargs):
+    def run_fitting(self,  theta_range=(1e-2, 1e3), **kwargs):
         time_ae_start = time.time()
         self.loss_list = Loss_list(conv_limit=0, last_iter=0)
 

@@ -20,7 +20,8 @@ class Create_xarray():
 
         xrds_coords = {
             "sample": X_file.index,
-            "meas": X_file.columns
+            "meas": X_file.columns,
+            "encod_dim": ["q_" + str(d) for d in range(args_input["encod_dim"])]
         }
 
         if args_input["file_sa"] is not None:
@@ -32,7 +33,6 @@ class Create_xarray():
                 cov_sample = self.get_covariates(sample_anno, args_input["cov_used"])
                 xrds_dict["cov_sample"] = (("sample", "cov_used"), cov_sample.values)
                 xrds_coords["cov_sample_col"] = cov_sample.columns
-
 
         if args_input["X_is_outlier"] is not None:
             X_is_outlier =  self.get_X_is_outlier(args_input["X_is_outlier"], X_file)
@@ -92,7 +92,7 @@ class Create_xarray():
 
     def get_covariates(self, sample_anno, cov_used):
 
-        if set(cov_used).issubset(sample_anno.columns):
+        if not set(cov_used).issubset(sample_anno.columns):
             print("INFO: not all covariates could be found in file_sa")
 
         cov_used = [x for x in cov_used if x in sample_anno.columns]

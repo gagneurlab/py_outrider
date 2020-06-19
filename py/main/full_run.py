@@ -1,6 +1,7 @@
 
 from parser import check_parser
 from dataset_handling.create_xarray import Create_xarray
+import utilis.stats_func as st
 
 
 class Full_run():
@@ -23,12 +24,19 @@ class Full_run():
             print('encod_dim is None -> running hyperpar-opt')
 
 
-        ae_model.run_autoencoder()
-
-
-        #run AE
+        xrds = ae_model.run_autoencoder()
 
         print(xrds)
+
+
+        if "X_is_outlier" in xrds:
+            pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)
+            print(f'precision-recall: { pre_rec["auc"] }')
+
+
+
+
+        # print(xrds)
         # check parser
         # create data set - insert noise, outlier, inject
         # run model

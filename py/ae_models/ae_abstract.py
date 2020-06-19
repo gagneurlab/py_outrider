@@ -6,15 +6,6 @@ from tensorflow import math as tfm
 
 
 
-# from ae_tf_functions.neg_bin_update_theta import tf_fminbound_minimize_theta, fminbound_minimize_theta, tf_theta_loss_per_gene
-# from ae_tf_functions.neg_bin_loss import neg_bin_loss_adam
-# from ae_tf_functions.neg_bin_update_D import neg_bin_loss_D_single, neg_bin_loss_D
-# from ae_tf_functions.neg_bin_update_E import neg_bin_loss_E
-# from ae_tf_functions.gaus_update import gaus_loss_D, gaus_loss_E, gaus_loss_D_single
-# from ae_tf_functions.gaus_loss import gaus_loss_adam
-# from statistic.fc_z_score import get_log2fc, get_z_score
-# from utilis_methods.tf_fminbound import tf_fminbound
-#
 # from ae_tf_functions import vst_transform
 
 import ae_models.prepare_ae
@@ -29,7 +20,7 @@ from distributions.dis_gaussian import Dis_gaussian
 
 class Ae_abstract(ABC):
 
-    def __init__(self, xrds):
+    def __init__(self, ae_ds):
         self.xrds = xrds
         self.ds = Ae_dataset(self.xrds)
         self.loss_list = None
@@ -60,32 +51,15 @@ class Ae_abstract(ABC):
 
 
     @abstractmethod
-    def run_autoencoder(self):
+    def run_fitting(self):
          pass
 
 
-
-
-
-
-    # def calc_pvalues(self):
-    #     X_pred = self.X_pred
-    #     ds_dis = self.ds_obj.get_distribution()(X_true=self.x, X_pred=X_pred,
-    #                                             par=self.par_meas, float_type=self.ds_obj.float_type)
-    #     pval = ds_dis.get_pval()
-    #     pval_adj = ds_dis.get_pval_adj()
-    #     return {'pval':pval, 'pval_adj':pval_adj}
-    #
-    #
-    #
-    #
-    # def init_pval_fc_z(self):
-    #     self.X_pred = self.get_pred_y()
-    #     pval_dict = self.calc_pvalues()
-    #     self.pval = pval_dict['pval']
-    #     self.pval_adj = pval_dict['pval_adj']
-    #     self.log2fc = get_log2fc(self.x, self.X_pred)
-    #     self.z_score = get_z_score(self.log2fc)
+    def run_autoencoder(self, **kwargs):
+        self.run_fitting(**kwargs)
+        self.ds.init_pvalue_fc_z()
+        self.xrds = self.ds.get_xrds()
+        return self.xrds
 
 
 

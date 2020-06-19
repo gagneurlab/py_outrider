@@ -23,14 +23,14 @@ class Dis_neg_bin(Dis_abstract):
         self.pvalue = self.tf_get_pval(self.X_true, self.X_pred, self.par).numpy()
         return self.pvalue
 
-
+    @tf.function
     def tf_get_pval(self, X_true, X_pred, theta):
         X_true_cols = tf.range(tf.shape(X_true)[1], dtype=tf.int32)
         pval = tf.map_fn(lambda x: (self._tf_get_pval_gene(X_true[:, x], X_pred[:, x], theta[x])), X_true_cols,
                          dtype=X_true.dtype, parallel_iterations=self.parallel_iterations)
         return tf.transpose(pval)
 
-
+    @tf.function
     def _tf_get_pval_gene(self, X_true, X_pred, theta):
         var = X_pred + X_pred ** 2 / theta  # variance of neg bin
         p = (var - X_pred) / var  # probabilities
