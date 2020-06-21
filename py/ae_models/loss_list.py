@@ -21,7 +21,7 @@ class Loss_list():
         self.losses = []
 
 
-    def add_loss(self, loss, print_text=True, step_name=''):
+    def add_loss(self, loss, print_text="", step_name=''):
         self.losses.append(loss)
         curr_sec = round(time.time() - self.start_time)
 
@@ -30,7 +30,7 @@ class Loss_list():
                                 columns=['step', 'step_name', 'loss',
                                          'time', 'time_from_start', 'time_from_start_sec'])
         self.loss_summary = self.loss_summary.append(loss_row, ignore_index=True)
-        if print_text is True:
+        if print_text is not "":
             print_func.print_time(print_text + str(loss) )
 
 

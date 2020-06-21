@@ -6,9 +6,7 @@ from tensorflow import math as tfm
 import utilis.float_limits
 from distributions.dis_gaussian import Dis_gaussian
 from distributions.dis_neg_bin import Dis_neg_bin
-from distributions.norm_log2 import xrds_normalize_log2
-from distributions.norm_none import xrds_normalize_none
-from distributions.norm_size_factor import xrds_normalize_sf
+from distributions.norm_func import xrds_normalize_log2, xrds_normalize_sf, xrds_normalize_none
 import utilis.stats_func as st
 
 
@@ -19,6 +17,7 @@ class Ae_dataset():
 
     def __init__(self, xrds):
         self.profile = xrds.attrs["profile"]
+
         self.xrds = xrds
 
         ### TODO
@@ -50,6 +49,12 @@ class Ae_dataset():
         self.b = None
         self.H = None
 
+        ### convert all to the same type
+        self.X, self.X_norm, self.X_center_bias, self.cov_sample, self.par_sample, self.par_meas, self.X_true = \
+            [ x.astype(xrds.attrs["float_type"], copy=False) if x is not None and x.dtype != xrds.attrs["float_type"] else x
+              for x in [self.X, self.X_norm, self.X_center_bias, self.cov_sample, self.par_sample, self.par_meas, self.X_true] ]
+
+
         self.parallel_iterations = xrds.attrs["num_cpus"]
 
 
@@ -74,62 +79,12 @@ class Ae_dataset():
 
 
 
-    ##### prediction calculation steps
-    def _pred_H(self, ae_input, E):
-        H = np.matmul(ae_input, E)
-        return H
-
-
-    def _pred_X_norm(self, ae_input, E, D, b):
-        y = np.matmul(self._pred_H(ae_input,E), D) # y: sample x gene
-        y = y[:,0:len(b)]  # avoid cov_sample inclusion
-        y_b = y + b
-        y_b = utilis.float_limits.min_value_exp(y_b)
-        return y_b
-
-    def _pred_X(self, profile, ae_input, E, D, b, par_sample):
-        if profile.ae_input_norm == "sf":
-            y = self._pred_X_norm(ae_input, E, D, b)
-            return tfm.exp(y) * tf.expand_dims(par_sample,1)
-        elif profile.ae_input_norm == "log2":
-            y = self._pred_X_norm(ae_input, E, D, b)
-            return tfm.pow(y,2)
-        elif profile.ae_input_norm == "none":
-            return self._pred_X_norm(ae_input, E, D, b)
-
-
-    def get_X_norm_pred(self):
-        pred = self._pred_X_norm(self.ae_input, self.E, self.D, self.b)
-        return pred
-
-    def get_X_pred(self):
-        pred = self._pred_X(self.profile, self.ae_input, self.E, self.D, self.b, self.par_sample)
-        return pred
-
-
-    ### X value for pvalue calculation - raw or keep normalised
-    def get_X_true_pred(self):
-        if self.profile.distribution.dis_name == "Dis_gaussian":
-            return self.get_X_norm_pred()
-        elif self.profile.distribution.dis_name == "Dis_neg_bin":
-            return self.get_X_pred()
-        else:
-            raise ValueError("distribution not found")
-
-
-    def get_loss(self):
-        self.X_true_pred = self.get_X_true_pred()
-        ds_dis = self.profile.distribution(X_true=self.X_true, X_pred=self.X_true_pred,
-                                           par=self.par_meas, parallel_iterations=self.parallel_iterations)
-        loss = ds_dis.get_loss()
-        return loss
 
 
 
 
 
     def calc_pvalue(self):
-        self.X_true_pred = self.get_X_true_pred()
         ds_dis = self.profile.distribution(X_true=self.X_true, X_pred=self.X_true_pred,
                                            par=self.par_meas, parallel_iterations=self.parallel_iterations)
         self.X_pvalue = ds_dis.get_pvalue()
@@ -138,8 +93,6 @@ class Ae_dataset():
 
     def init_pvalue_fc_z(self):
         self.calc_pvalue()
-
-        self.X_pred = self.get_X_pred()
         self.X_log2fc = st.get_log2fc(self.X, self.X_pred)
         self.X_zscore = st.get_z_score(self.X_log2fc)
 
@@ -161,8 +114,8 @@ class Ae_dataset():
             self.xrds["par_meas"] = (("meas"), self.par_meas)
 
         ### ae model parameter
-        self.xrds["encoder_weights"] = (("meas_covE","encod_dim"), self.E)
-        self.xrds["decoder_weights"] = (("encod_dim", "meas_covD"), self.D)
+        self.xrds["encoder_weights"] = (("meas_cov","encod_dim"), self.E)
+        self.xrds["decoder_weights"] = (("encod_dim_cov", "meas"), self.D)
         self.xrds["decoder_bias"] = (("meas"), self.b)
 
         ## TODO fix dimensions variable

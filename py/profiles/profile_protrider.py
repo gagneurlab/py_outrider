@@ -18,8 +18,8 @@ class Profile_protrider(Profile_abstract):
         self.ae_model = 0
         self.ae_input_norm = "log2"
         self.distribution = 0
-        self.loss_D = 0
         self.loss_E = 0
+        self.loss_D = 0
         self.noise_factor = 0
 
 

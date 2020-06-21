@@ -20,13 +20,12 @@ from distributions.dis_gaussian import Dis_gaussian
 
 class Ae_abstract(ABC):
 
-    def __init__(self, ae_ds):
-        self.xrds = xrds
-        self.ds = Ae_dataset(self.xrds)
+    def __init__(self, ae_dataset):
+        self.ds = ae_dataset
         self.loss_list = None
 
-        ae_models.prepare_ae.init_tf_config(num_cpus=self.xrds.attrs["num_cpus"], verbose=self.xrds.attrs["verbose"])
-        ae_models.prepare_ae.init_float_type(float_type=self.xrds.attrs["float_type"])
+        ae_models.prepare_ae.init_tf_config(num_cpus=self.ds.xrds.attrs["num_cpus"], verbose=self.ds.xrds.attrs["verbose"])
+        ae_models.prepare_ae.init_float_type(float_type=self.ds.xrds.attrs["float_type"])
 
 
 
@@ -57,12 +56,61 @@ class Ae_abstract(ABC):
 
     def run_autoencoder(self, **kwargs):
         self.run_fitting(**kwargs)
+        self.calc_X_pred()
         self.ds.init_pvalue_fc_z()
         self.xrds = self.ds.get_xrds()
         return self.xrds
 
 
 
+    ##### prediction calculation steps
+
+    ### hidden space
+    def _pred_H(self, ae_input, E, cov_sample):
+        H = np.matmul(ae_input, E)
+        return H
+
+
+    def _pred_X_norm(self, ae_input, E, D, b, cov_sample):
+        y = np.matmul(self._pred_H(ae_input,E, cov_sample), D) # y: sample x gene
+        y = y[:,0:len(b)]  # avoid cov_sample inclusion
+        y_b = y + b
+        y_b = utilis.float_limits.min_value_exp(y_b)
+        return y_b
+
+    def _pred_X(self, profile, ae_input, E, D, b, par_sample, cov_sample):
+        if profile.ae_input_norm == "sf":
+            y = self._pred_X_norm(ae_input, E, D, b, cov_sample)
+            return tfm.exp(y) * tf.expand_dims(par_sample,1)
+        elif profile.ae_input_norm == "log2":
+            y = self._pred_X_norm(ae_input, E, D, b, cov_sample)
+            return tfm.pow(y,2)
+        elif profile.ae_input_norm == "none":
+            return self._pred_X_norm(ae_input, E, D, b, cov_sample)
+
+
+    def calc_X_pred(self):
+        self.ds.X_pred = self._pred_X(self.ds.profile, self.ds.ae_input, self.ds.E, self.ds.D, self.ds.b, self.ds.par_sample, self.ds.cov_sample)
+        self.ds.X_norm_pred = self._pred_X_norm(self.ds.ae_input, self.ds.E, self.ds.D, self.ds.b, self.ds.cov_sample)
+        self._calc_X_true_pred()
+
+
+    ### X value for pvalue calculation - raw or keep normalised
+    def _calc_X_true_pred(self):
+        if self.ds.profile.distribution.dis_name == "Dis_gaussian":
+            self.ds.X_true_pred = self.ds.X_norm_pred
+        elif self.ds.profile.distribution.dis_name == "Dis_neg_bin":
+            self.ds.X_true_pred = self.ds.X_pred
+        else:
+            raise ValueError("distribution not found")
+
+
+    def get_loss(self):
+        self.calc_X_pred()
+        ds_dis = self.ds.profile.distribution(X_true=self.ds.X_true, X_pred=self.ds.X_true_pred,
+                                           par=self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
+        loss = ds_dis.get_loss()
+        return loss
 
 
 

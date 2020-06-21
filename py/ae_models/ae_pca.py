@@ -20,8 +20,8 @@ import distributions
 class Ae_pca(Ae_abstract):
 
 
-    def __init__(self, xrds):
-        super().__init__(xrds = xrds)
+    def __init__(self, ae_dataset):
+        super().__init__(ae_dataset)
 
         ### covariate consideration
         if self.ds.cov_sample is not None:
@@ -32,14 +32,14 @@ class Ae_pca(Ae_abstract):
 
 
     # @tf.function
-    def run_fitting(self,  theta_range=(1e-2, 1e3), **kwargs):
+    def run_fitting(self, theta_range=(1e-2, 1e3), **kwargs):
         time_ae_start = time.time()
         self.loss_list = Loss_list(conv_limit=0, last_iter=0)
 
 
         ### initialize tensor weights with pca
         print_func.print_time('pca start')
-        pca = PCA(n_components=self.xrds.attrs["encod_dim"], svd_solver='full')
+        pca = PCA(n_components=self.ds.xrds.attrs["encod_dim"], svd_solver='full')
         pca.fit(self.ds.ae_input)
         pca_coef = pca.components_  # (10,200)
 
@@ -47,15 +47,14 @@ class Ae_pca(Ae_abstract):
         self.ds.D = pca_coef
         self.ds.b = self.ds.X_center_bias
 
-        self.ds.X_true_pred = self.ds.get_X_true_pred()
+        self.calc_X_pred()
         self.ds.par_meas = self.get_updated_par_meas(self.ds.profile, self.ds.X_true, self.ds.X_true_pred,
                                                   {'init_step': False, 'theta_range': theta_range},
                                                   parallel_iterations=self.ds.parallel_iterations)
 
-        self.loss_list.add_loss(self.ds.get_loss(), step_name='pca', print_text='pca end with loss:      ')
+        self.loss_list.add_loss(self.get_loss(), step_name='pca', print_text='pca end with loss:      ')
 
         print_func.print_time(f'complete ae time {print_func.get_duration_sec(time.time() - time_ae_start)}')
-
 
 
 

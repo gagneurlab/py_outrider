@@ -2,7 +2,7 @@
 from parser import check_parser
 from dataset_handling.create_xarray import Create_xarray
 import utilis.stats_func as st
-
+from dataset_handling.ae_dataset import Ae_dataset
 
 class Full_run():
 
@@ -12,11 +12,11 @@ class Full_run():
         xrds = Create_xarray(args_mod).xrds
         print(xrds)
 
-        # prepare_ae_input(xrds)
-        # print(xrds)
 
+        ae_ds = Ae_dataset(xrds)
+        ae_model = xrds.attrs["profile"].ae_model(ae_ds)
+        xrds = ae_model.run_autoencoder()
 
-        ae_model = xrds.attrs["profile"].ae_model(xrds)
 
         print('ae_model created')
 
@@ -24,7 +24,6 @@ class Full_run():
             print('encod_dim is None -> running hyperpar-opt')
 
 
-        xrds = ae_model.run_autoencoder()
 
         print(xrds)
 

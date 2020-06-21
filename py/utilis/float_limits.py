@@ -10,15 +10,16 @@ def eps():
 
 
 def min_value_exp(t):
-    # if t.dtype is tf.float32:
-    #     return tf.maximum(t, -100.)  # exp(x) for x<100 jumps to zero
-    # else:
-    #     return tf.maximum(t, -700.)  # float64 used
-
-    if t.dtype is np.float32:
-        return np.maximum(t, -100.)  # exp(x) for x<100 jumps to zero
+    if tf.is_tensor(t):
+        if t.dtype is tf.float32:
+            return tf.maximum(t, -100.)  # exp(x) for x<100 jumps to zero
+        else:
+            return tf.maximum(t, -700.)  # float64 used
     else:
-        return np.maximum(t, -700.)  # float64 used
+        if t.dtype is np.float32:
+            return np.maximum(t, -100.)  # exp(x) for x<100 jumps to zero
+        else:
+            return np.maximum(t, -700.)  # float64 used
 
 
 ### avoid p-values == 0
