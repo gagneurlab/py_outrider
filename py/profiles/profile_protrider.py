@@ -2,24 +2,22 @@
 
 
 from profiles.profile_abstract import Profile_abstract
-
+from ae_models.ae_bfgs import Ae_bfgs
+from ae_models.ae_pca import Ae_pca
+from distributions.dis_gaussian import Dis_gaussian
+from distributions.tf_loss_func import tf_gaus_loss_E, tf_gaus_loss_D_single
 
 class Profile_protrider(Profile_abstract):
 
     def __init__(self):
-        # self.ae_model = bfgs
-        # self.ae_input_norm = np.log
-        # self.ae_input_norm = np.exp
-        # self.distribution = gaussian
-        # self.loss_D = rmse
-        # self.loss_E = rmse
-        # self.noise_factor = 0
 
-        self.ae_model = 0
+        self.ae_model = Ae_bfgs
+        # self.ae_model = Ae_pca
         self.ae_input_norm = "log2"
-        self.distribution = 0
-        self.loss_E = 0
-        self.loss_D = 0
+        self.distribution = Dis_gaussian
+        self.loss_E = tf_gaus_loss_E
+        self.loss_D = tf_gaus_loss_D_single
         self.noise_factor = 0
+
 
 

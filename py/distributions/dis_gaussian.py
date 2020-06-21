@@ -4,11 +4,10 @@ from tensorflow import math as tfm
 import tensorflow_probability as tfp
 
 from distributions.dis_abstract import Dis_abstract
-from distributions.tf_loss_func import tf_neg_bin_loss
 from utilis.stats_func import multiple_testing_nan
+from distributions.tf_loss_func import tf_gaus_loss
 
 
-# TODO EDIT
 
 class Dis_gaussian(Dis_abstract):
 
@@ -18,45 +17,42 @@ class Dis_gaussian(Dis_abstract):
         super().__init__(**kwargs)
 
 
-
     ### pval calculation
     def get_pvalue(self):
-        return self.tf_get_pval(self.X_true, self.X_pred, self.par).numpy()
+        self.pvalue = self.tf_get_pval(self.X_true, self.X_pred).numpy()
+        return self.pvalue
 
-
-
-    def tf_get_pval(self, X_true, X_pred, theta):
-        X_true_cols = tf.range(tf.shape(X_true)[1], dtype=tf.int32)
-        pval = tf.map_fn(lambda x: (self._tf_get_pval_gene(X_true[:, x], X_pred[:, x], theta[x])), X_true_cols,
-                         dtype=X_true.dtype, parallel_iterations=self.parallel_iterations)
+    @tf.function
+    def tf_get_pval(self, x_true, x_pred):
+        x_true_cols = tf.range(tf.shape(x_true)[1], dtype=tf.int32)
+        pval = tf.map_fn(lambda x: (self._tf_get_pval_gene(x_true[:, x], x_pred[:, x])), x_true_cols,
+                         dtype=x_true.dtype, parallel_iterations=self.parallel_iterations)
         return tf.transpose(pval)
 
-
-    def _tf_get_pval_gene(self, X_true, X_pred, theta):
-        var = X_pred + X_pred ** 2 / theta  # variance of neg bin
-        p = (var - X_pred) / var  # probabilities
-        dis = tfp.distributions.NegativeBinomial(total_count=theta, probs=p)
-
-        cum_dis_func = dis.cdf(X_true)
-        dens_func = dis.prob(X_true)
-        pval = 2 * tfm.minimum(tf.constant(0.5, dtype=X_true.dtype),
-                               tfm.minimum(cum_dis_func, (1 - cum_dis_func + dens_func)))
+    @tf.function
+    def _tf_get_pval_gene(self, x_true, x_pred):
+        x_res = x_true - x_pred
+        pvalues_sd = tf.math.reduce_std(x_res)  # != R-version: ddof=1
+        dis = tfp.distributions.Normal(loc=x_pred, scale=pvalues_sd)
+        cdf_values = dis.cdf(x_true)
+        pval = 2 * tfm.minimum(cdf_values, (1 - cdf_values))
+        # pval[np.isnan(x_true)] = np.nan
         return pval
 
 
 
     ### multiple testing adjusted pvalue
     def get_pvalue_adj(self, method='fdr_by'):
-        pvalues = self.get_pval()  # todo dont execute twice
-        pval_adj = np.array([multiple_testing_nan(row, method=method) for row in pvalues])
+        if self.pvalue is None:
+            self.pvalues = self.get_pval()
+        pval_adj = np.array([multiple_testing_nan(row, method=method) for row in self.pvalue])
         return pval_adj
 
 
 
     ### loss
-
     def get_loss(self):
-        return tf_neg_bin_loss(self.X_true, self.X_pred, self.par).numpy()
+        return tf_gaus_loss(self.X_true, self.X_pred).numpy()
 
 
 

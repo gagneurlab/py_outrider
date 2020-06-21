@@ -23,11 +23,8 @@ class Ae_pca(Ae_abstract):
     def __init__(self, ae_dataset):
         super().__init__(ae_dataset)
 
-        ### covariate consideration
-        if self.ds.cov_sample is not None:
-            self.ds.ae_input = np.concatenate([self.ds.X_norm , self.ds.cov_sample], axis=1)
-        else:
-            self.ds.ae_input = self.ds.X_norm
+
+        self.ds.ae_input = self.ds.X_norm  # no covariate consideration in pca
 
 
 
@@ -40,6 +37,7 @@ class Ae_pca(Ae_abstract):
         ### initialize tensor weights with pca
         print_func.print_time('pca start')
         pca = PCA(n_components=self.ds.xrds.attrs["encod_dim"], svd_solver='full')
+        print(self.ds.ae_input)
         pca.fit(self.ds.ae_input)
         pca_coef = pca.components_  # (10,200)
 

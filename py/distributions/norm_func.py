@@ -17,7 +17,7 @@ def xrds_normalize_none(xrds):
 def xrds_normalize_log2(xrds):
 
     def normalize_log2(counts):
-        x0 = np.log2(counts)
+        x0 = np.log2(counts+1)
         x0_bias = np.mean(x0, axis=0)
         x1 = x0 - x0_bias
         return x1, x0_bias

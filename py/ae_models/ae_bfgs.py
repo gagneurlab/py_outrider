@@ -94,10 +94,10 @@ class Ae_bfgs(Ae_abstract):
             print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))
 
 
-            ### check convergence
-            # if self.loss_list.check_converged(verbose=self.ds_obj.verbose):
-            #     print_func.print_time(f'ae converged with loss: {self.get_loss()}')
-            #     break
+            ## check convergence
+            if self.loss_list.check_converged(verbose=self.ds.xrds.attrs["verbose"]):
+                print_func.print_time(f'ae converged with loss: {self.get_loss()}')
+                break
 
 
         print_func.print_time(f'complete ae time {print_func.get_duration_sec(time.time() - time_ae_start)}')

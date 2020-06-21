@@ -40,8 +40,7 @@ class Loss_list():
             l_short = loss_list[len(loss_list) - (last_iter + 1): len(loss_list) - 1]
             l_curr = loss_list[-1]
             loss_conv = np.abs(l_curr-l_short) < conv_limit
-            loss_conv = 0 #tfm.less(tfm.abs(l_curr - l_short), conv_limit) # TODO uncomment fix - add single fit gaussian
-            meas_conv = [0,1] #tf.reduce_all(loss_conv, axis=0)
+            meas_conv = tf.reduce_all(loss_conv, axis=0)
 
             if tf.size(loss_list[0]) > 1:
                 num_converged = tfm.count_nonzero(meas_conv)
