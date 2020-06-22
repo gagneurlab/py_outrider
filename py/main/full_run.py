@@ -25,7 +25,6 @@ class Full_run():
 
 
 
-        print(xrds)
 
 
         if "X_is_outlier" in xrds:
@@ -33,7 +32,9 @@ class Full_run():
             print(f'precision-recall: { pre_rec["auc"] }')
 
 
-
+        ### export 
+        xrds.attrs["profile"] = xrds.attrs["profile"].__class__.__name__
+        xrds.to_zarr(xrds.attrs["output"] , mode="w")
 
         # print(xrds)
         # check parser

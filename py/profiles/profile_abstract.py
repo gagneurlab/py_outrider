@@ -69,3 +69,11 @@ class Profile_abstract(ABC):
     def noise_factor(self, noise_factor):
         self.__noise_factor = noise_factor
 
+
+
+
+    # def get_profile_str(self):
+
+
+
+

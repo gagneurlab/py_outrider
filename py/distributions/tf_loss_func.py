@@ -71,6 +71,8 @@ def tf_gaus_loss_D_single(H, c_i, b_and_D, par_sample, par_meas_i):
 @tf.function
 def tf_gaus_loss_E(e, D, b, x, x_norm, par_sample, par_meas, cov_sample):
     H = reshape_e_to_H(e, x_norm, x, D, cov_sample)
+    # print("H")
+    # print(H.shape)
     y = tf.matmul(H, D) + b
     return tf_gaus_loss(x, y)
 

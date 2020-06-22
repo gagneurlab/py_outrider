@@ -118,7 +118,16 @@ class Ae_dataset():
         self.xrds["decoder_weights"] = (("encod_dim_cov", "meas"), self.D)
         self.xrds["decoder_bias"] = (("meas"), self.b)
 
-        ## TODO fix dimensions variable
+        ### init new coordinates
+        if self.E.shape[0] != len(self.xrds.coords["meas"]):
+            self.xrds.coords["meas_cov"] = np.concatenate( [self.xrds.coords["meas"], self.xrds.coords["cov_sample_col"]])
+        else:
+            self.xrds.coords["meas_cov"] = self.xrds.coords["meas"]
+
+        if self.D.shape[0] != len(self.xrds.coords["encod_dim"]):
+            self.xrds.coords["encod_dim_cov"] = np.concatenate( [self.xrds.coords["encod_dim"], self.xrds.coords["cov_sample_col"]])
+        else:
+            self.xrds.coords["encod_dim_cov"] = self.xrds.coords["encod_dim"]
 
 
         ### remove unncessary

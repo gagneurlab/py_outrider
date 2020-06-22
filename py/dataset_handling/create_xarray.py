@@ -4,6 +4,8 @@ import xarray as xr
 
 from profiles.profile_outrider import Profile_outrider
 from profiles.profile_protrider import Profile_protrider
+from profiles.profile_pca import Profile_pca
+from profiles.profile_protrider_cov1 import Profile_protrider_cov1
 
 
 
@@ -26,7 +28,7 @@ class Create_xarray():
 
         if args_input["file_sa"] is not None:
             sample_anno = self.get_sample_anno(args_input["file_sa"], X_file)
-            xrds_dict["sample_anno"] = (("sample","sample_anno_col"), sample_anno.values)
+            xrds_dict["sample_anno"] = (("sample","sample_anno_col"), sample_anno.values.astype(str))
             xrds_coords["sample_anno_col"] = sample_anno.columns
 
             if args_input["cov_used"] is not None:
@@ -40,9 +42,6 @@ class Create_xarray():
 
 
         self.xrds = xr.Dataset(xrds_dict, coords = xrds_coords)
-            # "sample": X_file.index,
-            # "meas": X_file.columns,
-            # "encod_dim": ["q_" + str(d) for d in range(args_input["encod_dim"])] })
 
         ### add additional metadata
         for add_attr in ['encod_dim','num_cpus','output','output_list', 'float_type',
@@ -147,6 +146,10 @@ class Create_xarray():
             return Profile_outrider()
         elif profile.lower()=="protrider":
             return Profile_protrider()
+        elif profile.lower()=="protrider_cov1":
+            return Profile_protrider_cov1()
+        elif profile.lower()=="pca":
+            return Profile_pca()
         else:
             print('create own profile here out of parameter')
 

@@ -1,6 +1,6 @@
 from pathlib import Path
+import shutil
 import os
-
 
 class Check_parser():
 
@@ -50,9 +50,22 @@ class Check_parser():
 
     def check_output(self, file_meas, output):
         if output is None:
-            return Path(file_meas).parent
+            output = Path(file_meas).parent
         else:
-            return self.get_path(output, "output")
+            output = Path(output)
+
+        if output.exists() and not output.is_file():
+            if not os.listdir(output):  # if empty
+                return str(output.resolve())
+            else:
+                output = output / "outrider_result.zarr"
+                if output.exists():
+                    shutil.rmtree(output)
+                return str(output.resolve())
+        else:
+            output.mkdir(parents=True, exist_ok=True)
+            return str(output.resolve())
+
 
 
     def check_X_is_outlier(self, X_is_outlier):

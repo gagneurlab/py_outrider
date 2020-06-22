@@ -94,3 +94,5 @@ class Dis_abstract(ABC):
     def get_loss(self):
         pass
 
+    # def _type(self):
+    #     return self.__class__.__name__

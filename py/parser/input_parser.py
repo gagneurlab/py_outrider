@@ -15,7 +15,7 @@ def parse_args(args_input):
     parser.add_argument('--num_cpus', type=int, default=1, help='number of cpus used')
     parser.add_argument('--max_iter', type=int, default=15, help='number of maximal training iterations')
     parser.add_argument('--verbose', type=bool, default=False, help='print additional output info')
-    parser.add_argument('--seed', type=int, default=None, help='seed used for training [NOT IMPLEMENTED]')
+    parser.add_argument('--seed', type=int, default=0, help='seed used for training [NOT IMPLEMENTED], 0 -> no seed set')
     parser.add_argument('--output_plots', type=bool, default=False, help='outputs a collection of useful plots')
     parser.add_argument('--X_is_outlier', type=str, default=None, help='path to 0|1 matrix of injected outlier, automatically performs precision-recall on in')
 

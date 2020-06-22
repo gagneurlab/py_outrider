@@ -1,12 +1,10 @@
-
 import sys
-from pathlib import Path
 
-### necessary for running script in shell
+## necessary for running script in shell -> TODO better fix !!
 import os
 dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(dir_path)
-
+# print(dir_path)
 
 import parser.input_parser as input_parser
 import utilis.print_func as print_func
@@ -28,7 +26,7 @@ def main():
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/06_sample_blood_outlier_z3/'
 
         args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 10, 'verbose':True, 'num_cpus':6,
-                  'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "protrider"
+                  'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "protrider" #"protrider_cov1" #"protrider"
                 ,'file_sa': folder_path+ 'sa_file_artificially.csv', 'cov_used': ["batch", "oneh"]
                   }
         args.update(args2)
