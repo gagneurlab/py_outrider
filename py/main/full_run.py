@@ -32,9 +32,13 @@ class Full_run():
             print(f'precision-recall: { pre_rec["auc"] }')
 
 
-        ### export 
+        ### export
+        print(xrds)
+        print(xrds["encoder_weights"].shape)
+        print(xrds["decoder_weights"].shape)
         xrds.attrs["profile"] = xrds.attrs["profile"].__class__.__name__
         xrds.to_zarr(xrds.attrs["output"] , mode="w")
+
 
         # print(xrds)
         # check parser

@@ -134,10 +134,10 @@ class Ae_abstract(ABC):
             par_meas = np.zeros(shape=(X_true.shape[1], ))
 
         ### return np or tf
-        if tf.is_tensor(X_true_pred):
-            return tf.convert_to_tensor(par_meas, dtype=X_true_pred.dtype)
-        else:
-            return par_meas
+        return tf.convert_to_tensor(par_meas, dtype=X_true_pred.dtype)
+        # if tf.is_tensor(X_true_pred):
+        # else:
+        #     return par_meas
 
 
 

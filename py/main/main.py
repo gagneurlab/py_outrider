@@ -26,9 +26,22 @@ def main():
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/06_sample_blood_outlier_z3/'
 
         args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 10, 'verbose':True, 'num_cpus':6,
-                  'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "protrider" #"protrider_cov1" #"protrider"
+                  # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "protrider" #"protrider_cov1" #"protrider"
+                  'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "protrider_cov1" #"protrider"
                 ,'file_sa': folder_path+ 'sa_file_artificially.csv', 'cov_used': ["batch", "oneh"]
                   }
+
+
+        folder_path = '/home/stefan/gagneurlab/s/project/protrider/loipf/py_outrider_tests/'
+        args2 = { "file_meas" : folder_path+"X_raw.csv", "encod_dim": 28, 'verbose':True, 'num_cpus':6,
+                  # 'X_is_outlier': folder_path+"X_is_outlier.csv", "max_iter": 15, "profile": "pca" #"protrider_cov1" #"protrider"
+                  'X_is_outlier': folder_path+"X_is_outlier.csv", "max_iter": 15, "profile": "protrider_cov1" #"protrider"
+                ,'file_sa': folder_path+ 'sample_anno.csv', 'cov_used': ["sex", "date_processed_y_m_d"]
+                  }
+
+
+
+
         args.update(args2)
         Full_run(args_input=args)
 

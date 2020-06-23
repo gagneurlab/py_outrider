@@ -11,7 +11,8 @@ def reshape_e_to_H(e, ae_input, X, D, cov_sample):
         else:
             E_shape = (tf.shape(D)[1], (tf.shape(D)[0] - tf.shape(cov_sample)[1]))
         E = tf.reshape(e, E_shape)
-        H = tf.matmul(ae_input, E)
+        H = tf.matmul(ae_input, E)  #
+        # H = tf.concat([tf.matmul(ae_input, E), cov_sample], axis=1)  # uncomment if ae_bfgs_cov1
         return H
     else:
         E_shape = (tf.shape(ae_input)[1], tf.shape(D)[0] - tf.shape(cov_sample)[1])
@@ -71,8 +72,6 @@ def tf_gaus_loss_D_single(H, c_i, b_and_D, par_sample, par_meas_i):
 @tf.function
 def tf_gaus_loss_E(e, D, b, x, x_norm, par_sample, par_meas, cov_sample):
     H = reshape_e_to_H(e, x_norm, x, D, cov_sample)
-    # print("H")
-    # print(H.shape)
     y = tf.matmul(H, D) + b
     return tf_gaus_loss(x, y)
 

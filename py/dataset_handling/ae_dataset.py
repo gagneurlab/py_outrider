@@ -75,7 +75,7 @@ class Ae_dataset():
         if self.profile.distribution.dis_name == "Dis_neg_bin":
             xrds["_X_stat_used"] = xrds["X"]
         else:
-            xrds["_X_stat_used"] = xrds["X_norm"]
+            xrds["_X_stat_used"] = xrds["X_norm"] + xrds["X_center_bias"]
 
 
 
@@ -107,6 +107,7 @@ class Ae_dataset():
         self.xrds["X_pvalue"] = (("sample", "meas"), self.X_pvalue)
         self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)
         self.xrds["X_log2fc"] = (("sample", "meas"), self.X_log2fc)
+        self.xrds["X_norm_pred"] = (("sample", "meas"), self.X_norm_pred)
 
         if self.par_sample is not None:
             self.xrds["par_sample"] = (("sample"), self.par_sample)

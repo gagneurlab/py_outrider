@@ -23,7 +23,6 @@ class Ae_pca(Ae_abstract):
     def __init__(self, ae_dataset):
         super().__init__(ae_dataset)
 
-
         self.ds.ae_input = self.ds.X_norm  # no covariate consideration in pca
 
 
@@ -49,6 +48,8 @@ class Ae_pca(Ae_abstract):
         self.ds.par_meas = self.get_updated_par_meas(self.ds.profile, self.ds.X_true, self.ds.X_true_pred,
                                                   {'init_step': False, 'theta_range': theta_range},
                                                   parallel_iterations=self.ds.parallel_iterations)
+
+
 
         self.loss_list.add_loss(self.get_loss(), step_name='pca', print_text='pca end with loss:      ')
 
