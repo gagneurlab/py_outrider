@@ -8,6 +8,7 @@ from distributions.dis_gaussian import Dis_gaussian
 from distributions.dis_neg_bin import Dis_neg_bin
 from distributions.norm_func import xrds_normalize_log2, xrds_normalize_sf, xrds_normalize_none
 import utilis.stats_func as st
+from distributions.norm_func import normalize_ae_input
 
 
 ### accessing xarray matrices is pretty slow -> new class
@@ -25,7 +26,7 @@ class Ae_dataset():
         ### inject noise
 
         ### change xrds
-        self.normalize_ae_input(xrds)
+        normalize_ae_input(xrds, xrds.attrs["profile"].ae_input_norm)
 
         self.initialize_ds(xrds)
 
@@ -60,24 +61,12 @@ class Ae_dataset():
 
 
 
-
-    ### normalize data for ae model training
-    def normalize_ae_input(self, xrds):
-        if xrds.attrs["profile"].ae_input_norm == "sf":
-            xrds_normalize_sf(xrds)
-        elif xrds.attrs["profile"].ae_input_norm == "log2":
-            xrds_normalize_log2(xrds)
-        elif xrds.attrs["profile"].ae_input_norm == "none":
-            xrds_normalize_none(xrds)
-
-
+    ### values used for p-value calculation
     def find_stat_used_X(self, xrds):
         if self.profile.distribution.dis_name == "Dis_neg_bin":
             xrds["_X_stat_used"] = xrds["X"]
         else:
             xrds["_X_stat_used"] = xrds["X_norm"] + xrds["X_center_bias"]
-
-
 
 
 

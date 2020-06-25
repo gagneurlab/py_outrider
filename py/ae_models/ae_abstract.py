@@ -16,6 +16,7 @@ from utilis.tf_mom_theta import robust_mom_theta
 from dataset_handling.ae_dataset import Ae_dataset
 from distributions.dis_neg_bin import Dis_neg_bin
 from distributions.dis_gaussian import Dis_gaussian
+from distributions.norm_func import rev_normalize_ae_input
 
 
 class Ae_abstract(ABC):
@@ -79,14 +80,8 @@ class Ae_abstract(ABC):
         return y_b
 
     def _pred_X(self, profile, ae_input, E, D, b, par_sample, cov_sample):
-        if profile.ae_input_norm == "sf":
-            y = self._pred_X_norm(ae_input, E, D, b, cov_sample)
-            return tfm.exp(y) * tf.expand_dims(par_sample,1)
-        elif profile.ae_input_norm == "log2":
-            y = self._pred_X_norm(ae_input, E, D, b, cov_sample)
-            return tfm.pow(y,2)
-        elif profile.ae_input_norm == "none":
-            return self._pred_X_norm(ae_input, E, D, b, cov_sample)
+        y = self._pred_X_norm(ae_input, E, D, b, cov_sample)
+        return rev_normalize_ae_input(y, profile.ae_input_norm, sf=par_sample)
 
 
     def calc_X_pred(self):

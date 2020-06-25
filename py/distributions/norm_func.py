@@ -1,4 +1,15 @@
 import numpy as np
+import tensorflow as tf
+from tensorflow import math as tfm
+
+
+def normalize_ae_input(xrds, norm_name):
+    if norm_name == "sf":
+        xrds_normalize_sf(xrds)
+    elif norm_name == "log2":
+        xrds_normalize_log2(xrds)
+    elif norm_name == "none":
+        xrds_normalize_none(xrds)
 
 
 def xrds_normalize_none(xrds):
@@ -11,7 +22,6 @@ def xrds_normalize_none(xrds):
     counts, bias = normalize_none(xrds["X"])
     xrds["X_norm"] = ( ('sample','meas'), counts)
     xrds["X_center_bias"] = ( ('meas'), bias)
-
 
 
 def xrds_normalize_log2(xrds):
@@ -54,5 +64,49 @@ def calc_size_factor(counts):
     loggeomeans = np.mean(np.log(count_matrix), axis=0)
     sf = [_calc_size_factor_per_sample(x, loggeomeans, count_matrix) for x in count_matrix]
     return sf
+
+
+
+
+
+############################################
+
+
+def rev_normalize_ae_input(y, norm_name, **kwargs):
+    if norm_name == "sf":
+        return rev_normalize_sf(y, **kwargs)
+    elif norm_name == "log2":
+        return rev_normalize_log2(y)
+    elif norm_name == "none":
+        return rev_normalize_none(y)
+
+
+def rev_normalize_none(y):
+    return y
+
+def rev_normalize_log2(y):
+    if tf.is_tensor(y):
+        return tfm.pow(y,2)
+    else:
+        return np.power(y,2)
+
+def rev_normalize_sf(y, sf):
+    if tf.is_tensor(y):
+        return tfm.exp(y) * tf.expand_dims(sf,1)
+    else:
+        return np.exp(y) * sf
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -25,8 +25,12 @@ class Ae_bfgs(Ae_abstract):
         ### covariate consideration
         if self.ds.cov_sample is not None:
             self.ds.ae_input = np.concatenate([self.ds.X_norm , self.ds.cov_sample], axis=1)
+            self.ds.ae_input_noise = np.concatenate([self.ds.X_norm , self.ds.cov_sample], axis=1)
+            # self.ds.ae_input_noise = np.concatenate([self.ds.X_norm_noise , self.ds.cov_sample], axis=1)
         else:
             self.ds.ae_input = self.ds.X_norm
+            self.ds.ae_input_noise = self.ds.X_norm
+            # self.ds.ae_input_noise = self.ds.X_norm_noise
 
 
 
@@ -40,7 +44,7 @@ class Ae_bfgs(Ae_abstract):
         print_func.print_time('pca start')
         pca = PCA(n_components=self.ds.xrds.attrs["encod_dim"], svd_solver='full')
         pca.fit(self.ds.ae_input)
-        pca_coef = pca.components_  # (10,200)
+        pca_coef = pca.components_  # (samples x meas)
 
         self.ds.E = tf.convert_to_tensor(np.transpose(pca_coef), dtype=self.ds.ae_input.dtype)
 
@@ -111,7 +115,7 @@ class Ae_bfgs(Ae_abstract):
     ##### UPDATE ENCODER STEPS #####
     def update_E(self):
         updated_E = self.get_updated_E(loss_func = self.ds.profile.loss_E,
-                                       E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X_true, x_norm = self.ds.ae_input, cov_sample=self.ds.cov_sample,
+                                       E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X_true, x_norm = self.ds.ae_input_noise, cov_sample=self.ds.cov_sample,
                                        par_sample = self.ds.par_sample, par_meas = self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
 
         if (self.ds.E == updated_E[0]).numpy().all():
@@ -162,7 +166,7 @@ class Ae_bfgs(Ae_abstract):
     ##### UPDATE DECODER STEPS #####
     def update_D(self):
         updated_D = self.get_updated_D(loss_func = self.ds.profile.loss_D,
-                                       E = self.ds.E, x_norm = self.ds.ae_input, x = self.ds.X_true, b = self.ds.b, D= self.ds.D,  cov_sample=self.ds.cov_sample,
+                                       E = self.ds.E, x_norm = self.ds.ae_input_noise, x = self.ds.X_true, b = self.ds.b, D= self.ds.D,  cov_sample=self.ds.cov_sample,
                                        par_sample = self.ds.par_sample, par_meas = self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
 
         if (self.ds.D == updated_D[1]).numpy().all():
