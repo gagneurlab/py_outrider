@@ -20,25 +20,25 @@ class Dis_neg_bin(Dis_abstract):
 
     ### pval calculation
     def get_pvalue(self):
-        self.pvalue = self.tf_get_pval(self.X_true, self.X_pred, self.par).numpy()
+        self.pvalue = self.tf_get_pval(self.X, self.X_pred, self.par).numpy()
         return self.pvalue
 
     @tf.function
-    def tf_get_pval(self, x_true, x_pred, theta):
-        x_true_cols = tf.range(tf.shape(x_true)[1], dtype=tf.int32)
-        pval = tf.map_fn(lambda x: (self._tf_get_pval_gene(x_true[:, x], x_pred[:, x], theta[x])), x_true_cols,
-                         dtype=x_true.dtype, parallel_iterations=self.parallel_iterations)
+    def tf_get_pval(self, X, X_pred, theta):
+        X_cols = tf.range(tf.shape(X)[1], dtype=tf.int32)
+        pval = tf.map_fn(lambda x: (self._tf_get_pval_gene(X[:, x], X_pred[:, x], theta[x])), X_cols,
+                         dtype=X.dtype, parallel_iterations=self.parallel_iterations)
         return tf.transpose(pval)
 
     @tf.function
-    def _tf_get_pval_gene(self, x_true, x_pred, theta):
-        var = x_pred + x_pred ** 2 / theta  # variance of neg bin
-        p = (var - x_pred) / var  # probabilities
+    def _tf_get_pval_gene(self, X, X_pred, theta):
+        var = X_pred + X_pred ** 2 / theta  # variance of neg bin
+        p = (var - X_pred) / var  # probabilities
         dis = tfp.distributions.NegativeBinomial(total_count=theta, probs=p)
 
-        cum_dis_func = dis.cdf(x_true)
-        dens_func = dis.prob(x_true)
-        pval = 2 * tfm.minimum(tf.constant(0.5, dtype=x_true.dtype),
+        cum_dis_func = dis.cdf(X)
+        dens_func = dis.prob(X)
+        pval = 2 * tfm.minimum(tf.constant(0.5, dtype=X.dtype),
                                tfm.minimum(cum_dis_func, (1 - cum_dis_func + dens_func)))
         return pval
 
@@ -55,7 +55,7 @@ class Dis_neg_bin(Dis_abstract):
 
     ### loss
     def get_loss(self):
-        return tf_neg_bin_loss(self.X_true, self.X_pred, self.par).numpy()
+        return tf_neg_bin_loss(self.X, self.X_pred, self.par).numpy()
 
 
 

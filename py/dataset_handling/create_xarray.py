@@ -40,7 +40,6 @@ class Create_xarray():
             X_is_outlier =  self.get_X_is_outlier(args_input["X_is_outlier"], X_file)
             xrds_dict["X_is_outlier"] = (("sample", "meas"), X_is_outlier.values)
 
-
         self.xrds = xr.Dataset(xrds_dict, coords = xrds_coords)
 
         ### add additional metadata
@@ -48,6 +47,7 @@ class Create_xarray():
                          'max_iter','verbose','seed','output_plots'] :
             self.xrds.attrs[add_attr] = args_input[add_attr]
 
+        self.xrds["par_sample"] = (("sample"), np.repeat(1, len(self.xrds.coords["samples"])))
         # self.xrds.attrs['float_type'] = self.get_float_type(args_input['float_type'])
         self.xrds.attrs['profile'] = self.get_profile(args_input['profile'])
 

@@ -7,9 +7,9 @@ import tensorflow as tf
 
 class Dis_abstract(ABC):
 
-    def __init__(self, X_true, X_pred, par, parallel_iterations):
+    def __init__(self, X, X_pred, par, parallel_iterations):
         self.float_type = X_pred.dtype  # keep init first
-        self.X_true = X_true
+        self.X = X
         self.X_pred = X_pred
         self.par = par
         self.parallel_iterations = parallel_iterations
@@ -17,18 +17,18 @@ class Dis_abstract(ABC):
 
 
     @property
-    def X_true(self):
-        return self.__X_true
+    def X(self):
+        return self.__X
 
-    @X_true.setter
-    def X_true(self, X_true):
-        if not tf.is_tensor(X_true):
-            if isinstance(X_true, np.ndarray):
-                X_true = tf.convert_to_tensor(X_true, dtype=self.float_type)
+    @X.setter
+    def X(self, X):
+        if not tf.is_tensor(X):
+            if isinstance(X, np.ndarray):
+                X = tf.convert_to_tensor(X, dtype=self.float_type)
             else:
-                X_true = tf.convert_to_tensor(X_true.values, dtype=self.float_type)
+                X = tf.convert_to_tensor(X.values, dtype=self.float_type)
 
-        self.__X_true= X_true
+        self.__X= X
 
 
     @property
@@ -94,5 +94,46 @@ class Dis_abstract(ABC):
     def get_loss(self):
         pass
 
-    # def _type(self):
-    #     return self.__class__.__name__
+    # @abstractmethod
+    # def inject_outlier(self):
+    #     pass
+
+    @abstractmethod
+    def get_random_values(self, par):
+        pass
+
+
+    def get_injected_outlier(x, x_norm, norm_name, inj_freq, inj_mean, inj_sd, noise_factor, log, **kwargs):
+        outlier_mask = np.random.choice([0, -1, 1], size=x_norm.shape, p=[1 - inj_freq, inj_freq / 2, inj_freq / 2])
+
+        if log:
+            log_mean = np.log(inj_mean) if inj_mean != 0 else 0
+            z_score = np.random.lognormal(mean=log_mean, sigma=np.log(inj_sd), size=x_norm.shape)
+        else:
+            z_score = np.random.normal(loc=inj_mean, scale=inj_sd, size=x_norm.shape)
+        inj_values = np.abs(z_score) * noise_factor * np.nanstd(x_norm, ddof=1, axis=0)
+        x_norm_outlier = inj_values * outlier_mask + x_norm
+
+        ### avoid inj outlier to be too strong
+        max_outlier_value = np.nanmin([10 * np.nanmax(x), np.iinfo("int64").max])
+        cond_value_too_big = rev_normalize_ae_input(x_norm_outlier, norm_name, **kwargs) > max_outlier_value
+        x_norm_outlier[cond_value_too_big] = x_norm[cond_value_too_big]
+        outlier_mask[cond_value_too_big] = 0
+
+        x_outlier = rev_normalize_ae_input(x_norm_outlier, norm_name, **kwargs)
+        return {"X_norm_outlier": x_norm_outlier, "X_outlier": x_outlier, "X_is_outlier": outlier_mask}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

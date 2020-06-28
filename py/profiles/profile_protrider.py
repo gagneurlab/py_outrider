@@ -13,7 +13,7 @@ class Profile_protrider(Profile_abstract):
 
         self.ae_model = Ae_bfgs
         # self.ae_model = Ae_pca
-        self.ae_input_norm = "log2"
+        self.ae_input_trans = "log2"
         self.distribution = Dis_gaussian
         self.loss_E = tf_gaus_loss_E
         self.loss_D = tf_gaus_loss_D_single

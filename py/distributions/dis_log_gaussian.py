@@ -9,9 +9,14 @@ from distributions.tf_loss_func import tf_gaus_loss
 
 
 
-class Dis_gaussian(Dis_abstract):
+#https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/LogNormal
 
-    dis_name = "Dis_gaussian"
+
+
+
+class Dis_log_gaussian(Dis_abstract):
+
+    dis_name = "Dis_log_gaussian"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -33,7 +38,7 @@ class Dis_gaussian(Dis_abstract):
     def _tf_get_pval_gene(self, X, X_pred):
         x_res = X - X_pred
         pvalues_sd = tf.math.reduce_std(x_res)  # != R-version: ddof=1
-        dis = tfp.distributions.Normal(loc=X_pred, scale=pvalues_sd)
+        dis = tfp.distributions.LogNormal(loc=X_pred, scale=pvalues_sd)
         cdf_values = dis.cdf(X)
         pval = 2 * tfm.minimum(cdf_values, (1 - cdf_values))
         # pval[np.isnan(X)] = np.nan
@@ -49,18 +54,9 @@ class Dis_gaussian(Dis_abstract):
         return pval_adj
 
 
-
     ### loss
     def get_loss(self):
         return tf_gaus_loss(self.X, self.X_pred).numpy()
-
-
-
-
-
-
-
-
 
 
 

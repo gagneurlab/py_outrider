@@ -18,12 +18,12 @@ class Profile_abstract(ABC):
 
 
     @property
-    def ae_input_norm(self):
-        return self.__ae_input_norm
+    def ae_input_trans(self):
+        return self.__ae_input_trans
 
-    @ae_input_norm.setter
-    def ae_input_norm(self, ae_input_norm):
-        self.__ae_input_norm = ae_input_norm
+    @ae_input_trans.setter
+    def ae_input_trans(self, ae_input_trans):
+        self.__ae_input_trans = ae_input_trans
 
 
 

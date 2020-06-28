@@ -14,7 +14,7 @@ class Profile_outrider(Profile_abstract):
 
         # self.ae_model = Ae_pca
         self.ae_model = Ae_bfgs
-        self.ae_input_norm = "sf"
+        self.ae_input_trans = "sf"
         self.distribution = Dis_neg_bin
         self.loss_E = tf_neg_bin_loss_E
         self.loss_D = tf_neg_bin_loss_D_single

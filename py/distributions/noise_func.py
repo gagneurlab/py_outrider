@@ -1,5 +1,5 @@
 import numpy as np
-from distributions.norm_func import rev_normalize_ae_input
+from distributions.transform_func import rev_trans_ae_input
 
 
 
@@ -17,11 +17,11 @@ def get_injected_outlier_gaussian(x,x_norm, norm_name, inj_freq, inj_mean, inj_s
 
     ### avoid inj outlier to be too strong
     max_outlier_value = np.nanmin([10*np.nanmax(x), np.iinfo("int64").max])
-    cond_value_too_big = rev_normalize_ae_input(x_norm_outlier, norm_name, **kwargs) > max_outlier_value
+    cond_value_too_big = rev_trans_ae_input(x_norm_outlier, norm_name, **kwargs) > max_outlier_value
     x_norm_outlier[cond_value_too_big] = x_norm[cond_value_too_big]
     outlier_mask[cond_value_too_big] = 0
 
-    x_outlier = rev_normalize_ae_input(x_norm_outlier, norm_name, **kwargs)
+    x_outlier = rev_trans_ae_input(x_norm_outlier, norm_name, **kwargs)
     return { "X_norm_outlier":x_norm_outlier, "X_outlier":x_outlier, "X_is_outlier":outlier_mask}
 
 
