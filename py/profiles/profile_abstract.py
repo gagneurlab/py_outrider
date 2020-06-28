@@ -26,14 +26,6 @@ class Profile_abstract(ABC):
         self.__ae_input_norm = ae_input_norm
 
 
-    @property
-    def ae_input_norm_rev(self):
-        return self.__ae_input_norm_rev
-
-    @ae_input_norm_rev.setter
-    def ae_input_norm_rev(self, ae_input_norm_rev):
-        self.__ae_input_norm_rev = ae_input_norm_rev
-
 
     @property
     def distribution(self):

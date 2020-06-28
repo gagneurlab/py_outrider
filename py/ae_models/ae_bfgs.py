@@ -25,12 +25,10 @@ class Ae_bfgs(Ae_abstract):
         ### covariate consideration
         if self.ds.cov_sample is not None:
             self.ds.ae_input = np.concatenate([self.ds.X_norm , self.ds.cov_sample], axis=1)
-            self.ds.ae_input_noise = np.concatenate([self.ds.X_norm , self.ds.cov_sample], axis=1)
-            # self.ds.ae_input_noise = np.concatenate([self.ds.X_norm_noise , self.ds.cov_sample], axis=1)
+            self.ds.ae_input_noise = np.concatenate([self.ds.X_norm_noise, self.ds.cov_sample], axis=1)
         else:
             self.ds.ae_input = self.ds.X_norm
-            self.ds.ae_input_noise = self.ds.X_norm
-            # self.ds.ae_input_noise = self.ds.X_norm_noise
+            self.ds.ae_input_noise = self.ds.X_norm_noise
 
 
 

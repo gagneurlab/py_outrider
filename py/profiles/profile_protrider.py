@@ -17,7 +17,7 @@ class Profile_protrider(Profile_abstract):
         self.distribution = Dis_gaussian
         self.loss_E = tf_gaus_loss_E
         self.loss_D = tf_gaus_loss_D_single
-        self.noise_factor = 0
+        self.noise_factor = 0.5
 
 
 

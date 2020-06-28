@@ -9,6 +9,7 @@ from distributions.dis_neg_bin import Dis_neg_bin
 from distributions.norm_func import xrds_normalize_log2, xrds_normalize_sf, xrds_normalize_none
 import utilis.stats_func as st
 from distributions.norm_func import normalize_ae_input
+from distributions.noise_func import get_injected_outlier_gaussian
 
 
 ### accessing xarray matrices is pretty slow -> new class
@@ -16,19 +17,21 @@ from distributions.norm_func import normalize_ae_input
 
 class Ae_dataset():
 
-    def __init__(self, xrds):
+    def __init__(self, xrds, inj_outlier=False):
         self.profile = xrds.attrs["profile"]
 
         self.xrds = xrds
+        normalize_ae_input(self.xrds, self.xrds.attrs["profile"].ae_input_norm)
 
-        ### TODO
-        ### inject outlier
-        ### inject noise
+
+        if inj_outlier:
+            self.inject_outlier(self.xrds, inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
+        self.inject_noise(self.xrds, inj_freq=1, inj_mean=0, inj_sd=1)
 
         ### change xrds
-        normalize_ae_input(xrds, xrds.attrs["profile"].ae_input_norm)
+        # normalize_ae_input(self.xrds, self.xrds.attrs["profile"].ae_input_norm)
 
-        self.initialize_ds(xrds)
+        self.initialize_ds(self.xrds)
 
 
 
@@ -37,6 +40,7 @@ class Ae_dataset():
 
         self.X = xrds["X"].values
         self.X_norm = xrds["X_norm"].values
+        self.X_norm_noise = xrds["X_norm_noise"].values
         self.X_center_bias = xrds["X_center_bias"].values
         self.cov_sample = xrds["cov_sample"].values if "cov_sample" in xrds else None
         self.par_sample = xrds["par_sample"].values if "par_sample" in xrds else None
@@ -70,9 +74,6 @@ class Ae_dataset():
 
 
 
-
-
-
     def calc_pvalue(self):
         ds_dis = self.profile.distribution(X_true=self.X_true, X_pred=self.X_true_pred,
                                            par=self.par_meas, parallel_iterations=self.parallel_iterations)
@@ -87,6 +88,35 @@ class Ae_dataset():
 
 
 
+    def inject_noise(self, xrds, inj_freq, inj_mean, inj_sd, **kwargs):
+
+        if "par_sample" in xrds:
+            sf = xrds["par_sample"]
+
+        inj_obj = get_injected_outlier_gaussian(x=xrds["X"].values, x_norm=xrds["X_norm"].values,
+                                                norm_name=xrds.attrs["profile"].ae_input_norm,
+                                                inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd,
+                                                noise_factor=xrds.attrs["profile"].noise_factor, log=False, **kwargs)
+        xrds["X_norm_noise"] = (('sample', 'meas'), inj_obj["X_norm_outlier"])
+        xrds["X_noise"] = (('sample', 'meas'), inj_obj["X_outlier"])
+
+
+
+    ### TODO avoid injection twice: if X_wo_outlier exists ..
+    def inject_outlier(self, xrds,inj_freq, inj_mean, inj_sd, **kwargs):
+        inj_obj = get_injected_outlier_gaussian(x=xrds["X"].values, x_norm=xrds["X_norm"].values,
+                                                norm_name=xrds.attrs["profile"].ae_input_norm,
+                                                inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd,
+                                                noise_factor=1, log=True, **kwargs)
+        xrds["X_wo_outlier"] = (('sample', 'meas'), xrds["X"])
+        xrds["X"] = (('sample', 'meas'), inj_obj["X_outlier"])
+        xrds["X_norm"] = (('sample', 'meas'), inj_obj["X_norm_outlier"])
+        xrds["X_is_outlier"] = (('sample', 'meas'), inj_obj["X_is_outlier"])
+
+
+
+
+
 
 
 
@@ -96,6 +126,7 @@ class Ae_dataset():
         self.xrds["X_pvalue"] = (("sample", "meas"), self.X_pvalue)
         self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)
         self.xrds["X_log2fc"] = (("sample", "meas"), self.X_log2fc)
+        self.xrds["X_zscore"] = (("sample", "meas"), self.X_zscore)
         self.xrds["X_norm_pred"] = (("sample", "meas"), self.X_norm_pred)
 
         if self.par_sample is not None:

@@ -13,18 +13,15 @@ class Full_run():
         print(xrds)
 
 
-        ae_ds = Ae_dataset(xrds)
-        ae_model = xrds.attrs["profile"].ae_model(ae_ds)
-        xrds = ae_model.run_autoencoder()
-
-
-        print('ae_model created')
+        ae_ds = Ae_dataset(xrds,  inj_outlier=False)
 
         if xrds.attrs["encod_dim"] is None:
             print('encod_dim is None -> running hyperpar-opt')
 
 
-
+        ae_model = xrds.attrs["profile"].ae_model(ae_ds)
+        print('ae_model created')
+        xrds = ae_model.run_autoencoder()
 
 
         if "X_is_outlier" in xrds:
@@ -34,8 +31,6 @@ class Full_run():
 
         ### export
         print(xrds)
-        print(xrds["encoder_weights"].shape)
-        print(xrds["decoder_weights"].shape)
         xrds.attrs["profile"] = xrds.attrs["profile"].__class__.__name__
         xrds.to_zarr(xrds.attrs["output"] , mode="w")
 
