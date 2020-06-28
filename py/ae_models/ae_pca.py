@@ -23,7 +23,7 @@ class Ae_pca(Ae_abstract):
     def __init__(self, ae_dataset):
         super().__init__(ae_dataset)
 
-        self.ds.ae_input = self.ds.X_norm  # no covariate consideration in pca
+        self.ds.ae_input = self.ds.X_trans  # no covariate consideration in pca
 
 
 

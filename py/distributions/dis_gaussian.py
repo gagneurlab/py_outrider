@@ -55,6 +55,9 @@ class Dis_gaussian(Dis_abstract):
         return tf_gaus_loss(self.X, self.X_pred).numpy()
 
 
+    def get_random_values(self, inj_mean, inj_sd, size):
+        z_score = np.random.normal(loc=inj_mean, scale=inj_sd, size=size)
+        return z_score
 
 
 

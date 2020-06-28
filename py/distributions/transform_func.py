@@ -25,7 +25,7 @@ def xrds_transform(xrds):
 def transform_none(xrds):
     return xrds["X"]
 
-    
+
 def transform_log2(xrds):
     return np.log2(xrds["X"]+1)
 
@@ -54,9 +54,9 @@ def calc_size_factor(counts):
 ############################################
 
 
-def rev_trans_ae_input(y, norm_name, **kwargs):
+def rev_transform_ae_input(y, norm_name, par_sample):
     if norm_name == "sf":
-        return rev_transform_sf(y, **kwargs)
+        return rev_transform_sf(y, par_sample)
     elif norm_name == "log2":
         return rev_transform_log2(y)
     elif norm_name == "none":

@@ -13,7 +13,11 @@ class Full_run():
         print(xrds)
 
 
-        ae_ds = Ae_dataset(xrds,  inj_outlier=False)
+        ae_ds = Ae_dataset(xrds)
+        ae_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
+        ae_ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
+
+
 
         if xrds.attrs["encod_dim"] is None:
             print('encod_dim is None -> running hyperpar-opt')

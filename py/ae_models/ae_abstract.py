@@ -16,13 +16,15 @@ from utilis.tf_mom_theta import robust_mom_theta
 from dataset_handling.ae_dataset import Ae_dataset
 from distributions.dis_neg_bin import Dis_neg_bin
 from distributions.dis_gaussian import Dis_gaussian
-from distributions.transform_func import rev_trans_ae_input
+from distributions.transform_func import rev_transform_ae_input
 
 
 class Ae_abstract(ABC):
 
     def __init__(self, ae_dataset):
         self.ds = ae_dataset
+        self.ds.initialize_ds()
+
         self.loss_list = None
 
         ae_models.prepare_ae.init_tf_config(num_cpus=self.ds.xrds.attrs["num_cpus"], verbose=self.ds.xrds.attrs["verbose"])
@@ -72,7 +74,7 @@ class Ae_abstract(ABC):
         return H
 
 
-    def _pred_X_norm(self, ae_input, E, D, b, cov_sample):
+    def _pred_X_trans(self, ae_input, E, D, b, cov_sample):
         y = np.matmul(self._pred_H(ae_input,E, cov_sample), D) # y: sample x gene
         y = y[:,0:len(b)]  # avoid cov_sample inclusion
         y_b = y + b
@@ -80,29 +82,29 @@ class Ae_abstract(ABC):
         return y_b
 
     def _pred_X(self, profile, ae_input, E, D, b, par_sample, cov_sample):
-        y = self._pred_X_norm(ae_input, E, D, b, cov_sample)
-        return rev_trans_ae_input(y, profile.ae_input_trans, sf=par_sample)
+        y = self._pred_X_trans(ae_input, E, D, b, cov_sample)
+        return rev_transform_ae_input(y, profile.ae_input_trans, par_sample=par_sample)
 
 
     def calc_X_pred(self):
         self.ds.X_pred = self._pred_X(self.ds.profile, self.ds.ae_input, self.ds.E, self.ds.D, self.ds.b, self.ds.par_sample, self.ds.cov_sample)
-        self.ds.X_norm_pred = self._pred_X_norm(self.ds.ae_input, self.ds.E, self.ds.D, self.ds.b, self.ds.cov_sample)
-        self._calc_X_true_pred()
+        self.ds.X_trans_pred = self._pred_X_trans(self.ds.ae_input, self.ds.E, self.ds.D, self.ds.b, self.ds.cov_sample)
+        self._calc_X_pred()
 
 
     ### X value for pvalue calculation - raw or keep normalised
-    def _calc_X_true_pred(self):
+    def _calc_X_pred(self):
         if self.ds.profile.distribution.dis_name == "Dis_gaussian":
-            self.ds.X_true_pred = self.ds.X_norm_pred
+            self.ds.X_pred = self.ds.X_trans_pred
         elif self.ds.profile.distribution.dis_name == "Dis_neg_bin":
-            self.ds.X_true_pred = self.ds.X_pred
+            self.ds.X_pred = self.ds.X_pred
         else:
             raise ValueError("distribution not found")
 
 
     def get_loss(self):
         self.calc_X_pred()
-        ds_dis = self.ds.profile.distribution(X_true=self.ds.X_true, X_pred=self.ds.X_true_pred,
+        ds_dis = self.ds.profile.distribution(X=self.ds.X, X_pred=self.ds.X_pred,
                                            par=self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
         loss = ds_dis.get_loss()
         return loss
@@ -116,21 +118,21 @@ class Ae_abstract(ABC):
     # for OUTRIDER this is the update theta step
 
 
-    def get_updated_par_meas(self, profile, X_true, X_true_pred, par_list, parallel_iterations=1):
+    def get_updated_par_meas(self, profile, X, X_pred, par_list, parallel_iterations=1):
 
         if profile.distribution.dis_name == "Dis_neg_bin":
             if par_list['init_step'] is True:
-                par_meas  = robust_mom_theta(X_true, par_list['theta_range'][0], par_list['theta_range'][1])
+                par_meas  = robust_mom_theta(X, par_list['theta_range'][0], par_list['theta_range'][1])
 
             elif par_list['init_step'] is False:
-                par_meas = self.update_par_meas_fmin(tf_neg_bin_loss, X_true=X_true, X_pred=X_true_pred,
+                par_meas = self.update_par_meas_fmin(tf_neg_bin_loss, X=X, X_pred=X_pred,
                                                 par_list = par_list['theta_range'], parallel_iterations=parallel_iterations)
         else:
-            par_meas = np.zeros(shape=(X_true.shape[1], ))
+            par_meas = np.zeros(shape=(X.shape[1], ))
 
         ### return np or tf
-        return tf.convert_to_tensor(par_meas, dtype=X_true_pred.dtype)
-        # if tf.is_tensor(X_true_pred):
+        return tf.convert_to_tensor(par_meas, dtype=X_pred.dtype)
+        # if tf.is_tensor(X_pred):
         # else:
         #     return par_meas
 
@@ -138,17 +140,17 @@ class Ae_abstract(ABC):
 
 
 
-    def update_par_meas_fmin(self, loss_func, X_true, X_pred, par_list, parallel_iterations):
+    def update_par_meas_fmin(self, loss_func, X, X_pred, par_list, parallel_iterations):
             @tf.function
             def my_map(*args, **kwargs):
                 return tf.map_fn(*args, **kwargs)
 
-            X_true_pred_stacked = tf.transpose(tf.stack([X_true, X_pred], axis=1))
+            X_pred_stacked = tf.transpose(tf.stack([X, X_pred], axis=1))
             par_meas = my_map(
                 lambda row: tf_fminbound(
                     lambda x: loss_func(row[0, :], row[1, :], x),
                         x1=tf.constant(par_list[0]), x2=tf.constant(par_list[1])),
-                        X_true_pred_stacked, parallel_iterations=parallel_iterations)
+                        X_pred_stacked, parallel_iterations=parallel_iterations)
 
             return par_meas
 

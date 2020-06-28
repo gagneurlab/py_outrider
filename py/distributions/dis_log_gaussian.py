@@ -59,9 +59,10 @@ class Dis_log_gaussian(Dis_abstract):
         return tf_gaus_loss(self.X, self.X_pred).numpy()
 
 
-
-
-
+    def get_random_values(self, inj_mean, inj_sd, size):
+        log_mean = np.log(inj_mean) if inj_mean != 0 else 0
+        z_score = np.random.lognormal(mean=log_mean, sigma=np.log(inj_sd), size=size)
+        return z_score
 
 
 

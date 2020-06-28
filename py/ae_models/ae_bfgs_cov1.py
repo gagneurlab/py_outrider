@@ -23,7 +23,7 @@ class Ae_bfgs_cov1(Ae_abstract):
         super().__init__(ae_dataset)
 
         ### covariate consideration
-        self.ds.ae_input = self.ds.X_norm
+        self.ds.ae_input = self.ds.X_trans
 
 
 
@@ -57,7 +57,7 @@ class Ae_bfgs_cov1(Ae_abstract):
         print(f"E: {self.ds.E.shape}")
         print(f"D: {self.ds.D.shape}")
         print(f"b: {self.ds.b.shape}")
-        print(f"X_norm: {self.ds.ae_input.shape}")
+        print(f"X_trans: {self.ds.ae_input.shape}")
         print(f"X: {self.ds.X.shape}")
         if self.ds.cov_sample is not None:
             print(f"cov_sample: {self.ds.cov_sample.shape}")
@@ -108,7 +108,7 @@ class Ae_bfgs_cov1(Ae_abstract):
     ##### UPDATE ENCODER STEPS #####
     def update_E(self):
         updated_E = self.get_updated_E(loss_func = self.ds.profile.loss_E,
-                                       E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X_true, x_norm = self.ds.ae_input, cov_sample=self.ds.cov_sample,
+                                       E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X_true, X_trans = self.ds.ae_input, cov_sample=self.ds.cov_sample,
                                        par_sample = self.ds.par_sample, par_meas = self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
 
         if (self.ds.E == updated_E[0]).numpy().all():
@@ -124,11 +124,11 @@ class Ae_bfgs_cov1(Ae_abstract):
 
 
     @tf.function
-    def get_updated_E(self, loss_func, E, D, b, x, x_norm, par_sample, par_meas, cov_sample, parallel_iterations=1):
+    def get_updated_E(self, loss_func, E, D, b, x, X_trans, par_sample, par_meas, cov_sample, parallel_iterations=1):
         e = tf.reshape(E, shape=[tf.size(E), ])
 
         def lbfgs_input(e):
-            loss = loss_func(e, D, b, x, x_norm, par_sample, par_meas, cov_sample)
+            loss = loss_func(e, D, b, x, X_trans, par_sample, par_meas, cov_sample)
             gradients = tf.gradients(loss, e)[0]
             return loss, tf.clip_by_value(gradients, -100., 100.)
 
@@ -136,13 +136,13 @@ class Ae_bfgs_cov1(Ae_abstract):
                                              num_correction_pairs=10, parallel_iterations=parallel_iterations)
 
         ### transform back in correct shape
-        if x.shape == x_norm.shape:  # no covariates in encoding step
+        if x.shape == X_trans.shape:  # no covariates in encoding step
             if cov_sample is None:
                 E_shape = tf.shape(tf.transpose(D))    # meas x encod_dim
             else:
                 E_shape = (tf.shape(D)[1], (tf.shape(D)[0] - tf.shape(cov_sample)[1]))   # meas x encod_dim
         else:
-            E_shape = (tf.shape(x_norm)[1], tf.shape(D)[0] - tf.shape(cov_sample)[1]) # meas+cov x encod_dim
+            E_shape = (tf.shape(X_trans)[1], tf.shape(D)[0] - tf.shape(cov_sample)[1]) # meas+cov x encod_dim
         out_E = tf.reshape(optim.position, E_shape)
 
 
@@ -159,7 +159,7 @@ class Ae_bfgs_cov1(Ae_abstract):
     ##### UPDATE DECODER STEPS #####
     def update_D(self):
         updated_D = self.get_updated_D(loss_func = self.ds.profile.loss_D,
-                                       E = self.ds.E, x_norm = self.ds.ae_input, x = self.ds.X_true, b = self.ds.b, D= self.ds.D,  cov_sample=self.ds.cov_sample,
+                                       E = self.ds.E, X_trans = self.ds.ae_input, x = self.ds.X_true, b = self.ds.b, D= self.ds.D,  cov_sample=self.ds.cov_sample,
                                        par_sample = self.ds.par_sample, par_meas = self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
 
         if (self.ds.D == updated_D[1]).numpy().all():
@@ -177,11 +177,11 @@ class Ae_bfgs_cov1(Ae_abstract):
 
 
     @tf.function
-    def get_updated_D(self, loss_func, E, x_norm, x, b, D, cov_sample, par_sample, par_meas, parallel_iterations=1):
+    def get_updated_D(self, loss_func, E, X_trans, x, b, D, cov_sample, par_sample, par_meas, parallel_iterations=1):
         if cov_sample is None:
-            H = tf.matmul(x_norm, E)
+            H = tf.matmul(X_trans, E)
         else:
-            H = tf.concat([tf.matmul(x_norm, E), cov_sample], axis=1)
+            H = tf.concat([tf.matmul(X_trans, E), cov_sample], axis=1)
 
         meas_cols = tf.range(tf.shape(D)[1])
         map_D = tf.map_fn(lambda i: (self.single_fit_D(loss_func, H, x[:, i], b[i], D[:, i], par_sample, par_meas[i])),

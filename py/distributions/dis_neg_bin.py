@@ -60,7 +60,8 @@ class Dis_neg_bin(Dis_abstract):
 
 
 
-
+    def get_random_values(self, inj_mean, inj_sd, size):
+        raise NotImplementedError
 
 
 
