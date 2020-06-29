@@ -8,6 +8,8 @@ from ae_models.decoder_fit import D_abstract
 
 class D_lbfgs_single(D_abstract):
 
+    D_name = "D_LBFGS_single"
+
     def __init__(self, **kwargs):
         self.__init__(**kwargs)
         self.loss_D = self.ds.profile.loss_dis.tf_loss_D_single
@@ -16,7 +18,7 @@ class D_lbfgs_single(D_abstract):
             raise ValueError("D is none, need aproximate weights for D to perform LBGFS refinement")
 
 
-
+    @tf.function
     def fit(self):
         D_optim_obj = self.get_updated_D(loss_func=self.loss_D,
                                        x=self.ds.X, H = self.ds.H, b=self.ds.b,

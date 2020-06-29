@@ -4,7 +4,7 @@ import tensorflow_probability as tfp
 from sklearn.decomposition import PCA
 import time
 
-from ae_models.fitting_models.ae_abstract import Ae_abstract
+from ae_models.fitting_models.model_fit_abstract import Ae_abstract
 # from autoencoder_models.loss_list import Loss_list
 import utilis.print_func as print_func
 from ae_models.loss_list import Loss_list
@@ -36,14 +36,8 @@ class Ae_lbfgs(Ae_abstract):
 
     # @tf.function
     def run_fit(self, convergence=1e-5, **kwargs):
-        time_ae_start = time.time()
-        self.loss_list = Loss_list(conv_limit=convergence, last_iter=3)
 
-
-        ### initialize tensor weights with pca
-        print_func.print_time('pca start')
-        E_pca(self.ds).fit()
-
+        E_pca(self.ds).run_fit()
 
         # print(f"ae_input: {self.ds.ae_input.shape}")
         # print(f"E: {self.ds.E.shape}")
@@ -55,31 +49,18 @@ class Ae_lbfgs(Ae_abstract):
         #     print(f"cov_sample: {self.ds.cov_sample.shape}")
 
 
-
-        self.calc_X_pred()
-        # print_func.print_time('starting to compute the initial values of par_meas')
-
-        Par_meas_mom(self.ds).fit()
-
-        # self.loss_list.add_loss(self.get_loss(), step_name='pca', print_text='pca end with loss:      ')
-
-        # print_func.print_time('starting the first fit of the decoder')
-        D_lbfgs_single(self.ds).fit()
-
-        # print_func.print_time('Starting the first fit of par_meas')
-
-        Par_meas_fminbound(self.ds).fit()
+        Par_meas_mom(self.ds).run_fit()
+        D_lbfgs_single(self.ds).run_fit()
+        Par_meas_fminbound(self.ds).run_fit()
 
         ### ITERATE UNTIL CONVERGENCE
         for iter in range(self.ds.xrds.attrs["max_iter"]):
             print(f'### ITERATION {iter}')
             time_iter_start = time.time()
 
-            E_lbfgs(self.ds).fit()
-
-            D_lbfgs_single(self.ds).fit()
-
-            Par_meas_fminbound(self.ds).fit()
+            E_lbfgs(self.ds).run_fit()
+            D_lbfgs_single(self.ds).run_fit()
+            Par_meas_fminbound(self.ds).run_fit()
 
             print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))
 
@@ -88,8 +69,6 @@ class Ae_lbfgs(Ae_abstract):
             #     print_func.print_time(f'ae converged with loss: {self.get_loss()}')
             #     break
 
-
-        print_func.print_time(f'complete ae time {print_func.get_duration_sec(time.time() - time_ae_start)}')
 
 
 

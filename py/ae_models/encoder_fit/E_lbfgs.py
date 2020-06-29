@@ -8,6 +8,9 @@ from ae_models.encoder_fit import E_abstract
 
 class E_lbfgs(E_abstract):
 
+    E_name = "E_LBFGS"
+
+
     def __init__(self, **kwargs):
         self.__init__(**kwargs)
 
@@ -15,7 +18,7 @@ class E_lbfgs(E_abstract):
             raise ValueError("E is none, need aproximate weights for E to perform LBGFS refinement")
 
 
-
+    @tf.function
     def fit(self):
         E_optim_obj = self.get_updated_E(loss_func = self.loss_E,
                                        E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, X_trans = self.ds.ae_input_noise, cov_sample=self.ds.cov_sample,

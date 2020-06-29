@@ -9,6 +9,10 @@ from ae_models.encoder_fit import E_abstract
 
 class E_pca(E_abstract):
 
+
+    E_name = "E_PCA"
+
+
     def __init__(self, **kwargs):
         self.__init__(**kwargs)
 

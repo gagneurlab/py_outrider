@@ -2,10 +2,11 @@
 
 
 from profiles.profile_abstract import Profile_abstract
-from ae_models.fitting_models.ae_pca import Ae_pca
+from ae_models.fitting_models.model_fit_pca import Ae_pca
 from distributions.dis.dis_gaussian import Dis_gaussian
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 from distributions.tf_loss_func import tf_gaus_loss_E, tf_gaus_loss_D_single
+
 
 class Profile_pca(Profile_abstract):
 

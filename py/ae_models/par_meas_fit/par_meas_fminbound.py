@@ -1,26 +1,3 @@
-from abc import ABC, abstractmethod
-import pandas as pd
-import numpy as np
-import tensorflow as tf
-from ae_models.par_meas_fit.par_meas_abstract import Par_meas_abstract
-from utilis.tf_fminbound import tf_fminbound
-
-class Par_meas_fminbound(Par_meas_abstract):
-
-    def __init__(self, **kwargs):
-        self.__init__(**kwargs)
-
-
-    def fit(self):
-        pass
-
-    def update_par_meas(self):
-        self.ds.par_meas = 5
-
-
-
-
-
 
 from abc import ABC, abstractmethod
 import pandas as pd
@@ -31,6 +8,8 @@ from utilis.tf_fminbound import tf_fminbound
 from distributions.tf_loss_func import tf_neg_bin_loss
 
 class Par_meas_fminbound(Par_meas_abstract):
+
+    par_meas_name="fminbound"
 
     def __init__(self, theta_range = (1e-2, 1e3), **kwargs):
         self.__init__(**kwargs)

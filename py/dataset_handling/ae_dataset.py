@@ -36,7 +36,8 @@ class Ae_dataset():
         # self.X = self.xrds["_X_stat_used"].values  # for pvalue and loss calculation
 
         self.X_pred = None  # for pvalue and loss calculation
-        self.ae_input = None
+        self.ae_input = self.X_trans
+        self.ae_input_noise = self.X_trans
         self.E = None
         self.D = None
         self.b = None
@@ -47,7 +48,7 @@ class Ae_dataset():
             [ x.astype(self.xrds.attrs["float_type"], copy=False) if x is not None and x.dtype != self.xrds.attrs["float_type"] else x
               for x in [self.X, self.X_trans, self.X_center_bias, self.cov_sample, self.par_sample, self.par_meas, self.X] ]
 
-        self.loss_list = Loss_list(conv_limit=0.0001, last_iter=3)
+        self.loss_list = Loss_list(conv_limit=0.00001, last_iter=3)
 
 
         self.parallel_iterations = self.xrds.attrs["num_cpus"]
@@ -99,8 +100,10 @@ class Ae_dataset():
         self.xrds["X_trans"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
         self.xrds["X_is_outlier"] = (('sample', 'meas'), inj_obj["X_is_outlier"])
 
-        ##### prediction calculation steps
 
+
+
+    ##### prediction calculation steps
     def _pred_X_trans(self, H, D, b):
         y = np.matmul(H, D)  # y: sample x gene
         y = y[:, 0:len(b)]  # avoid cov_sample inclusion
@@ -117,11 +120,12 @@ class Ae_dataset():
         self.ds.X_pred = self._pred_X(self.ds.profile, self.ds.H, self.ds.D, self.ds.b, self.ds.par_sample)
 
     def get_loss(self):
-        self.calc_X_pred()
         ds_dis = self.ds.profile.dis(X=self.ds.X, X_pred=self.ds.X_pred,
                                      par=self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
         loss = ds_dis.get_loss()
         return loss
+
+
 
 
 
@@ -161,7 +165,7 @@ class Ae_dataset():
 
 
         ### remove unncessary
-        self.xrds = self.xrds.drop_vars("_X_stat_used")
+        # self.xrds = self.xrds.drop_vars("_X_stat_used")
 
         return self.xrds
 
