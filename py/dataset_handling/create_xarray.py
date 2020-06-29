@@ -5,7 +5,6 @@ import xarray as xr
 from profiles.profile_outrider import Profile_outrider
 from profiles.profile_protrider import Profile_protrider
 from profiles.profile_pca import Profile_pca
-from profiles.profile_protrider_cov1 import Profile_protrider_cov1
 
 
 
@@ -146,8 +145,6 @@ class Create_xarray():
             return Profile_outrider()
         elif profile.lower()=="protrider":
             return Profile_protrider()
-        elif profile.lower()=="protrider_cov1":
-            return Profile_protrider_cov1()
         elif profile.lower()=="pca":
             return Profile_pca()
         else:

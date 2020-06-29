@@ -3,7 +3,8 @@ import tensorflow_probability as tfp
 
 # from autoencoder_models.loss_list import Loss_list
 
-from ae_models.encoder_fit import E_abstract
+from ae_models.encoder_fit.E_abstract import E_abstract
+
 
 
 class E_lbfgs(E_abstract):
@@ -11,8 +12,8 @@ class E_lbfgs(E_abstract):
     E_name = "E_LBFGS"
 
 
-    def __init__(self, **kwargs):
-        self.__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         if self.ds.E is None:
             raise ValueError("E is none, need aproximate weights for E to perform LBGFS refinement")
@@ -21,8 +22,10 @@ class E_lbfgs(E_abstract):
     @tf.function
     def fit(self):
         E_optim_obj = self.get_updated_E(loss_func = self.loss_E,
-                                       E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, X_trans = self.ds.ae_input_noise, cov_sample=self.ds.cov_sample,
-                                       par_sample = self.ds.par_sample, par_meas = self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
+                                         E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, x_trans = self.ds.ae_input_noise,
+                                         cov_sample=self.ds.cov_sample, par_sample = self.ds.par_sample, par_meas = self.ds.par_meas,
+                                         data_trans=self.ds.profile.data_trans,
+                                         parallel_iterations=self.ds.parallel_iterations)
 
         E, H = self.reshape_e_to_H(E_optim_obj["E_optim"], self.ds.ae_input, self.ds.X, self.ds.D, self.ds.cov_sample)
         self._update_weights(E=E, H=H)
@@ -37,11 +40,11 @@ class E_lbfgs(E_abstract):
 
 
     @tf.function
-    def get_updated_E(self, loss_func, E, D, b, x, X_trans, par_sample, par_meas, cov_sample, parallel_iterations=1):
+    def get_updated_E(self, loss_func, E, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans, parallel_iterations=1):
         e = tf.reshape(E, shape=[tf.size(E), ])
 
         def lbfgs_input(e):
-            loss = loss_func(e, D, b, x, X_trans, par_sample, par_meas, cov_sample)
+            loss = loss_func(e, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans)
             gradients = tf.gradients(loss, e)[0]
             return loss, tf.clip_by_value(gradients, -100., 100.)
 

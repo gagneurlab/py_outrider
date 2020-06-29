@@ -4,7 +4,7 @@ from sklearn.decomposition import PCA
 
 # from autoencoder_models.loss_list import Loss_list
 
-from ae_models.encoder_fit import E_abstract
+from ae_models.encoder_fit.E_abstract import E_abstract
 
 
 class E_pca(E_abstract):
@@ -12,10 +12,8 @@ class E_pca(E_abstract):
 
     E_name = "E_PCA"
 
-
-    def __init__(self, **kwargs):
-        self.__init__(**kwargs)
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
     def fit(self):

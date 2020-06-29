@@ -9,21 +9,21 @@ class Profile_abstract(ABC):
         pass
 
     @property
-    def ae_model(self):
-        return self.__ae_model
+    def fit_model(self):
+        return self.__fit_model
 
-    @ae_model.setter
-    def ae_model(self, ae_model):
-        self.__ae_model = ae_model
+    @fit_model.setter
+    def fit_model(self, fit_model):
+        self.__fit_model = fit_model
 
 
     @property
-    def ae_input_trans(self):
-        return self.__ae_input_trans
+    def data_trans(self):
+        return self.__data_trans
 
-    @ae_input_trans.setter
-    def ae_input_trans(self, ae_input_trans):
-        self.__ae_input_trans = ae_input_trans
+    @data_trans.setter
+    def data_trans(self, data_trans):
+        self.__data_trans = data_trans
 
 
 
@@ -42,6 +42,15 @@ class Profile_abstract(ABC):
     @loss_dis.setter
     def loss_dis(self, loss_dis):
         self.__loss_dis = loss_dis
+
+    @property
+    def outlier_dis(self):
+        return self.__outlier_dis
+
+    @outlier_dis.setter
+    def outlier_dis(self, outlier_dis):
+        self.__outlier_dis = outlier_dis
+
 
     # @property
     # def loss_D(self):

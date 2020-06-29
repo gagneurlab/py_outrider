@@ -2,29 +2,33 @@
 from parser import check_parser
 from dataset_handling.create_xarray import Create_xarray
 import utilis.stats_func as st
-from dataset_handling.ae_dataset import Ae_dataset
+from dataset_handling.model_dataset import Model_dataset
 
 class Full_run():
 
     def __init__(self, args_input):
-
         args_mod = check_parser.Check_parser(args_input).args_mod
+        print('parser check')
         xrds = Create_xarray(args_mod).xrds
+        print('xarray created')
         print(xrds)
 
 
-        ae_ds = Ae_dataset(xrds)
-        ae_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
-        ae_ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
+        model_ds = Model_dataset(xrds)
+        print('dataset created')
+        model_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
+        print('outlier injected')
+        model_ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
+        print('noise injected')
 
 
         if xrds.attrs["encod_dim"] is None:
             print('encod_dim is None -> running hyperpar-opt')
 
 
-        ae_model = xrds.attrs["profile"].ae_model(ae_ds)
-        print('ae_model created')
-        xrds = ae_model.run_autoencoder()
+        fit_model = xrds.attrs["profile"].fit_model(model_ds)
+        print('run model')
+        xrds = fit_model.run_model_fit()
 
 
         if "X_is_outlier" in xrds:

@@ -4,20 +4,19 @@ from utilis.float_limits import min_value_exp
 
 from ae_models.encoder_fit.E_abstract import E_abstract
 
-from distributions.loss_dis import loss_dis_abstract
-
-from distributions.loss_dis.loss_dis_neg_bin import Loss_dis_neg_bin
+from distributions.loss_dis.loss_dis_abstract import Loss_dis_abstract
 
 
 ### only for size factor transformed data !
-class Loss_dis_neg_bin_short(loss_dis_abstract):
+class Loss_dis_neg_bin_sf_trunc(Loss_dis_abstract):
 
 
 
     @staticmethod
     @tf.function
     def tf_loss(x, x_pred, par_meas, **kwargs):
-        return Loss_dis_neg_bin.tf_loss(x, x_pred, par_meas, **kwargs)
+        raise ValueError("use Loss_dis_neg_bin() class to access loss")
+        # return Loss_dis_neg_bin.tf_loss(x, x_pred, par_meas, **kwargs)
 
 
 

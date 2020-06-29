@@ -3,15 +3,15 @@ import tensorflow_probability as tfp
 
 # from autoencoder_models.loss_list import Loss_list
 
-from ae_models.decoder_fit import D_abstract
+from ae_models.decoder_fit.D_abstract import D_abstract
 
 
 class D_lbfgs_whole(D_abstract):
 
     D_name = "D_LBFGS_whole"
 
-    def __init__(self, **kwargs):
-        self.__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         if self.ds.D is None:
             raise ValueError("D is none, need aproximate weights for D to perform LBGFS refinement")
@@ -22,7 +22,7 @@ class D_lbfgs_whole(D_abstract):
         D_optim_obj = self.get_updated_D(loss_func=self.loss_D,
                                        x=self.ds.X, H = self.ds.H, b=self.ds.b,
                                        D=self.ds.D,
-                                       par_sample=self.ds.par_sample, par_meas=self.ds.par_meas,
+                                       par_sample=self.ds.par_sample, par_meas=self.ds.par_meas, data_trans=self.ds.profile.data_trans,
                                        parallel_iterations=self.ds.parallel_iterations)
         b = D_optim_obj["b_optim"]
         D = D_optim_obj["D_optim"]
@@ -41,13 +41,13 @@ class D_lbfgs_whole(D_abstract):
 
     ### finds global minimum across whole matrix and not over columns - works as well
     @tf.function
-    def get_updated_D(self, loss_func, x, H, b, D, par_sample, par_meas, parallel_iterations=1):
+    def get_updated_D(self, loss_func, x, H, b, D, par_sample, par_meas, data_trans, parallel_iterations=1):
 
         b_and_D = tf.concat([tf.expand_dims(b, 0), D], axis=0)
         b_and_D = tf.reshape(b_and_D, [-1])  ### flatten
 
         def lbfgs_input(b_and_D):
-            loss = loss_func(H, x, b_and_D, par_sample, par_meas)
+            loss = loss_func(H, x, b_and_D, par_sample, par_meas, data_trans)
             gradients = tf.gradients(loss, b_and_D)[0]  ## works but runtime check, eager faster ??
             return loss, tf.clip_by_value(tf.reshape(gradients, [-1]), -100., 100.)
 

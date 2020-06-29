@@ -3,13 +3,16 @@ import tensorflow as tf
 from ae_models.par_meas_fit.par_meas_abstract import Par_meas_abstract
 from utilis.np_mom_theta import robust_mom_theta
 
+
+
+
 class Par_meas_mom(Par_meas_abstract):
 
     par_meas_name="method of moments"
 
 
-    def __init__(self, theta_range = (1e-2, 1e3), **kwargs):
-        self.__init__(**kwargs)
+    def __init__(self, theta_range = (1e-2, 1e3),*args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.theta_range = theta_range
 
 

@@ -22,7 +22,7 @@ class Trans_log2(Trans_abstract):
 
 
     @staticmethod
-    def rev_transform(y):
+    def rev_transform(y, **kwargs):
         if tf.is_tensor(y):
             return tfm.pow(y, 2)
         else:

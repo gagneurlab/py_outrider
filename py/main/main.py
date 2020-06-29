@@ -20,6 +20,7 @@ def main():
     if args['file_meas'] is not None:    # if new tables are given, otherwise execute example
         Full_run(args_input=args)
         # print_func.print_dict(args)
+        pass
 
     else:
         folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/01_example_blood_subset/'

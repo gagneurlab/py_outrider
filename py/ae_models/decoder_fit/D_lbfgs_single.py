@@ -3,15 +3,15 @@ import tensorflow_probability as tfp
 
 # from autoencoder_models.loss_list import Loss_list
 
-from ae_models.decoder_fit import D_abstract
+from ae_models.decoder_fit.D_abstract import D_abstract
 
 
 class D_lbfgs_single(D_abstract):
 
     D_name = "D_LBFGS_single"
 
-    def __init__(self, **kwargs):
-        self.__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.loss_D = self.ds.profile.loss_dis.tf_loss_D_single
 
         if self.ds.D is None:
@@ -23,7 +23,7 @@ class D_lbfgs_single(D_abstract):
         D_optim_obj = self.get_updated_D(loss_func=self.loss_D,
                                        x=self.ds.X, H = self.ds.H, b=self.ds.b,
                                        D=self.ds.D,
-                                       par_sample=self.ds.par_sample, par_meas=self.ds.par_meas,
+                                       par_sample=self.ds.par_sample, par_meas=self.ds.par_meas, data_trans=self.ds.profile.data_trans,
                                        parallel_iterations=self.ds.parallel_iterations)
         b = D_optim_obj["b_optim"]
         D = D_optim_obj["D_optim"]

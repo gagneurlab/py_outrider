@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import tensorflow as tf
-from dataset_handling.data_transform.transform_func import rev_transform_ae_input
 
 
 
@@ -24,9 +23,9 @@ class Trans_abstract(ABC):
     def rev_transform(self):
         pass
 
-    @staticmethod
-    def transform_xrds(xrds):
-        X_trans = Trans_abstract.get_transformed_xrds(xrds)
+    @classmethod
+    def transform_xrds(cls, xrds):
+        X_trans = cls.get_transformed_xrds(xrds)
 
         ### center to zero
         X_bias = np.mean(X_trans, axis=0)

@@ -1,22 +1,20 @@
 import numpy as np
 
 import utilis.stats_func as st
-from dataset_handling.data_transform.transform_func import xrds_transform
-from distributions.noise_func import get_injected_outlier_gaussian
 from ae_models.loss_list import Loss_list
 
 import utilis
-from dataset_handling.data_transform.transform_func import rev_transform_ae_input
 
 ### accessing xarray matrices is pretty slow -> new class
 ### data container for all autoencoder data
 
-class Ae_dataset():
+class Model_dataset():
 
     def __init__(self, xrds):
         self.xrds = xrds
         self.profile = self.xrds.attrs["profile"]
-        xrds_transform(self.xrds)
+
+        self.profile.data_trans.transform_xrds(self.xrds)
 
         # self.initialize_ds()
 
@@ -56,15 +54,6 @@ class Ae_dataset():
 
 
 
-    # ### values used for p-value calculation
-    # def find_stat_used_X(self, xrds):
-    #     if self.profile.distribution.dis_name == "Dis_neg_bin":
-    #         xrds["_X_stat_used"] = xrds["X"]
-    #     else:
-    #         xrds["_X_stat_used"] = xrds["X_trans"] + xrds["X_center_bias"]
-
-
-
     def calc_pvalue(self):
         ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
                                   par=self.par_meas, parallel_iterations=self.parallel_iterations)
@@ -80,10 +69,9 @@ class Ae_dataset():
 
 
     def inject_noise(self, inj_freq, inj_mean, inj_sd):
-        inj_obj = get_injected_outlier_gaussian(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
-                                                norm_name=self.profile.ae_input_trans,
-                                                inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd,
-                                                noise_factor=self.profile.noise_factor, log=False, par_sample=self.xrds["par_sample"])
+        inj_obj = self.profile.dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
+                                                        inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
+                                                        noise_factor=self.profile.noise_factor, par_sample=self.xrds["par_sample"])
         self.xrds["X_trans_noise"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
         self.xrds["X_noise"] = (('sample', 'meas'), inj_obj["X_outlier"])
 
@@ -91,10 +79,9 @@ class Ae_dataset():
 
     ### TODO avoid injection twice: if X_wo_outlier exists ..
     def inject_outlier(self, inj_freq, inj_mean, inj_sd):
-        inj_obj = get_injected_outlier_gaussian(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
-                                                norm_name=self.profile.ae_input_trans,
-                                                inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd,
-                                                noise_factor=1, log=True, par_sample=self.xrds["par_sample"])
+        inj_obj = self.profile.dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
+                                                        inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
+                                                        noise_factor=1, par_sample=self.xrds["par_sample"])
         self.xrds["X_wo_outlier"] = (('sample', 'meas'), self.xrds["X"])
         self.xrds["X"] = (('sample', 'meas'), inj_obj["X_outlier"])
         self.xrds["X_trans"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
@@ -111,13 +98,16 @@ class Ae_dataset():
         y_b = utilis.float_limits.min_value_exp(y_b)
         return y_b
 
-    def _pred_X(self, profile, H, D, b, par_sample):
+
+    def _pred_X(self, H, D, b, par_sample):
         y = self._pred_X_trans(H, D, b)
-        return rev_transform_ae_input(y, profile.ae_input_trans, par_sample=par_sample)
+        return self.profile.data_trans.rev_transform(y, par_sample=par_sample)
+
 
     def calc_X_pred(self):
         self.ds.X_trans_pred = self._pred_X_trans(self.ds.H, self.ds.D, self.ds.b)
-        self.ds.X_pred = self._pred_X(self.ds.profile, self.ds.H, self.ds.D, self.ds.b, self.ds.par_sample)
+        self.ds.X_pred = self._pred_X(self.ds.H, self.ds.D, self.ds.b, self.ds.par_sample)
+
 
     def get_loss(self):
         ds_dis = self.ds.profile.dis(X=self.ds.X, X_pred=self.ds.X_pred,

@@ -11,8 +11,10 @@ class Par_meas_fminbound(Par_meas_abstract):
 
     par_meas_name="fminbound"
 
-    def __init__(self, theta_range = (1e-2, 1e3), **kwargs):
-        self.__init__(**kwargs)
+    def __init__(self, theta_range = (1e-2, 1e3),*args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
         self.theta_range = theta_range
 
 

@@ -4,7 +4,7 @@ import tensorflow_probability as tfp
 from sklearn.decomposition import PCA
 import time
 
-from ae_models.fitting_models.model_fit_abstract import Ae_abstract
+from ae_models.fitting_models.model_fit_abstract import Model_fit_abstract
 # from autoencoder_models.loss_list import Loss_list
 import utilis.print_func as print_func
 from ae_models.loss_list import Loss_list
@@ -18,13 +18,13 @@ from ae_models.par_meas_fit.par_meas_mom import Par_meas_mom
 
 
 
-class Ae_lbfgs(Ae_abstract):
+class Model_fit_lbfgs(Model_fit_abstract):
 
 
     def __init__(self, ae_dataset):
         super().__init__(ae_dataset)
 
-        ### covariate consideration
+        ### covariate consideration -> move to ae_dataset
         if self.ds.cov_sample is not None:
             self.ds.ae_input = np.concatenate([self.ds.X_trans , self.ds.cov_sample], axis=1)
             self.ds.ae_input_noise = np.concatenate([self.ds.X_trans_noise, self.ds.cov_sample], axis=1)

@@ -22,7 +22,7 @@ class Trans_none(Trans_abstract):
 
 
     @staticmethod
-    def rev_transform(y):
+    def rev_transform(y, **kwargs):
         return y
 
 
