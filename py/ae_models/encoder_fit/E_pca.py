@@ -30,11 +30,13 @@ class E_pca(E_abstract):
 
 
     def update_weights(self, pca_coef):
-        self.ds.E = np.transpose(pca_coef)
+        self.ds.E = tf.convert_to_tensor(np.transpose(pca_coef), dtype=self.ds.X.dtype)
         if self.ds.D is None:
-            self.ds.D = pca_coef
-            self.ds.b = self.ds.X_center_bias
+            self.ds.D = tf.convert_to_tensor(pca_coef, dtype=self.ds.X.dtype)
+            self.ds.b = tf.convert_to_tensor(self.ds.X_center_bias, dtype=self.ds.X.dtype)
 
+        E, H = self.reshape_e_to_H(self.ds.E, self.ds.ae_input, self.ds.X, self.ds.D, self.ds.cov_sample)
+        self.ds.H = H
 
 
 
