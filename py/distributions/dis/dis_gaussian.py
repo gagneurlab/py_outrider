@@ -3,20 +3,16 @@ import tensorflow as tf    # 2.0.0
 from tensorflow import math as tfm
 import tensorflow_probability as tfp
 
-from distributions.dis_abstract import Dis_abstract
+from distributions.dis.dis_abstract import Dis_abstract
 from utilis.stats_func import multiple_testing_nan
-from distributions.tf_loss_func import tf_gaus_loss
-
-
-
-#https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/LogNormal
+from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 
 
 
 
-class Dis_log_gaussian(Dis_abstract):
+class Dis_gaussian(Dis_abstract):
 
-    dis_name = "Dis_log_gaussian"
+    dis_name = "Dis_gaussian"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -38,10 +34,9 @@ class Dis_log_gaussian(Dis_abstract):
     def _tf_get_pval_gene(self, X, X_pred):
         x_res = X - X_pred
         pvalues_sd = tf.math.reduce_std(x_res)  # != R-version: ddof=1
-        dis = tfp.distributions.LogNormal(loc=X_pred, scale=pvalues_sd)
+        dis = tfp.distributions.Normal(loc=X_pred, scale=pvalues_sd)
         cdf_values = dis.cdf(X)
         pval = 2 * tfm.minimum(cdf_values, (1 - cdf_values))
-        # pval[np.isnan(X)] = np.nan
         return pval
 
 
@@ -54,15 +49,26 @@ class Dis_log_gaussian(Dis_abstract):
         return pval_adj
 
 
+
     ### loss
     def get_loss(self):
-        return tf_gaus_loss(self.X, self.X_pred).numpy()
+        return Loss_dis_gaussian.tf_loss(self.X, self.X_pred).numpy()
 
 
     def get_random_values(self, inj_mean, inj_sd, size):
-        log_mean = np.log(inj_mean) if inj_mean != 0 else 0
-        z_score = np.random.lognormal(mean=log_mean, sigma=np.log(inj_sd), size=size)
+        z_score = np.random.normal(loc=inj_mean, scale=inj_sd, size=size)
         return z_score
+
+
+
+
+
+
+
+
+
+
+
 
 
 

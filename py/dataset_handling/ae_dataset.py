@@ -1,12 +1,5 @@
 import numpy as np
-import tensorflow as tf    # 2.0.0
-from tensorflow import math as tfm
 
-
-import utilis.float_limits
-from distributions.dis_gaussian import Dis_gaussian
-from distributions.dis_neg_bin import Dis_neg_bin
-from distributions.transform_func import transform_log2, transform_sf, transform_none
 import utilis.stats_func as st
 from distributions.transform_func import xrds_transform
 from distributions.noise_func import get_injected_outlier_gaussian

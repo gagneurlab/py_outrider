@@ -1,21 +1,11 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-import tensorflow as tf    # 2.0.0
-from tensorflow import math as tfm
-
-
 
 # from ae_tf_functions import vst_transform
 
 import ae_models.tf_init
 import utilis.float_limits
-from utilis.tf_fminbound import tf_fminbound
-from distributions.tf_loss_func import tf_neg_bin_loss
-from utilis.np_mom_theta import robust_mom_theta
-from dataset_handling.ae_dataset import Ae_dataset
-from distributions.dis_neg_bin import Dis_neg_bin
-from distributions.dis_gaussian import Dis_gaussian
 from distributions.transform_func import rev_transform_ae_input
 
 

@@ -9,11 +9,11 @@ from distributions.transform_func import rev_transform_ae_input
 
 class Dis_abstract(ABC):
 
-    def __init__(self, X, X_pred, par, parallel_iterations):
+    def __init__(self, X, X_pred, par_meas, parallel_iterations, **kwargs):
         self.float_type = X_pred.dtype  # keep init first
         self.X = X
         self.X_pred = X_pred
-        self.par = par
+        self.par_meas = par_meas
         self.parallel_iterations = parallel_iterations
         self.pvalue = None
 
@@ -29,7 +29,6 @@ class Dis_abstract(ABC):
                 X = tf.convert_to_tensor(X, dtype=self.float_type)
             else:
                 X = tf.convert_to_tensor(X.values, dtype=self.float_type)
-
         self.__X= X
 
 
@@ -44,7 +43,6 @@ class Dis_abstract(ABC):
                 X_pred = tf.convert_to_tensor(X_pred, dtype=self.float_type)
             else:
                 X_pred = tf.convert_to_tensor(X_pred.values, dtype=self.float_type)
-
         self.__X_pred= X_pred
 
     @property
@@ -53,17 +51,17 @@ class Dis_abstract(ABC):
         pass
 
     @property
-    def par(self):
-        return self.__par
+    def par_meas(self):
+        return self.__par_meas
 
-    @par.setter
-    def par(self, par):
-        if not tf.is_tensor(par):
-            if isinstance(par, np.ndarray):
-                par = tf.convert_to_tensor(par, dtype=self.float_type)
+    @par_meas.setter
+    def par_meas(self, par_meas):
+        if not tf.is_tensor(par_meas):
+            if isinstance(par_meas, np.ndarray):
+                par_meas = tf.convert_to_tensor(par_meas, dtype=self.float_type)
             else:
-                par = tf.convert_to_tensor(par.values, dtype=self.float_type)
-        self.__par= par
+                par_meas = tf.convert_to_tensor(par_meas.values, dtype=self.float_type)
+        self.__par_meas= par_meas
 
 
     @property
@@ -95,11 +93,6 @@ class Dis_abstract(ABC):
     @abstractmethod
     def get_loss(self):
         pass
-
-
-    # @abstractmethod
-    # def tf_loss(self):
-    #     pass
 
 
 

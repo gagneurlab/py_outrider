@@ -3,7 +3,7 @@
 
 from profiles.profile_abstract import Profile_abstract
 from ae_models.fitting_models.ae_bfgs2 import Ae_bfgs
-from distributions.dis_gaussian import Dis_gaussian
+from distributions.dis.dis_gaussian import Dis_gaussian
 from distributions.tf_loss_func import tf_gaus_loss_E, tf_gaus_loss_D_single
 
 class Profile_protrider(Profile_abstract):

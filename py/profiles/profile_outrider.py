@@ -3,7 +3,7 @@
 
 from profiles.profile_abstract import Profile_abstract
 from ae_models.fitting_models.ae_bfgs2 import Ae_bfgs
-from distributions.dis_neg_bin import Dis_neg_bin
+from distributions.dis.dis_neg_bin import Dis_neg_bin
 from distributions.tf_loss_func import tf_neg_bin_loss_E, tf_neg_bin_loss_D_single
 
 
