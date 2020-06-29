@@ -22,17 +22,18 @@ class E_pca(E_abstract):
 
 
     def run_fit(self):
-        pca = PCA(n_components=self.ae_ds.xrds.attrs["encod_dim"], svd_solver='full')
+        pca = PCA(n_components=self.ds.xrds.attrs["encod_dim"], svd_solver='full')
         pca.fit(self.ds.ae_input)
-        pca_coef = pca.components_  # (10,200)
+        pca_coef = pca.components_  # encod_dim x samples
         self.update_weights(pca_coef)
 
 
 
     def update_weights(self, pca_coef):
-        self.ae_ds.E = np.transpose(pca_coef)
-        self.ae_ds.D = pca_coef
-        self.ae_ds.b = self.ae_ds.X_center_bias
+        self.ds.E = np.transpose(pca_coef)
+        if self.ds.D is None:
+            self.ds.D = pca_coef
+            self.ds.b = self.ds.X_center_bias
 
 
 

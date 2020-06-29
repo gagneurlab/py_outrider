@@ -5,7 +5,7 @@ import tensorflow as tf
 
 
 
-class E_abstract(ABC):
+class Par_meas_abstract(ABC):
 
     def __init__(self, ds):
         self.ds = ds
@@ -25,8 +25,12 @@ class E_abstract(ABC):
         pass
 
     @abstractmethod
-    def update_weights(self):
+    def update_par_meas(self):
         pass
+
+
+
+
 
 
 

@@ -12,7 +12,7 @@ import ae_models.prepare_ae
 import utilis.float_limits
 from utilis.tf_fminbound import tf_fminbound
 from distributions.tf_loss_func import tf_neg_bin_loss
-from utilis.tf_mom_theta import robust_mom_theta
+from utilis.np_mom_theta import robust_mom_theta
 from dataset_handling.ae_dataset import Ae_dataset
 from distributions.dis_neg_bin import Dis_neg_bin
 from distributions.dis_gaussian import Dis_gaussian

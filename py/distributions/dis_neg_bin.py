@@ -4,7 +4,7 @@ from tensorflow import math as tfm
 import tensorflow_probability as tfp
 
 from distributions.dis_abstract import Dis_abstract
-from distributions.tf_loss_func import tf_neg_bin_loss
+# from distributions.tf_loss_func import tf_neg_bin_loss
 from utilis.stats_func import multiple_testing_nan
 
 
@@ -13,6 +13,7 @@ from utilis.stats_func import multiple_testing_nan
 class Dis_neg_bin(Dis_abstract):
 
     dis_name = "Dis_neg_bin"
+
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -55,7 +56,7 @@ class Dis_neg_bin(Dis_abstract):
 
     ### loss
     def get_loss(self):
-        return tf_neg_bin_loss(self.X, self.X_pred, self.par).numpy()
+        return Dis_neg_bin.tf_neg_bin_loss(self.X, self.X_pred, self.par).numpy()
 
 
 
@@ -64,7 +65,15 @@ class Dis_neg_bin(Dis_abstract):
         raise NotImplementedError
 
 
+    @staticmethod
+    @tf.function
+    def tf_neg_bin_loss(x, x_pred, theta):
+        t1 = x * tfm.log(x_pred) + theta * tfm.log(theta)
+        t2 = (x + theta) * tfm.log(x_pred + theta)
+        t3 = tfm.lgamma(theta + x) - (tfm.lgamma(theta) + tfm.lgamma(x + 1))  # math: k! = exp(lgamma(k+1))
 
+        ll = - tf.reduce_mean(t1 - t2 + t3)
+        return ll
 
 
 

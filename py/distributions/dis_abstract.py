@@ -96,9 +96,12 @@ class Dis_abstract(ABC):
     def get_loss(self):
         pass
 
-    # @abstractmethod
-    # def inject_outlier(self):
-    #     pass
+
+    @abstractmethod
+    def tf_loss(self):
+        pass
+
+
 
     @staticmethod
     @abstractmethod

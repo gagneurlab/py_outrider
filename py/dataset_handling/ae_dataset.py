@@ -53,6 +53,7 @@ class Ae_dataset():
 
         self.loss_list = Loss_list(conv_limit=0.0001, last_iter=3)
 
+
         self.parallel_iterations = self.xrds.attrs["num_cpus"]
 
 
