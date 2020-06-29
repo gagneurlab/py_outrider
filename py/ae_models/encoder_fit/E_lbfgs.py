@@ -13,17 +13,17 @@ class E_lbfgs(E_abstract):
 
 
 
-    def run_fit(self):
+    def fit(self):
         E_optim_obj = self.get_updated_E(loss_func = self.ds.profile.loss_E,
                                        E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, X_trans = self.ds.ae_input_noise, cov_sample=self.ds.cov_sample,
                                        par_sample = self.ds.par_sample, par_meas = self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
 
         E, H = self.reshape_e_to_H(E_optim_obj["E_optim"], self.ds.ae_input, self.ds.X, self.ds.D, self.ds.cov_sample)
-        self.update_weights(E=E, H=H)
+        self._update_weights(E=E, H=H)
 
 
 
-    def update_weights(self, E, H):
+    def _update_weights(self, E, H):
         self.ds.E = tf.convert_to_tensor(E, dtype=self.ds.X.dtype)
         self.ds.H = tf.convert_to_tensor(H, dtype=self.ds.X.dtype)
 

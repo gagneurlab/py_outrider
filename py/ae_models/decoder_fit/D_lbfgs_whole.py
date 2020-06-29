@@ -13,7 +13,7 @@ class D_lbfgs_whole(D_abstract):
 
 
 
-    def run_fit(self):
+    def fit(self):
         D_optim_obj = self.get_updated_D(loss_func=self.ds.profile.loss_D,
                                        x=self.ds.X, H = self.ds.H, b=self.ds.b,
                                        D=self.ds.D,
@@ -22,11 +22,11 @@ class D_lbfgs_whole(D_abstract):
         b = D_optim_obj["b_optim"]
         D = D_optim_obj["D_optim"]
 
-        self.update_weights(D=D, b=b)
+        self._update_weights(D=D, b=b)
 
 
 
-    def update_weights(self, D, b):
+    def _update_weights(self, D, b):
         self.ds.D = tf.convert_to_tensor(D, dtype=self.ds.X.dtype)
         self.ds.b = tf.convert_to_tensor(b, dtype=self.ds.X.dtype)
 

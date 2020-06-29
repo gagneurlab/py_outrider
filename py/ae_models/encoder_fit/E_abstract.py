@@ -25,7 +25,7 @@ class E_abstract(ABC):
         pass
 
     @abstractmethod
-    def update_weights(self):
+    def _update_weights(self):
         pass
 
 

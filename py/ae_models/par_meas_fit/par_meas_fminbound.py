@@ -30,7 +30,7 @@ from ae_models.par_meas_fit.par_meas_abstract import Par_meas_abstract
 from utilis.tf_fminbound import tf_fminbound
 from distributions.tf_loss_func import tf_neg_bin_loss
 
-class Par_meas_mom(Par_meas_abstract):
+class Par_meas_fminbound(Par_meas_abstract):
 
     def __init__(self, theta_range = (1e-2, 1e3), **kwargs):
         self.__init__(**kwargs)
@@ -44,10 +44,10 @@ class Par_meas_mom(Par_meas_abstract):
                                                  parallel_iterations=self.ds.parallel_iterations)
         else:
             par_meas = np.zeros(shape=(self.ds.X.shape[1],))
-        self.update_par_meas(par_meas)
+        self._update_par_meas(par_meas)
 
 
-    def update_par_meas(self, par_meas):
+    def _update_par_meas(self, par_meas):
         self.ds.par_meas =  tf.convert_to_tensor(par_meas, dtype=self.ds.X.dtype)
 
 

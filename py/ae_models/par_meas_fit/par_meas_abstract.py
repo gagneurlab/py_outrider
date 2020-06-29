@@ -25,7 +25,7 @@ class Par_meas_abstract(ABC):
         pass
 
     @abstractmethod
-    def update_par_meas(self):
+    def _update_par_meas(self):
         pass
 
 
