@@ -8,7 +8,7 @@ from utilis.np_mom_theta import robust_mom_theta
 
 class Par_meas_mom(Par_meas_abstract):
 
-    par_meas_name="method of moments"
+    par_meas_name="par_mom"
 
 
     def __init__(self, theta_range = (1e-2, 1e3),*args, **kwargs):

@@ -54,7 +54,7 @@ class Dis_abstract(ABC):
 
     @par_meas.setter
     def par_meas(self, par_meas):
-        if not tf.is_tensor(par_meas):
+        if par_meas is not None and not tf.is_tensor(par_meas):
             if isinstance(par_meas, np.ndarray):
                 par_meas = tf.convert_to_tensor(par_meas, dtype=self.float_type)
             else:

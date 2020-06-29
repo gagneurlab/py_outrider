@@ -9,9 +9,9 @@ from distributions.tf_loss_func import tf_neg_bin_loss
 
 class Par_meas_fminbound(Par_meas_abstract):
 
-    par_meas_name="fminbound"
+    par_meas_name="par_fminbound"
 
-    def __init__(self, theta_range = (1e-2, 1e3),*args, **kwargs):
+    def __init__(self, theta_range = (1e-2, 1e3), *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 

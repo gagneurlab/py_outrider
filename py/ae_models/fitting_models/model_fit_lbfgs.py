@@ -37,7 +37,7 @@ class Model_fit_lbfgs(Model_fit_abstract):
     # @tf.function
     def run_fit(self, convergence=1e-5, **kwargs):
 
-        E_pca(self.ds).run_fit()
+        E_pca(ds=self.ds).run_fit()
 
         # print(f"ae_input: {self.ds.ae_input.shape}")
         # print(f"E: {self.ds.E.shape}")
@@ -49,18 +49,18 @@ class Model_fit_lbfgs(Model_fit_abstract):
         #     print(f"cov_sample: {self.ds.cov_sample.shape}")
 
 
-        Par_meas_mom(self.ds).run_fit()
-        D_lbfgs_single(self.ds).run_fit()
-        Par_meas_fminbound(self.ds).run_fit()
+        Par_meas_mom(ds=self.ds).run_fit()
+        D_lbfgs_single(ds=self.ds).run_fit()
+        Par_meas_fminbound(ds=self.ds).run_fit()
 
         ### ITERATE UNTIL CONVERGENCE
         for iter in range(self.ds.xrds.attrs["max_iter"]):
             print(f'### ITERATION {iter}')
             time_iter_start = time.time()
 
-            E_lbfgs(self.ds).run_fit()
-            D_lbfgs_single(self.ds).run_fit()
-            Par_meas_fminbound(self.ds).run_fit()
+            E_lbfgs(ds=self.ds).run_fit()
+            D_lbfgs_single(ds=self.ds).run_fit()
+            Par_meas_fminbound(ds=self.ds).run_fit()
 
             print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))
 

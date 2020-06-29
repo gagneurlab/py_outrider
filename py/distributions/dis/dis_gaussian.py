@@ -15,7 +15,7 @@ class Dis_gaussian(Dis_abstract):
     dis_name = "Dis_gaussian"
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(par_meas=None, **kwargs)
 
 
     ### pval calculation

@@ -15,16 +15,17 @@ class D_lbfgs_single(D_abstract):
         self.loss_D = self.ds.profile.loss_dis.tf_loss_D_single
 
         if self.ds.D is None:
-            raise ValueError("D is none, need aproximate weights for D to perform LBGFS refinement")
+            raise ValueError("D is none, need approximate weights for D to perform LBGFS refinement")
 
 
     @tf.function
     def fit(self):
         D_optim_obj = self.get_updated_D(loss_func=self.loss_D,
-                                       x=self.ds.X, H = self.ds.H, b=self.ds.b,
-                                       D=self.ds.D,
-                                       par_sample=self.ds.par_sample, par_meas=self.ds.par_meas, data_trans=self.ds.profile.data_trans,
-                                       parallel_iterations=self.ds.parallel_iterations)
+                                            x=self.ds.X, H = self.ds.H, b=self.ds.b,
+                                            D=self.ds.D,
+                                            par_sample=self.ds.par_sample, par_meas=self.ds.par_meas,
+                                            data_trans=self.ds.profile.data_trans,
+                                            parallel_iterations=self.ds.parallel_iterations)
         b = D_optim_obj["b_optim"]
         D = D_optim_obj["D_optim"]
 
@@ -39,9 +40,9 @@ class D_lbfgs_single(D_abstract):
 
 
     @tf.function
-    def get_updated_D(self, loss_func, x, H, b, D, par_sample, par_meas, parallel_iterations=1):
+    def get_updated_D(self, loss_func, x, H, b, D, par_sample, par_meas, data_trans, parallel_iterations=1):
         meas_cols = tf.range(tf.shape(D)[1])
-        map_D = tf.map_fn(lambda i: (self.single_fit_D(loss_func, H, x[:, i], b[i], D[:, i], par_sample, par_meas[i])),
+        map_D = tf.map_fn(lambda i: (self.single_fit_D(loss_func, H, x[:, i], b[i], D[:, i], par_sample, par_meas[i], data_trans)),
                           meas_cols,
                           dtype=x.dtype,
                           parallel_iterations=parallel_iterations)
@@ -49,17 +50,18 @@ class D_lbfgs_single(D_abstract):
 
 
     @tf.function
-    def single_fit_D(self, loss_func, H, x_i, b_i, D_i, par_sample, par_meas_i):
+    def single_fit_D(self, loss_func, H, x_i, b_i, D_i, par_sample, par_meas_i, data_trans):
         b_and_D = tf.concat([tf.expand_dims(b_i, 0), D_i], axis=0)
 
         def lbfgs_input(b_and_D):
-            loss = loss_func(H, x_i, b_and_D, par_sample, par_meas_i)
+            loss = loss_func(H=H, x_i=x_i, b_and_D=b_and_D, par_meas_i=par_meas_i, par_sample=par_sample, data_trans=data_trans)
             gradients = tf.gradients(loss, b_and_D)[0]
             return loss, tf.clip_by_value(gradients, -100., 100.)
 
         optim = tfp.optimizer.lbfgs_minimize(lbfgs_input, initial_position=b_and_D, tolerance=1e-6,
                                              max_iterations=50)
         return optim.position  # b(200) and D(200x10) -> needs t()
+
 
 
 

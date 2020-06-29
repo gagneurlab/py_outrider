@@ -16,18 +16,18 @@ class E_lbfgs(E_abstract):
         super().__init__(*args, **kwargs)
 
         if self.ds.E is None:
-            raise ValueError("E is none, need aproximate weights for E to perform LBGFS refinement")
+            raise ValueError("E is none, need approximate weights for E to perform LBGFS refinement")
 
 
     @tf.function
     def fit(self):
         E_optim_obj = self.get_updated_E(loss_func = self.loss_E,
-                                         E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, x_trans = self.ds.ae_input_noise,
+                                         E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, x_trans = self.ds.fit_input_noise,
                                          cov_sample=self.ds.cov_sample, par_sample = self.ds.par_sample, par_meas = self.ds.par_meas,
                                          data_trans=self.ds.profile.data_trans,
                                          parallel_iterations=self.ds.parallel_iterations)
 
-        E, H = self.reshape_e_to_H(E_optim_obj["E_optim"], self.ds.ae_input, self.ds.X, self.ds.D, self.ds.cov_sample)
+        E, H = self.reshape_e_to_H(E_optim_obj["E_optim"], self.ds.fit_input, self.ds.X, self.ds.D, self.ds.cov_sample)
         self._update_weights(E=E, H=H)
 
 
@@ -44,7 +44,8 @@ class E_lbfgs(E_abstract):
         e = tf.reshape(E, shape=[tf.size(E), ])
 
         def lbfgs_input(e):
-            loss = loss_func(e, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans)
+            loss = loss_func(e=e, D=D, b=b, x=x, x_trans=x_trans, par_sample=par_sample,
+                             par_meas=par_meas, cov_sample=cov_sample, data_trans=data_trans)
             gradients = tf.gradients(loss, e)[0]
             return loss, tf.clip_by_value(gradients, -100., 100.)
 

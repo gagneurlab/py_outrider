@@ -16,8 +16,8 @@ class Model_fit_pca(Model_fit_abstract):
 
 
     def run_fit(self, **kwargs):
-        E_pca(self.ds, **kwargs).run_fit()
-        Par_meas_fminbound(self.ds, **kwargs).run_fit()
+        E_pca(ds=self.ds, **kwargs).run_fit()
+        Par_meas_fminbound(ds=self.ds, **kwargs).run_fit()
 
 
 

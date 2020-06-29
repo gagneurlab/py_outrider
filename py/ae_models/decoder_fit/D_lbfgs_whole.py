@@ -14,16 +14,17 @@ class D_lbfgs_whole(D_abstract):
         super().__init__(*args, **kwargs)
 
         if self.ds.D is None:
-            raise ValueError("D is none, need aproximate weights for D to perform LBGFS refinement")
+            raise ValueError("D is none, need approximate weights for D to perform LBGFS refinement")
 
 
     @tf.function
     def fit(self):
         D_optim_obj = self.get_updated_D(loss_func=self.loss_D,
-                                       x=self.ds.X, H = self.ds.H, b=self.ds.b,
-                                       D=self.ds.D,
-                                       par_sample=self.ds.par_sample, par_meas=self.ds.par_meas, data_trans=self.ds.profile.data_trans,
-                                       parallel_iterations=self.ds.parallel_iterations)
+                                            x=self.ds.X, H = self.ds.H, b=self.ds.b,
+                                            D=self.ds.D,
+                                            par_sample=self.ds.par_sample, par_meas=self.ds.par_meas,
+                                            data_trans=self.ds.profile.data_trans,
+                                            parallel_iterations=self.ds.parallel_iterations)
         b = D_optim_obj["b_optim"]
         D = D_optim_obj["D_optim"]
 
@@ -47,7 +48,7 @@ class D_lbfgs_whole(D_abstract):
         b_and_D = tf.reshape(b_and_D, [-1])  ### flatten
 
         def lbfgs_input(b_and_D):
-            loss = loss_func(H, x, b_and_D, par_sample, par_meas, data_trans)
+            loss = loss_func(H=H, x=x, b_and_D=b_and_D, par_sample=par_sample, par_meas=par_meas, data_trans=data_trans)
             gradients = tf.gradients(loss, b_and_D)[0]  ## works but runtime check, eager faster ??
             return loss, tf.clip_by_value(tf.reshape(gradients, [-1]), -100., 100.)
 

@@ -52,8 +52,8 @@ class E_abstract(ABC):
 
 
     ### depending on covariates, transform e weights to according matrix
+    # @tf.function
     @staticmethod
-    @tf.function
     def reshape_e_to_H(e, ae_input, X, D, cov_sample):
         if X.shape == ae_input.shape:   # no covariates in encoding step
             if cov_sample is None:

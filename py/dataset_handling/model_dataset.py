@@ -1,4 +1,7 @@
 import numpy as np
+import tensorflow as tf    # 2.0.0
+import tensorflow_probability as tfp
+from tensorflow import math as tfm
 
 import utilis.stats_func as st
 from ae_models.loss_list import Loss_list
@@ -25,17 +28,22 @@ class Model_dataset():
         # self.find_stat_used_X(xrds)
 
         self.X = self.xrds["X"].values
+        self.X_pred = None  # for pvalue and loss calculation
         self.X_trans = self.xrds["X_trans"].values
         self.X_trans_noise = self.xrds["X_trans_noise"].values
         self.X_center_bias = self.xrds["X_center_bias"].values
         self.cov_sample = self.xrds["cov_sample"].values if "cov_sample" in self.xrds else None
         self.par_sample = self.xrds["par_sample"].values if "par_sample" in self.xrds else None
         self.par_meas = self.xrds["par_meas"].values if "par_meas" in self.xrds else None
-        # self.X = self.xrds["_X_stat_used"].values  # for pvalue and loss calculation
 
-        self.X_pred = None  # for pvalue and loss calculation
-        self.ae_input = self.X_trans
-        self.ae_input_noise = self.X_trans
+        ### covariate consideration
+        if self.cov_sample is not None:
+            self.fit_input = np.concatenate([self.X_trans , self.cov_sample], axis=1)
+            self.fit_input_noise = np.concatenate([self.X_trans_noise, self.cov_sample], axis=1)
+        else:
+            self.fit_input = self.X_trans
+            self.fit_input_noise = self.X_trans_noise
+
         self.E = None
         self.D = None
         self.b = None
@@ -47,8 +55,6 @@ class Model_dataset():
               for x in [self.X, self.X_trans, self.X_center_bias, self.cov_sample, self.par_sample, self.par_meas, self.X] ]
 
         self.loss_list = Loss_list(conv_limit=0.00001, last_iter=3)
-
-
         self.parallel_iterations = self.xrds.attrs["num_cpus"]
 
 
@@ -91,9 +97,13 @@ class Model_dataset():
 
 
     ##### prediction calculation steps
+    #tf.function
     def _pred_X_trans(self, H, D, b):
-        y = np.matmul(H, D)  # y: sample x gene
-        y = y[:, 0:len(b)]  # avoid cov_sample inclusion
+        # y = np.matmul(H, D)  # y: sample x gene
+        # y = y[:, 0:len(b)]  # avoid cov_sample inclusion
+        y = tf.matmul(H, D)  # y: sample x gene
+        y = tf.gather(y, range(len(b)), axis=1)
+
         y_b = y + b
         y_b = utilis.float_limits.min_value_exp(y_b)
         return y_b
@@ -105,13 +115,13 @@ class Model_dataset():
 
 
     def calc_X_pred(self):
-        self.ds.X_trans_pred = self._pred_X_trans(self.ds.H, self.ds.D, self.ds.b)
-        self.ds.X_pred = self._pred_X(self.ds.H, self.ds.D, self.ds.b, self.ds.par_sample)
+        self.X_trans_pred = self._pred_X_trans(self.H, self.D, self.b)
+        self.X_pred = self._pred_X(self.H, self.D, self.b, self.par_sample)
 
 
     def get_loss(self):
-        ds_dis = self.ds.profile.dis(X=self.ds.X, X_pred=self.ds.X_pred,
-                                     par=self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
+        ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
+                                     par=self.par_meas, parallel_iterations=self.parallel_iterations)
         loss = ds_dis.get_loss()
         return loss
 

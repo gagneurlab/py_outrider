@@ -18,7 +18,7 @@ class E_pca(E_abstract):
 
     def fit(self):
         pca = PCA(n_components=self.ds.xrds.attrs["encod_dim"], svd_solver='full')
-        pca.fit(self.ds.ae_input)
+        pca.fit(self.ds.fit_input)
         pca_coef = pca.components_  # encod_dim x samples
         self._update_weights(pca_coef)
 
@@ -39,7 +39,7 @@ class E_pca(E_abstract):
             self.ds.D = tf.convert_to_tensor(pca_coef_D, dtype=self.ds.X.dtype)
             self.ds.b = tf.convert_to_tensor(self.ds.X_center_bias, dtype=self.ds.X.dtype)
 
-        E, H = self.reshape_e_to_H(self.ds.E, self.ds.ae_input, self.ds.X, self.ds.D, self.ds.cov_sample)
+        E, H = self.reshape_e_to_H(self.ds.E, self.ds.fit_input, self.ds.X, self.ds.D, self.ds.cov_sample)
         self.ds.H = H
 
 
