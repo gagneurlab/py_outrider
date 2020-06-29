@@ -4,7 +4,7 @@ import tensorflow_probability as tfp
 from sklearn.decomposition import PCA
 import time
 
-from ae_models.fitting_models.ae_abstract import Ae_abstract
+from ae_models.fitting_models.ae_abstract2 import Ae_abstract
 # from autoencoder_models.loss_list import Loss_list
 import utilis.print_func as print_func
 from ae_models.loss_list import Loss_list

@@ -11,6 +11,9 @@ class D_lbfgs_whole(D_abstract):
     def __init__(self, **kwargs):
         self.__init__(**kwargs)
 
+        if self.ds.D is None:
+            raise ValueError("D is none, need aproximate weights for D to perform LBGFS refinement")
+
 
 
     def fit(self):

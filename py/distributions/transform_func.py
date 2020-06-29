@@ -54,9 +54,9 @@ def calc_size_factor(counts):
 ############################################
 
 
-def rev_transform_ae_input(y, norm_name, par_sample):
+def rev_transform_ae_input(y, norm_name, **kwargs):
     if norm_name == "sf":
-        return rev_transform_sf(y, par_sample)
+        return rev_transform_sf(y, **kwargs)
     elif norm_name == "log2":
         return rev_transform_log2(y)
     elif norm_name == "none":
@@ -66,13 +66,16 @@ def rev_transform_ae_input(y, norm_name, par_sample):
 def rev_transform_none(y):
     return y
 
+
 def rev_transform_log2(y):
     if tf.is_tensor(y):
         return tfm.pow(y,2)
     else:
         return np.power(y,2)
 
-def rev_transform_sf(y, sf):
+
+def rev_transform_sf(y, par_sample, **kwargs):
+    sf = par_sample
     if tf.is_tensor(y):
         return tfm.exp(y) * tf.expand_dims(sf,1)
     else:
@@ -90,5 +93,31 @@ def rev_transform_sf(y, sf):
 
 
 
-
+#
+#
+# # def matrix_inverse_vst(matrix, extraPois, asymptDisp):
+# @tf.function
+# def matrix_inverse_vst(matrix):
+#     # return tfm.exp(matrix)
+#
+#     extraPois = tf.constant(5.30561, dtype=matrix.dtype)  # only for mofa_outrider/06_sample_blood_outlier_z3/counts_raw.csv
+#     asymptDisp = tf.constant(0.09147687, dtype=matrix.dtype)
+#
+#     two = tf.constant(2, dtype=matrix.dtype)
+#
+#     vst_inv = tfm.pow( (4 * asymptDisp * tfm.pow(two, matrix) -(1 + extraPois)), 2) / \
+#               (4 * asymptDisp * (1 + extraPois + (4 * asymptDisp * tfm.pow(two,matrix) - (1 + extraPois))))
+#     return vst_inv
+#
+#
+# # def matrix_vst(matrix, extraPois, asymptDisp):
+# @tf.function
+# def matrix_vst(matrix):
+#     extraPois = tf.constant(5.30561, dtype=matrix.dtype)
+#     asymptDisp = tf.constant(0.09147687, dtype=matrix.dtype)
+#
+#     vst = tfm.log((1 + extraPois + 2 * asymptDisp * matrix + 2 * tfm.sqrt(asymptDisp * matrix * (1 + extraPois + asymptDisp * matrix))) /
+#                   (4 * asymptDisp)) / tfm.log(tf.constant(2, dtype=matrix.dtype))
+#     return vst
+#
 

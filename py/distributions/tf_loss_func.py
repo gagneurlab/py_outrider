@@ -34,8 +34,8 @@ def tf_neg_bin_loss(x, x_pred, theta):
 
 
 @tf.function
-def tf_neg_bin_loss_E(e, D, b, x, x_norm, sf, theta, cov_sample):
-    H = reshape_e_to_H(e, x_norm, x, D, cov_sample)
+def tf_neg_bin_loss_E(e, D, b, x, x_trans, sf, theta, cov_sample):
+    H = reshape_e_to_H(e, x_trans, x, D, cov_sample)
     y = tf.matmul(H, D) + b
     y = min_value_exp(y)
 
@@ -70,8 +70,8 @@ def tf_gaus_loss_D_single(H, c_i, b_and_D, par_sample, par_meas_i):
 
 
 @tf.function
-def tf_gaus_loss_E(e, D, b, x, x_norm, par_sample, par_meas, cov_sample):
-    H = reshape_e_to_H(e, x_norm, x, D, cov_sample)
+def tf_gaus_loss_E(e, D, b, x, x_trans, par_sample, par_meas, cov_sample):
+    H = reshape_e_to_H(e, x_trans, x, D, cov_sample)
     y = tf.matmul(H, D) + b
     return tf_gaus_loss(x, y)
 
