@@ -8,7 +8,7 @@ from tensorflow import math as tfm
 
 # from ae_tf_functions import vst_transform
 
-import ae_models.prepare_ae
+import ae_models.tf_init
 import utilis.float_limits
 from utilis.tf_fminbound import tf_fminbound
 from distributions.tf_loss_func import tf_neg_bin_loss
@@ -27,8 +27,8 @@ class Ae_abstract(ABC):
 
         self.loss_list = None
 
-        ae_models.prepare_ae.init_tf_config(num_cpus=self.ds.xrds.attrs["num_cpus"], verbose=self.ds.xrds.attrs["verbose"])
-        ae_models.prepare_ae.init_float_type(float_type=self.ds.xrds.attrs["float_type"])
+        ae_models.tf_init.init_tf_config(num_cpus=self.ds.xrds.attrs["num_cpus"], verbose=self.ds.xrds.attrs["verbose"])
+        ae_models.tf_init.init_float_type(float_type=self.ds.xrds.attrs["float_type"])
 
 
 
@@ -53,12 +53,12 @@ class Ae_abstract(ABC):
 
 
     @abstractmethod
-    def run_fitting(self):
+    def run_fit(self):
          pass
 
 
     def run_autoencoder(self, **kwargs):
-        self.run_fitting(**kwargs)
+        self.run_fit(**kwargs)
         self.calc_X_pred()
         self.ds.init_pvalue_fc_z()
         self.xrds = self.ds.get_xrds()

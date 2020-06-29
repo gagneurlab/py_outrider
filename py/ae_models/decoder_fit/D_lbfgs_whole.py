@@ -1,14 +1,7 @@
-import numpy as np
 import tensorflow as tf    # 2.0.0
-from tensorflow import math as tfm
 import tensorflow_probability as tfp
-import time
 
-from ae_models.ae_abstract import Ae_abstract
 # from autoencoder_models.loss_list import Loss_list
-import utilis.print_func as print_func
-import utilis.float_limits
-from ae_models.loss_list import Loss_list
 
 from ae_models.decoder_fit import D_abstract
 

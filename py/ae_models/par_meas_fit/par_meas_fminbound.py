@@ -11,7 +11,7 @@ class Par_meas_fminbound(Par_meas_abstract):
         self.__init__(**kwargs)
 
 
-    def run_fit(self):
+    def fit(self):
         pass
 
     def update_par_meas(self):
@@ -37,7 +37,7 @@ class Par_meas_mom(Par_meas_abstract):
         self.theta_range = theta_range
 
 
-    def run_fit(self):
+    def fit(self):
         if self.ds.profile.distribution.dis_name == "Dis_neg_bin":
             par_meas = self.update_par_meas_fmin(tf_neg_bin_loss, X=self.ds.X, X_pred=self.ds.X_pred,
                                                  par_list=self.theta_range,

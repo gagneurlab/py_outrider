@@ -21,7 +21,7 @@ class E_abstract(ABC):
 
 
     @abstractmethod
-    def run_fit(self):
+    def fit(self):
         pass
 
     @abstractmethod

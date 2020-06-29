@@ -1,15 +1,8 @@
 import numpy as np
 import tensorflow as tf    # 2.0.0
-from tensorflow import math as tfm
-import tensorflow_probability as tfp
 from sklearn.decomposition import PCA
-import time
 
-from ae_models.ae_abstract import Ae_abstract
 # from autoencoder_models.loss_list import Loss_list
-import utilis.print_func as print_func
-import utilis.float_limits
-from ae_models.loss_list import Loss_list
 
 from ae_models.encoder_fit import E_abstract
 

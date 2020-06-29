@@ -97,9 +97,9 @@ class Dis_abstract(ABC):
         pass
 
 
-    @abstractmethod
-    def tf_loss(self):
-        pass
+    # @abstractmethod
+    # def tf_loss(self):
+    #     pass
 
 
 

@@ -10,7 +10,7 @@ class Par_meas_mom(Par_meas_abstract):
         self.theta_range = theta_range
 
 
-    def run_fit(self):
+    def fit(self):
         if self.ds.profile.distribution.dis_name == "Dis_neg_bin":
             par_meas = robust_mom_theta(self.ds.X, self.theta_range[0], self.theta_range[1])
         else:
