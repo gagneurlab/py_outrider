@@ -1,12 +1,8 @@
 from abc import ABC, abstractmethod
 
-import numpy as np
-
 # from ae_tf_functions import vst_transform
 
 import ae_models.tf_init
-import utilis.float_limits
-from distributions.transform_func import rev_transform_ae_input
 
 
 class Ae_abstract(ABC):
@@ -46,32 +42,7 @@ class Ae_abstract(ABC):
 
 
 
-    ##### prediction calculation steps
 
-    def _pred_X_trans(self, H, D, b):
-        y = np.matmul(H, D) # y: sample x gene
-        y = y[:,0:len(b)]  # avoid cov_sample inclusion
-        y_b = y + b
-        y_b = utilis.float_limits.min_value_exp(y_b)
-        return y_b
-
-    def _pred_X(self, profile, H, D, b, par_sample):
-        y = self._pred_X_trans(H, D, b)
-        return rev_transform_ae_input(y, profile.ae_input_trans, par_sample=par_sample)
-
-
-    def calc_X_pred(self):
-        self.ds.X_trans_pred = self._pred_X_trans(self.ds.H, self.ds.D, self.ds.b)
-        self.ds.X_pred = self._pred_X(self.ds.profile, self.ds.H, self.ds.D, self.ds.b, self.ds.par_sample)
-
-
-
-    def get_loss(self):
-        self.calc_X_pred()
-        ds_dis = self.ds.profile.distribution(X=self.ds.X, X_pred=self.ds.X_pred,
-                                           par=self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
-        loss = ds_dis.get_loss()
-        return loss
 
 
 

@@ -11,7 +11,7 @@ class Par_meas_mom(Par_meas_abstract):
 
 
     def fit(self):
-        if self.ds.profile.distribution.dis_name == "Dis_neg_bin":
+        if self.ds.profile.dis.dis_name == "Dis_neg_bin":
             par_meas = robust_mom_theta(self.ds.X, self.theta_range[0], self.theta_range[1])
         else:
             par_meas = np.zeros(shape=(self.ds.X.shape[1],))

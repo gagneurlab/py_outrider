@@ -38,7 +38,7 @@ class Par_meas_fminbound(Par_meas_abstract):
 
 
     def fit(self):
-        if self.ds.profile.distribution.dis_name == "Dis_neg_bin":
+        if self.ds.profile.dis.dis_name == "Dis_neg_bin":
             par_meas = self.update_par_meas_fmin(tf_neg_bin_loss, X=self.ds.X, X_pred=self.ds.X_pred,
                                                  par_list=self.theta_range,
                                                  parallel_iterations=self.ds.parallel_iterations)

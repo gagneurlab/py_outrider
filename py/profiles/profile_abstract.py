@@ -28,29 +28,32 @@ class Profile_abstract(ABC):
 
 
     @property
-    def distribution(self):
-        return self.__distribution
+    def dis(self):
+        return self.__dis
 
-    @distribution.setter
-    def distribution(self, distribution):
-        self.__distribution = distribution
-
-    @property
-    def loss_D(self):
-        return self.__loss_D
-
-    @loss_D.setter
-    def loss_D(self, loss_D):
-        self.__loss_D = loss_D
-
+    @dis.setter
+    def dis(self, dis):
+        self.__dis = dis
 
     @property
-    def loss_E(self):
-        return self.__loss_E
+    def loss_dis(self):
+        return self.__loss_dis
 
-    @loss_E.setter
-    def loss_E(self, loss_E):
-        self.__loss_E = loss_E
+    @loss_dis.setter
+    def loss_dis(self, loss_dis):
+        self.__loss_dis = loss_dis
+
+    # @property
+    # def loss_D(self):
+    #     return self.__loss_D
+    #
+    # @loss_D.setter
+    # def loss_D(self, loss_D):
+    #     self.__loss_D = loss_D
+
+
+
+
 
 
     @property

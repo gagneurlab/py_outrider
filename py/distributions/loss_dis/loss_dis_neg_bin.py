@@ -1,11 +1,10 @@
 import tensorflow as tf
 from tensorflow import math as tfm
-from utilis.float_limits import min_value_exp
 
 from ae_models.encoder_fit.E_abstract import E_abstract
 
 from distributions.loss_dis import loss_dis_abstract
-from distributions.transform_func import rev_transform_ae_input
+from dataset_handling.data_transform.transform_func import rev_transform_ae_input
 
 
 

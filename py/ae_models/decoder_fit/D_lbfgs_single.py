@@ -10,6 +10,7 @@ class D_lbfgs_single(D_abstract):
 
     def __init__(self, **kwargs):
         self.__init__(**kwargs)
+        self.loss_D = self.ds.profile.loss_dis.tf_loss_D_single
 
         if self.ds.D is None:
             raise ValueError("D is none, need aproximate weights for D to perform LBGFS refinement")
@@ -17,7 +18,7 @@ class D_lbfgs_single(D_abstract):
 
 
     def fit(self):
-        D_optim_obj = self.get_updated_D(loss_func=self.ds.profile.loss_D,
+        D_optim_obj = self.get_updated_D(loss_func=self.loss_D,
                                        x=self.ds.X, H = self.ds.H, b=self.ds.b,
                                        D=self.ds.D,
                                        par_sample=self.ds.par_sample, par_meas=self.ds.par_meas,

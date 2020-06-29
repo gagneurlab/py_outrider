@@ -18,7 +18,6 @@ class Full_run():
         ae_ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
 
 
-
         if xrds.attrs["encod_dim"] is None:
             print('encod_dim is None -> running hyperpar-opt')
 

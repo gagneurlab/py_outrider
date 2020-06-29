@@ -1,9 +1,12 @@
 import numpy as np
 
 import utilis.stats_func as st
-from distributions.transform_func import xrds_transform
+from dataset_handling.data_transform.transform_func import xrds_transform
 from distributions.noise_func import get_injected_outlier_gaussian
 from ae_models.loss_list import Loss_list
+
+import utilis
+from dataset_handling.data_transform.transform_func import rev_transform_ae_input
 
 ### accessing xarray matrices is pretty slow -> new class
 ### data container for all autoencoder data
@@ -62,8 +65,8 @@ class Ae_dataset():
 
 
     def calc_pvalue(self):
-        ds_dis = self.profile.distribution(X=self.X, X_pred=self.X_pred,
-                                           par=self.par_meas, parallel_iterations=self.parallel_iterations)
+        ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
+                                  par=self.par_meas, parallel_iterations=self.parallel_iterations)
         self.X_pvalue = ds_dis.get_pvalue()
         self.X_pvalue_adj = ds_dis.get_pvalue_adj()
 
@@ -96,6 +99,29 @@ class Ae_dataset():
         self.xrds["X_trans"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
         self.xrds["X_is_outlier"] = (('sample', 'meas'), inj_obj["X_is_outlier"])
 
+        ##### prediction calculation steps
+
+    def _pred_X_trans(self, H, D, b):
+        y = np.matmul(H, D)  # y: sample x gene
+        y = y[:, 0:len(b)]  # avoid cov_sample inclusion
+        y_b = y + b
+        y_b = utilis.float_limits.min_value_exp(y_b)
+        return y_b
+
+    def _pred_X(self, profile, H, D, b, par_sample):
+        y = self._pred_X_trans(H, D, b)
+        return rev_transform_ae_input(y, profile.ae_input_trans, par_sample=par_sample)
+
+    def calc_X_pred(self):
+        self.ds.X_trans_pred = self._pred_X_trans(self.ds.H, self.ds.D, self.ds.b)
+        self.ds.X_pred = self._pred_X(self.ds.profile, self.ds.H, self.ds.D, self.ds.b, self.ds.par_sample)
+
+    def get_loss(self):
+        self.calc_X_pred()
+        ds_dis = self.ds.profile.dis(X=self.ds.X, X_pred=self.ds.X_pred,
+                                     par=self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
+        loss = ds_dis.get_loss()
+        return loss
 
 
 

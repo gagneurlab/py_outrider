@@ -1,5 +1,5 @@
 import numpy as np
-from distributions.transform_func import rev_transform_ae_input
+from dataset_handling.data_transform.transform_func import rev_transform_ae_input
 
 
 

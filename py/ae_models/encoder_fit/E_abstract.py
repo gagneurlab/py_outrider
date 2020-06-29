@@ -9,6 +9,7 @@ class E_abstract(ABC):
 
     def __init__(self, ds):
         self.ds = ds
+        self.loss_E = self.ds.profile.loss_dis.tf_loss_E
 
 
     @property
@@ -18,6 +19,15 @@ class E_abstract(ABC):
     @ds.setter
     def ds(self, ds):
         self.__ds = ds
+
+
+    @property
+    def loss_E(self):
+        return self.__loss_E
+
+    @loss_E.setter
+    def loss_E(self, loss_E):
+        self.__loss_E = loss_E
 
 
     @abstractmethod

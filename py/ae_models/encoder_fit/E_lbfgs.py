@@ -17,7 +17,7 @@ class E_lbfgs(E_abstract):
 
 
     def fit(self):
-        E_optim_obj = self.get_updated_E(loss_func = self.ds.profile.loss_E,
+        E_optim_obj = self.get_updated_E(loss_func = self.loss_E,
                                        E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, X_trans = self.ds.ae_input_noise, cov_sample=self.ds.cov_sample,
                                        par_sample = self.ds.par_sample, par_meas = self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
 

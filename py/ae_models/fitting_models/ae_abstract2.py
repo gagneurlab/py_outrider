@@ -10,7 +10,7 @@ import utilis.float_limits
 from utilis.tf_fminbound import tf_fminbound
 from distributions.tf_loss_func import tf_neg_bin_loss
 from utilis.np_mom_theta import robust_mom_theta
-from distributions.transform_func import rev_transform_ae_input
+from dataset_handling.data_transform.transform_func import rev_transform_ae_input
 
 
 class Ae_abstract(ABC):
@@ -88,9 +88,9 @@ class Ae_abstract(ABC):
 
     ### X value for pvalue calculation - raw or keep normalised
     def _calc_X_pred(self):
-        if self.ds.profile.distribution.dis_name == "Dis_gaussian":
+        if self.ds.profile.dis.dis_name == "Dis_gaussian":
             self.ds.X_pred = self.ds.X_trans_pred
-        elif self.ds.profile.distribution.dis_name == "Dis_neg_bin":
+        elif self.ds.profile.dis.dis_name == "Dis_neg_bin":
             self.ds.X_pred = self.ds.X_pred
         else:
             raise ValueError("distribution not found")
@@ -98,8 +98,8 @@ class Ae_abstract(ABC):
 
     def get_loss(self):
         self.calc_X_pred()
-        ds_dis = self.ds.profile.distribution(X=self.ds.X, X_pred=self.ds.X_pred,
-                                           par=self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
+        ds_dis = self.ds.profile.dis(X=self.ds.X, X_pred=self.ds.X_pred,
+                                     par=self.ds.par_meas, parallel_iterations=self.ds.parallel_iterations)
         loss = ds_dis.get_loss()
         return loss
 
@@ -114,7 +114,7 @@ class Ae_abstract(ABC):
 
     def get_updated_par_meas(self, profile, X, X_pred, par_list, parallel_iterations=1):
 
-        if profile.distribution.dis_name == "Dis_neg_bin":
+        if profile.dis.dis_name == "Dis_neg_bin":
             if par_list['init_step'] is True:
                 par_meas  = robust_mom_theta(X, par_list['theta_range'][0], par_list['theta_range'][1])
 
