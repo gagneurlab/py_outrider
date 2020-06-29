@@ -51,16 +51,13 @@ class Profile_abstract(ABC):
     def outlier_dis(self, outlier_dis):
         self.__outlier_dis = outlier_dis
 
+    @property
+    def noise_dis(self):
+        return self.__noise_dis
 
-    # @property
-    # def loss_D(self):
-    #     return self.__loss_D
-    #
-    # @loss_D.setter
-    # def loss_D(self, loss_D):
-    #     self.__loss_D = loss_D
-
-
+    @noise_dis.setter
+    def noise_dis(self, noise_dis):
+        self.__noise_dis = noise_dis
 
 
 

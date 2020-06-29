@@ -9,6 +9,7 @@ class Par_meas_abstract(ABC):
 
     def __init__(self, ds):
         self.ds = ds
+        self.loss_par_meas = self.ds.profile.loss_dis.tf_loss
 
 
     @property

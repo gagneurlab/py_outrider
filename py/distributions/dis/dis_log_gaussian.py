@@ -19,7 +19,7 @@ class Dis_log_gaussian(Dis_abstract):
     dis_name = "Dis_log_gaussian"
 
     def __init__(self, **kwargs):
-        super().__init__(par_meas=None, **kwargs)
+        super().__init__(**kwargs)
 
 
     ### pval calculation

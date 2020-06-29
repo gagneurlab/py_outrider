@@ -17,25 +17,21 @@ class Trans_sf(Trans_abstract):
 
 
     @staticmethod
-    def get_transformed_xrds(xrds):
-        return np.log2(xrds["X"] + 1)
-
-
-    @staticmethod
     def rev_transform(y, par_sample, **kwargs):
         sf = par_sample
         if tf.is_tensor(y):
             return tfm.exp(y) * tf.expand_dims(sf, 1)
         else:
-            return np.exp(y) * sf
+            return np.exp(y) * np.expand_dims(sf,1)
 
 
     @staticmethod
-    def transform_xrds(xrds):
+    def get_transformed_xrds(xrds):
         counts = xrds["X"].values
         sf = Trans_sf.calc_size_factor(counts)
         xrds["par_sample"] = (("sample"), sf)
-        return np.log((counts + 1) / sf)
+
+        return np.log((counts + 1) /  np.expand_dims(sf,1))
 
 
     @staticmethod

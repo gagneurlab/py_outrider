@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow import math as tfm
+import warnings
 
 from ae_models.encoder_fit.E_abstract import E_abstract
 
@@ -14,7 +15,11 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
     @staticmethod
     @tf.function
     def tf_loss(x, x_pred, par_meas, **kwargs):
-        theta = par_meas
+        if par_meas is None:
+            warnings.warn("calculate Dis_neg_bin par_meas theta first to get reliable loss")
+            theta = tf.ones(shape=(x_pred.shape[1]), dtype=x_pred.dtype)
+        else:
+            theta = par_meas
 
         t1 = x * tfm.log(x_pred) + theta * tfm.log(theta)
         t2 = (x + theta) * tfm.log(x_pred + theta)

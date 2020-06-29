@@ -6,7 +6,7 @@ import tensorflow_probability as tfp
 from distributions.dis.dis_abstract import Dis_abstract
 # from distributions.tf_loss_func import tf_neg_bin_loss
 from utilis.stats_func import multiple_testing_nan
-
+from distributions.loss_dis.loss_dis_neg_bin import Loss_dis_neg_bin
 
 
 
@@ -56,11 +56,11 @@ class Dis_neg_bin(Dis_abstract):
 
     ### loss
     def get_loss(self):
-        return Dis_neg_bin.tf_neg_bin_loss(self.X, self.X_pred, self.par_meas).numpy()
+        return Loss_dis_neg_bin.tf_loss(self.X, self.X_pred, self.par_meas).numpy()
 
 
     @staticmethod
-    def get_random_values(self, inj_mean, inj_sd, size):
+    def get_random_values(inj_mean, inj_sd, size):
         raise NotImplementedError
 
 

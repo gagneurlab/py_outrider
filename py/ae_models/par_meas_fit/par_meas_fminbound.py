@@ -20,7 +20,7 @@ class Par_meas_fminbound(Par_meas_abstract):
 
     def fit(self):
         if self.ds.profile.dis.dis_name == "Dis_neg_bin":
-            par_meas = self.update_par_meas_fmin(tf_neg_bin_loss, X=self.ds.X, X_pred=self.ds.X_pred,
+            par_meas = self.update_par_meas_fmin(loss_func=self.loss_par_meas, x=self.ds.X, x_pred=self.ds.X_pred,
                                                  par_list=self.theta_range,
                                                  parallel_iterations=self.ds.parallel_iterations)
         else:
@@ -31,6 +31,23 @@ class Par_meas_fminbound(Par_meas_abstract):
     def _update_par_meas(self, par_meas):
         self.ds.par_meas =  tf.convert_to_tensor(par_meas, dtype=self.ds.X.dtype)
 
+
+
+    def update_par_meas_fmin(self, loss_func, x, x_pred, par_list, parallel_iterations=1):
+
+            @tf.function
+            def my_map(*args, **kwargs):
+                return tf.map_fn(*args, **kwargs)
+
+            y_true_pred_stacked = tf.transpose(tf.stack([x, x_pred], axis=1))
+            cov_meas = my_map(
+                lambda row: tf_fminbound(
+                    lambda x: loss_func(row[0, :], row[1, :], x),
+                    x1=tf.constant(par_list[0], dtype=x.dtype),
+                    x2=tf.constant(par_list[0], dtype=x.dtype)),
+                y_true_pred_stacked, parallel_iterations=parallel_iterations)
+
+            return cov_meas
 
 
 

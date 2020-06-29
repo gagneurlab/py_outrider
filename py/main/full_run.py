@@ -16,7 +16,7 @@ class Full_run():
 
         model_ds = Model_dataset(xrds)
         print('dataset created')
-        model_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
+        # model_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
         print('outlier injected')
         model_ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
         print('noise injected')

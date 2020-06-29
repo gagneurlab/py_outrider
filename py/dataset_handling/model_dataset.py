@@ -62,7 +62,7 @@ class Model_dataset():
 
     def calc_pvalue(self):
         ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
-                                  par=self.par_meas, parallel_iterations=self.parallel_iterations)
+                                  par_meas=self.par_meas, parallel_iterations=self.parallel_iterations)
         self.X_pvalue = ds_dis.get_pvalue()
         self.X_pvalue_adj = ds_dis.get_pvalue_adj()
 
@@ -75,7 +75,7 @@ class Model_dataset():
 
 
     def inject_noise(self, inj_freq, inj_mean, inj_sd):
-        inj_obj = self.profile.dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
+        inj_obj = self.profile.noise_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
                                                         noise_factor=self.profile.noise_factor, par_sample=self.xrds["par_sample"])
         self.xrds["X_trans_noise"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
@@ -85,7 +85,7 @@ class Model_dataset():
 
     ### TODO avoid injection twice: if X_wo_outlier exists ..
     def inject_outlier(self, inj_freq, inj_mean, inj_sd):
-        inj_obj = self.profile.dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
+        inj_obj = self.profile.outlier_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
                                                         noise_factor=1, par_sample=self.xrds["par_sample"])
         self.xrds["X_wo_outlier"] = (('sample', 'meas'), self.xrds["X"])
@@ -97,10 +97,11 @@ class Model_dataset():
 
 
     ##### prediction calculation steps
-    #tf.function
-    def _pred_X_trans(self, H, D, b):
+    @staticmethod   # need static otherwise self bug error
+    def _pred_X_trans(H, D, b):
         # y = np.matmul(H, D)  # y: sample x gene
         # y = y[:, 0:len(b)]  # avoid cov_sample inclusion
+
         y = tf.matmul(H, D)  # y: sample x gene
         y = tf.gather(y, range(len(b)), axis=1)
 
@@ -110,7 +111,7 @@ class Model_dataset():
 
 
     def _pred_X(self, H, D, b, par_sample):
-        y = self._pred_X_trans(H, D, b)
+        y = Model_dataset._pred_X_trans(H, D, b)
         return self.profile.data_trans.rev_transform(y, par_sample=par_sample)
 
 
@@ -121,7 +122,7 @@ class Model_dataset():
 
     def get_loss(self):
         ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
-                                     par=self.par_meas, parallel_iterations=self.parallel_iterations)
+                                     par_meas=self.par_meas, parallel_iterations=self.parallel_iterations)
         loss = ds_dis.get_loss()
         return loss
 

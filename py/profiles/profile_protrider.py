@@ -14,12 +14,13 @@ class Profile_protrider(Profile_abstract):
 
     def __init__(self):
 
-        # self.fit_model = Model_fit_lbfgs
-        self.fit_model = Model_fit_pca
+        self.fit_model = Model_fit_lbfgs
+        # self.fit_model = Model_fit_pca
         self.data_trans = Trans_log2
         self.dis = Dis_log_gaussian
         self.loss_dis = Loss_dis_gaussian
         self.outlier_dis = Dis_log_gaussian
+        self.noise_dis = Dis_gaussian
         self.noise_factor = 0.5
 
 

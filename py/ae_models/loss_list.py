@@ -31,7 +31,7 @@ class Loss_list():
                                          'time', 'time_from_start', 'time_from_start_sec'])
         self.loss_summary = self.loss_summary.append(loss_row, ignore_index=True)
         if print_text is not "":
-            FORCE_TEXT_LENGTH = 20
+            FORCE_TEXT_LENGTH = 25
             print_text_filled = print_text + (FORCE_TEXT_LENGTH-len(print_text)) * " "
             print_func.print_time(print_text_filled + str(loss) )
 
