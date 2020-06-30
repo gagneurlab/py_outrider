@@ -29,6 +29,7 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
         return ll
 
 
+
     @staticmethod
     @tf.function
     def tf_loss_E(e, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans, **kwargs):

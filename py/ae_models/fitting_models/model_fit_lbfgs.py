@@ -39,19 +39,13 @@ class Model_fit_lbfgs(Model_fit_abstract):
 
         E_pca(ds=self.ds).run_fit()
 
-        # print(f"ae_input: {self.ds.ae_input.shape}")
-        # print(f"E: {self.ds.E.shape}")
-        # print(f"D: {self.ds.D.shape}")
-        # print(f"b: {self.ds.b.shape}")
-        # print(f"X_trans: {self.ds.ae_input.shape}")
-        # print(f"X: {self.ds.X.shape}")
-        # if self.ds.cov_sample is not None:
-        #     print(f"cov_sample: {self.ds.cov_sample.shape}")
-
-
         Par_meas_mom(ds=self.ds).run_fit()
         D_lbfgs_single(ds=self.ds).run_fit()
+
+        self.ds.print_dataset_shapes()
+
         Par_meas_fminbound(ds=self.ds).run_fit()
+        self.ds.print_dataset_shapes()
 
         ### ITERATE UNTIL CONVERGENCE
         for iter in range(self.ds.xrds.attrs["max_iter"]):
@@ -59,7 +53,10 @@ class Model_fit_lbfgs(Model_fit_abstract):
             time_iter_start = time.time()
 
             E_lbfgs(ds=self.ds).run_fit()
+            self.ds.print_dataset_shapes()
+
             D_lbfgs_single(ds=self.ds).run_fit()
+
             Par_meas_fminbound(ds=self.ds).run_fit()
 
             print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))

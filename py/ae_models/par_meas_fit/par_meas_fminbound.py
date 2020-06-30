@@ -42,9 +42,9 @@ class Par_meas_fminbound(Par_meas_abstract):
             y_true_pred_stacked = tf.transpose(tf.stack([x, x_pred], axis=1))
             cov_meas = my_map(
                 lambda row: tf_fminbound(
-                    lambda x: loss_func(row[0, :], row[1, :], x),
+                    lambda t: loss_func(row[0, :], row[1, :], t),
                     x1=tf.constant(par_list[0], dtype=x.dtype),
-                    x2=tf.constant(par_list[0], dtype=x.dtype)),
+                    x2=tf.constant(par_list[1], dtype=x.dtype)),
                 y_true_pred_stacked, parallel_iterations=parallel_iterations)
 
             return cov_meas

@@ -172,8 +172,22 @@ class Model_dataset():
 
 
 
+    def print_dataset_shapes(self):
 
-
+        def get_shape(tensor):
+            if tensor is None:
+                return None
+            else:
+                return tensor.shape
+        print("### model_dataset shapes ###")
+        print(f"  fit_input: {get_shape(self.fit_input)}")
+        print(f"  E: {get_shape(self.E)}")
+        print(f"  D: {get_shape(self.D)}")
+        print(f"  b: {get_shape(self.b)}")
+        print(f"  H: {get_shape(self.H)}")
+        print(f"  X_trans: {get_shape(self.X_trans)}")
+        print(f"  X: {get_shape(self.X)}")
+        print(f"  cov_sample: {get_shape(self.cov_sample)}")
 
 
 

@@ -11,7 +11,7 @@ class Loss_dis_gaussian(Loss_dis_abstract):
 
     @staticmethod
     @tf.function
-    def  tf_loss(x, x_pred, **kwargs):
+    def tf_loss(x, x_pred, **kwargs):
         return tf.keras.losses.MeanSquaredError()(x, x_pred)
 
     @staticmethod
