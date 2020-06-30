@@ -44,28 +44,28 @@ class Model_fit_lbfgs(Model_fit_abstract):
 
         self.ds.print_dataset_shapes()
 
-        Par_meas_fminbound(ds=self.ds).run_fit()
-        self.ds.print_dataset_shapes()
-
-        ### ITERATE UNTIL CONVERGENCE
-        for iter in range(self.ds.xrds.attrs["max_iter"]):
-            print(f'### ITERATION {iter}')
-            time_iter_start = time.time()
-
-            E_lbfgs(ds=self.ds).run_fit()
-            self.ds.print_dataset_shapes()
-
-            D_lbfgs_single(ds=self.ds).run_fit()
-
-            Par_meas_fminbound(ds=self.ds).run_fit()
-
-            print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))
-
-            # ## check convergence
-            # if self.loss_list.check_converged(verbose=self.ds.xrds.attrs["verbose"]):
-            #     print_func.print_time(f'ae converged with loss: {self.get_loss()}')
-            #     break
-
+        # Par_meas_fminbound(ds=self.ds).run_fit()
+        # self.ds.print_dataset_shapes()
+        #
+        # ### ITERATE UNTIL CONVERGENCE
+        # for iter in range(self.ds.xrds.attrs["max_iter"]):
+        #     print(f'### ITERATION {iter}')
+        #     time_iter_start = time.time()
+        #
+        #     E_lbfgs(ds=self.ds).run_fit()
+        #     self.ds.print_dataset_shapes()
+        #
+        #     D_lbfgs_single(ds=self.ds).run_fit()
+        #
+        #     Par_meas_fminbound(ds=self.ds).run_fit()
+        #
+        #     print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))
+        #
+        #     # ## check convergence
+        #     # if self.loss_list.check_converged(verbose=self.ds.xrds.attrs["verbose"]):
+        #     #     print_func.print_time(f'ae converged with loss: {self.get_loss()}')
+        #     #     break
+        #
 
 
 

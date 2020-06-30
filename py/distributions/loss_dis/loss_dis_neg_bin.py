@@ -32,16 +32,19 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
 
     @staticmethod
     @tf.function
-    def tf_loss_E(e, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans, **kwargs):
+    def tf_loss_E( e, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans, **kwargs):
         if data_trans.trans_name=="trans_sf":
             return Loss_dis_neg_bin_sf_trunc.tf_loss_E(e=e, D=D, b=b, x=x, x_trans=x_trans,
                                              par_sample=par_sample, par_meas=par_meas, cov_sample=cov_sample, **kwargs)
         else:
-            H = E_abstract.reshape_e_to_H(e=e, ae_input=x_trans, X=x, D=D, cov_sample=cov_sample)
-            y = tf.matmul(H, D) + b
 
-            x_pred = data_trans.rev_transform(y=y, par_sample=par_sample, **kwargs)
-            return Loss_dis_neg_bin.tf_loss(x, x_pred, par_meas)
+            return super.tf_loss_E(e=e, D=D, b=b, x=x, x_trans=x_trans, par_sample=par_sample,
+                                   par_meas=par_meas, cov_sample=cov_sample, **kwargs)
+            # H = E_abstract.reshape_e_to_H(e=e, ae_input=x_trans, X=x, D=D, cov_sample=cov_sample)
+            # y = tf.matmul(H, D) + b
+            #
+            # x_pred = data_trans.rev_transform(y=y, par_sample=par_sample, **kwargs)
+            # return Loss_dis_neg_bin.tf_loss(x, x_pred, par_meas)
 
 
 
@@ -52,12 +55,14 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
             return Loss_dis_neg_bin_sf_trunc.tf_loss_D_single(H=H, x_i=x_i, b_and_D = b_and_D, par_sample = par_sample,
                                                            par_meas_i=par_meas_i, **kwargs)
         else:
-            b_i = b_and_D[0]
-            D_i = b_and_D[1:]
-            y = tf.squeeze( tf.matmul(H, tf.expand_dims(D_i,1)) + b_i )
-
-            x_pred = data_trans.rev_transform(y, par_sample=par_sample, **kwargs)
-            return Loss_dis_neg_bin.tf_loss(x_i, x_pred, par_meas_i)
+            return super.tf_loss_D_single(H=H, x_i=x_i, b_and_D = b_and_D, par_sample = par_sample,
+                                                           par_meas_i=par_meas_i, **kwargs)
+            # b_i = b_and_D[0]
+            # D_i = b_and_D[1:]
+            # y = tf.squeeze( tf.matmul(H, tf.expand_dims(D_i,1)) + b_i )
+            #
+            # x_pred = data_trans.rev_transform(y, par_sample=par_sample, **kwargs)
+            # return Loss_dis_neg_bin.tf_loss(x_i, x_pred, par_meas_i)
 
 
     @staticmethod
@@ -67,14 +72,17 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
             return Loss_dis_neg_bin_sf_trunc.tf_loss_D(H=H, x=x, b_and_D = b_and_D, par_sample = par_sample,
                                                            par_meas=par_meas, **kwargs)
         else:
-            b_and_D = tf.reshape(b_and_D, [H.shape[1] + 1, x.shape[1]])
-            b = b_and_D[0, :]
-            D = b_and_D[1:, :]
+            return super.tf_loss_D(H=H, x=x, b_and_D = b_and_D, par_sample = par_sample,
+                                                           par_meas=par_meas, **kwargs)
 
-            y = tf.transpose(tf.matmul(H, D) + b)
-
-            x_pred = data_trans.rev_transform(y, par_sample=par_sample, **kwargs)
-            return Loss_dis_neg_bin.tf_loss(x, x_pred, par_meas)
+            # b_and_D = tf.reshape(b_and_D, [H.shape[1] + 1, x.shape[1]])
+            # b = b_and_D[0, :]
+            # D = b_and_D[1:, :]
+            #
+            # y = tf.transpose(tf.matmul(H, D) + b)
+            #
+            # x_pred = data_trans.rev_transform(y, par_sample=par_sample, **kwargs)
+            # return Loss_dis_neg_bin.tf_loss(x, x_pred, par_meas)
 
 
 
