@@ -10,10 +10,15 @@ class Loss_dis_log_gaussian(Loss_dis_abstract):
 
 
 
+    # @tf.function
     @staticmethod
-    @tf.function
     def tf_loss(x, x_pred, **kwargs):
         # return tfm.log1p(tf.keras.losses.MeanSquaredError()(x, x_pred))
+
+        # print('log_loss')
+        # print(x)
+        # print(x_pred)
+
 
         x_log = tfm.log1p(x)
         x_pred_log = tfm.log1p(x_pred)
