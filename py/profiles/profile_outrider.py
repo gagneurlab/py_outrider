@@ -23,7 +23,7 @@ class Profile_outrider(Profile_abstract):
         self.fit_model = Model_fit_lbfgs
         # self.fit_model = Model_fit_pca
         self.data_trans = Trans_sf
-        self.data_trans = Trans_log2
+        # self.data_trans = Trans_log2
         # self.data_trans = Trans_none
         self.dis = Dis_neg_bin
         self.loss_dis = Loss_dis_neg_bin

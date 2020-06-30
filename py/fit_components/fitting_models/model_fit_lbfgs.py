@@ -25,14 +25,6 @@ class Model_fit_lbfgs(Model_fit_abstract):
     def __init__(self, ae_dataset):
         super().__init__(ae_dataset)
 
-        ### covariate consideration -> move to ae_dataset
-        if self.ds.cov_sample is not None:
-            self.ds.ae_input = np.concatenate([self.ds.X_trans , self.ds.cov_sample], axis=1)
-            self.ds.ae_input_noise = np.concatenate([self.ds.X_trans_noise, self.ds.cov_sample], axis=1)
-        else:
-            self.ds.ae_input = self.ds.X_trans
-            self.ds.ae_input_noise = self.ds.X_trans_noise
-
 
 
     # @tf.function
@@ -42,8 +34,8 @@ class Model_fit_lbfgs(Model_fit_abstract):
 
         Par_meas_mom(ds=self.ds).run_fit()
         # self.ds.print_dataset_shapes()
-        D_lbfgs_whole(ds=self.ds).run_fit()
-        # D_lbfgs_single(ds=self.ds).run_fit()
+        # D_lbfgs_whole(ds=self.ds).run_fit()
+        D_lbfgs_single(ds=self.ds).run_fit()
 
         # self.ds.print_dataset_shapes()
 
@@ -69,6 +61,35 @@ class Model_fit_lbfgs(Model_fit_abstract):
             # if self.loss_list.check_converged(verbose=self.ds.xrds.attrs["verbose"]):
             #     print_func.print_time(f'ae converged with loss: {self.get_loss()}')
             #     break
+
+
+# max_iter=15
+# for i in 10:
+    #
+    # class Model_fit_lbfgs(Model_fit_abstract):
+    #
+    #     def __init__(self, ae_dataset):
+    #         super().__init__(ae_dataset)
+    #
+    #
+    #     @tf.function
+    #     def run_fit(self, **kwargs):
+    #
+    #         E_pca(ds=self.ds).run_fit()
+    #         Par_meas_mom(ds=self.ds).run_fit()
+    #         D_lbfgs_whole(ds=self.ds).run_fit()
+    #         Par_meas_fminbound(ds=self.ds).run_fit()
+    #
+    #         for iter in range(max_iter):
+    #             E_lbfgs(ds=self.ds).run_fit()
+    #             D_lbfgs_single(ds=self.ds).run_fit()
+    #             Par_meas_fminbound(ds=self.ds).run_fit()
+    #
+
+
+
+
+
 
 
 
