@@ -3,7 +3,7 @@ import tensorflow_probability as tfp
 
 # from autoencoder_models.loss_list import Loss_list
 
-from ae_models.encoder_fit.E_abstract import E_abstract
+from fit_components.latent_space_fit.E_abstract import E_abstract
 
 
 

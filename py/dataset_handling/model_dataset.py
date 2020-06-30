@@ -4,7 +4,7 @@ import tensorflow_probability as tfp
 from tensorflow import math as tfm
 
 import utilis.stats_func as st
-from ae_models.loss_list import Loss_list
+from fit_components.loss_list import Loss_list
 
 import utilis
 
@@ -187,6 +187,7 @@ class Model_dataset():
         print(f"  H: {get_shape(self.H)}")
         print(f"  X_trans: {get_shape(self.X_trans)}")
         print(f"  X: {get_shape(self.X)}")
+        print(f"  X_pred: {get_shape(self.X_pred)}")
         print(f"  cov_sample: {get_shape(self.cov_sample)}")
 
 

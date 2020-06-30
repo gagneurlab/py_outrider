@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from ae_models.encoder_fit.E_abstract import E_abstract
+from fit_components.latent_space_fit.E_abstract import E_abstract
 
 from distributions.loss_dis.loss_dis_abstract import Loss_dis_abstract
 

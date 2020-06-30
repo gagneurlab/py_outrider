@@ -56,7 +56,7 @@ class Dis_neg_bin(Dis_abstract):
 
     ### loss
     def get_loss(self):
-        return Loss_dis_neg_bin.tf_loss(self.X, self.X_pred, self.par_meas).numpy()
+        return Loss_dis_neg_bin.tf_loss(x=self.X, x_pred=self.X_pred, par_meas=self.par_meas).numpy()
 
 
     @staticmethod

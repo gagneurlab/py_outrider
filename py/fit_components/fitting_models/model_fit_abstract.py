@@ -2,7 +2,7 @@
 import time
 from abc import ABC, abstractmethod
 
-import ae_models.tf_init
+import fit_components.tf_init
 # from autoencoder_models.loss_list import Loss_list
 import utilis.print_func as print_func
 
@@ -16,8 +16,8 @@ class Model_fit_abstract(ABC):
         self.ds = model_dataset
         self.ds.initialize_ds()
 
-        ae_models.tf_init.init_tf_config(num_cpus=self.ds.xrds.attrs["num_cpus"], verbose=self.ds.xrds.attrs["verbose"])
-        ae_models.tf_init.init_float_type(float_type=self.ds.xrds.attrs["float_type"])
+        fit_components.tf_init.init_tf_config(num_cpus=self.ds.xrds.attrs["num_cpus"], verbose=self.ds.xrds.attrs["verbose"])
+        fit_components.tf_init.init_float_type(float_type=self.ds.xrds.attrs["float_type"])
 
 
 

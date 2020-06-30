@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow import math as tfm
 from utilis.float_limits import min_value_exp
 
-from ae_models.encoder_fit.E_abstract import E_abstract
+from fit_components.latent_space_fit.E_abstract import E_abstract
 
 from distributions.loss_dis.loss_dis_abstract import Loss_dis_abstract
 
@@ -41,9 +41,9 @@ class Loss_dis_neg_bin_sf_trunc(Loss_dis_abstract):
 
     @staticmethod
     @tf.function
-    def tf_loss_D_single(H, x_i, b_and_D, par_sample, par_meas_i, **kwargs):
+    def tf_loss_D_single(H, x_i, b_and_D, par_sample, par_meas, **kwargs):
         sf = par_sample
-        theta_i = par_meas_i
+        theta_i = par_meas
 
         b_i = b_and_D[0]
         D_i = b_and_D[1:]

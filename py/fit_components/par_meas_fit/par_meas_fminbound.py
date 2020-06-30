@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-from ae_models.par_meas_fit.par_meas_abstract import Par_meas_abstract
+from fit_components.par_meas_fit.par_meas_abstract import Par_meas_abstract
 from utilis.tf_fminbound import tf_fminbound
 from distributions.tf_loss_func import tf_neg_bin_loss
 
@@ -42,7 +42,7 @@ class Par_meas_fminbound(Par_meas_abstract):
             y_true_pred_stacked = tf.transpose(tf.stack([x, x_pred], axis=1))
             cov_meas = my_map(
                 lambda row: tf_fminbound(
-                    lambda t: loss_func(row[0, :], row[1, :], t),
+                    lambda t: loss_func(x=row[0, :], x_pred=row[1, :], par_sample=t),
                     x1=tf.constant(par_list[0], dtype=x.dtype),
                     x2=tf.constant(par_list[1], dtype=x.dtype)),
                 y_true_pred_stacked, parallel_iterations=parallel_iterations)

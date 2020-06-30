@@ -1,7 +1,7 @@
 
-from ae_models.encoder_fit.E_pca import E_pca
-from ae_models.fitting_models.model_fit_abstract import Model_fit_abstract
-from ae_models.par_meas_fit.par_meas_fminbound import Par_meas_fminbound
+from fit_components.latent_space_fit.E_pca import E_pca
+from fit_components.fitting_models.model_fit_abstract import Model_fit_abstract
+from fit_components.par_meas_fit.par_meas_fminbound import Par_meas_fminbound
 
 
 

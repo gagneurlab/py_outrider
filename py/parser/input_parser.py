@@ -20,8 +20,9 @@ def parse_args(args_input):
     parser.add_argument('--X_is_outlier', type=str, default=None, help='path to 0|1 matrix of injected outlier, automatically performs precision-recall on in')
 
     parser.add_argument('--profile_distribution', default=None, choices=['neg_bin', 'gaus'], help='distribution assumed for the measurement data')
-    parser.add_argument('--profile_norm', default=None, choices=['sf', 'log2', 'none'], help='change normalization scheme for measurement data')
-    parser.add_argument('--profile_noise', default=None, type=float, help='noise applied for denoising autoencoder')
+    parser.add_argument('--profile_data_trans', default=None, choices=['sf', 'log2', 'none'], help='change transformation scheme for measurement data')
+    parser.add_argument('--profile_noise_factor', default=None, type=float, help='noise applied for denoising autoencoder')
+    parser.add_argument('--profile_loss_dis', default=None, choices=['neg_bin', 'gaus'], help='loss distribution used for training')
 
     args = parser.parse_args(args_input)
     return vars(args)

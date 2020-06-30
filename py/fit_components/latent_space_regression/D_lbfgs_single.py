@@ -3,7 +3,7 @@ import tensorflow_probability as tfp
 
 # from autoencoder_models.loss_list import Loss_list
 
-from ae_models.decoder_fit.D_abstract import D_abstract
+from fit_components.latent_space_regression.D_abstract import D_abstract
 
 
 class D_lbfgs_single(D_abstract):
@@ -50,11 +50,11 @@ class D_lbfgs_single(D_abstract):
 
 
     @tf.function
-    def single_fit_D(self, loss_func, H, x_i, b_i, D_i, par_sample, par_meas_i, data_trans):
+    def single_fit_D(self, loss_func, H, x_i, b_i, D_i, par_sample, par_meas, data_trans):
         b_and_D = tf.concat([tf.expand_dims(b_i, 0), D_i], axis=0)
 
         def lbfgs_input(b_and_D):
-            loss = loss_func(H=H, x_i=x_i, b_and_D=b_and_D, par_meas_i=par_meas_i, par_sample=par_sample, data_trans=data_trans)
+            loss = loss_func(H=H, x_i=x_i, b_and_D=b_and_D, par_meas=par_meas, par_sample=par_sample, data_trans=data_trans)
             gradients = tf.gradients(loss, b_and_D)[0]
             return loss, tf.clip_by_value(gradients, -100., 100.)
 

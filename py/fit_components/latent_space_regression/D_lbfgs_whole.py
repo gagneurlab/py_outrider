@@ -3,7 +3,7 @@ import tensorflow_probability as tfp
 
 # from autoencoder_models.loss_list import Loss_list
 
-from ae_models.decoder_fit.D_abstract import D_abstract
+from fit_components.latent_space_regression.D_abstract import D_abstract
 
 
 class D_lbfgs_whole(D_abstract):
@@ -48,7 +48,7 @@ class D_lbfgs_whole(D_abstract):
         b_and_D = tf.reshape(b_and_D, [-1])  ### flatten
 
         def lbfgs_input(b_and_D):
-            loss = loss_func(H=H, x=x, b_and_D=b_and_D, par_sample=par_sample, par_meas=par_meas, data_trans=data_trans)
+            loss = loss_func(H=H, x=x, b_and_D=b_and_D, data_trans=data_trans, par_meas=par_meas, par_sample=par_sample)
             gradients = tf.gradients(loss, b_and_D)[0]  ## works but runtime check, eager faster ??
             return loss, tf.clip_by_value(tf.reshape(gradients, [-1]), -100., 100.)
 

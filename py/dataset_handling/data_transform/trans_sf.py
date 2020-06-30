@@ -17,15 +17,6 @@ class Trans_sf(Trans_abstract):
 
 
     @staticmethod
-    def rev_transform(y, par_sample, **kwargs):
-        sf = par_sample
-        if tf.is_tensor(y):
-            return tfm.exp(y) * tf.expand_dims(sf, 1)
-        else:
-            return np.exp(y) * np.expand_dims(sf,1)
-
-
-    @staticmethod
     def get_transformed_xrds(xrds):
         counts = xrds["X"].values
         sf = Trans_sf.calc_size_factor(counts)
@@ -44,4 +35,16 @@ class Trans_sf(Trans_abstract):
         loggeomeans = np.mean(np.log(counts), axis=0)
         sf = [Trans_sf._calc_size_factor_per_sample(x, loggeomeans, counts) for x in counts]
         return sf
+
+
+    @staticmethod
+    def rev_transform(y, par_sample, **kwargs):
+        sf = par_sample
+        if tf.is_tensor(y):
+            return tfm.exp(y) * tf.expand_dims(sf, 1)
+        else:
+            return np.exp(y) * np.expand_dims(sf,1)
+
+
+
 
