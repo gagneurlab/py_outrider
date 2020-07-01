@@ -101,7 +101,7 @@ class Dis_abstract(ABC):
 
 
     @classmethod
-    def get_injected_outlier(cls, X, X_trans, inj_freq, inj_mean, inj_sd, noise_factor, data_trans, **kwargs):
+    def get_injected_outlier(cls, X, X_trans, X_center_bias, inj_freq, inj_mean, inj_sd, noise_factor, data_trans, **kwargs):
         outlier_mask = np.random.choice([0, -1, 1], size=X_trans.shape, p=[1 - inj_freq, inj_freq / 2, inj_freq / 2])
         z_score = cls.get_random_values(inj_mean = inj_mean, inj_sd=inj_sd, size=X_trans.shape)
 
@@ -114,7 +114,7 @@ class Dis_abstract(ABC):
         X_trans_outlier[cond_value_too_big] = X_trans[cond_value_too_big]
         outlier_mask[cond_value_too_big] = 0
 
-        X_outlier = data_trans.rev_transform(X_trans_outlier, **kwargs)
+        X_outlier = data_trans.rev_transform(X_trans_outlier + X_center_bias, **kwargs)
         return {"X_trans_outlier": X_trans_outlier, "X_outlier": X_outlier, "X_is_outlier": outlier_mask}
 
 

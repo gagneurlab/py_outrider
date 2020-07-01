@@ -39,7 +39,7 @@ class E_pca(E_abstract):
             self.ds.D = tf.convert_to_tensor(pca_coef_D, dtype=self.ds.X.dtype)
             self.ds.b = tf.convert_to_tensor(self.ds.X_center_bias, dtype=self.ds.X.dtype)
 
-        E, H = self.reshape_e_to_H(self.ds.E, self.ds.fit_input, self.ds.X, self.ds.D, self.ds.cov_sample)
+        _, H = self.reshape_e_to_H(self.ds.E, self.ds.fit_input_noise, self.ds.X, self.ds.D, self.ds.cov_sample)
         self.ds.H = H
 
 

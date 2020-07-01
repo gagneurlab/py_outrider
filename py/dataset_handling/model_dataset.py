@@ -76,6 +76,7 @@ class Model_dataset():
 
     def inject_noise(self, inj_freq, inj_mean, inj_sd):
         inj_obj = self.profile.noise_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
+                                                              X_center_bias=self.xrds["X_center_bias"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
                                                         noise_factor=self.profile.noise_factor, par_sample=self.xrds["par_sample"])
         self.xrds["X_trans_noise"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
@@ -86,6 +87,7 @@ class Model_dataset():
     ### TODO avoid injection twice: if X_wo_outlier exists ..
     def inject_outlier(self, inj_freq, inj_mean, inj_sd):
         inj_obj = self.profile.outlier_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
+                                                                X_center_bias=self.xrds["X_center_bias"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
                                                         noise_factor=1, par_sample=self.xrds["par_sample"])
         self.xrds["X_wo_outlier"] = (('sample', 'meas'), self.xrds["X"])

@@ -18,16 +18,16 @@ class Trans_log2(Trans_abstract):
 
     @staticmethod
     def get_transformed_xrds(xrds):
-        return np.log(xrds["X"]+1)
+        return np.log1p(xrds["X"])
         # return np.log2(xrds["X"] + 1)
 
 
     @staticmethod
     def rev_transform(y, **kwargs):
         if tf.is_tensor(y):
-            return tfm.exp(y)
+            return tfm.exp(y) - 1
         else:
-            return np.exp(y)
+            return np.exp(y) - 1
 
         # if tf.is_tensor(y):
         #     return tfm.pow(y, 2)

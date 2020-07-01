@@ -34,7 +34,7 @@ class Model_fit_lbfgs(Model_fit_abstract):
 
         Par_meas_mom(ds=self.ds).run_fit()
         # self.ds.print_dataset_shapes()
-        # D_lbfgs_whole(ds=self.ds).run_fit()
+        #D_lbfgs_whole(ds=self.ds).run_fit()
         D_lbfgs_single(ds=self.ds).run_fit()
 
         # self.ds.print_dataset_shapes()
@@ -50,7 +50,7 @@ class Model_fit_lbfgs(Model_fit_abstract):
             E_lbfgs(ds=self.ds).run_fit()
             # self.ds.print_dataset_shapes()
 
-            print('### D_SINGLE MODEL FIT')
+            # print('### D_SINGLE MODEL FIT')
             D_lbfgs_single(ds=self.ds).run_fit()
 
             Par_meas_fminbound(ds=self.ds).run_fit()

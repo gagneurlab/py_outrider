@@ -19,6 +19,9 @@ class Loss_dis_log_gaussian(Loss_dis_abstract):
         # print(x)
         # print(x_pred)
 
+        # tf.print(x)
+        # print(x)
+        # tf.print(x_pred.numpy())
 
         x_log = tfm.log1p(x)
         x_pred_log = tfm.log1p(x_pred)

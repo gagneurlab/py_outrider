@@ -23,12 +23,14 @@ class Dis_gaussian(Dis_abstract):
         self.pvalue = self.tf_get_pval(self.X, self.X_pred).numpy()
         return self.pvalue
 
+
     @tf.function
     def tf_get_pval(self, X, X_pred):
         X_cols = tf.range(tf.shape(X)[1], dtype=tf.int32)
         pval = tf.map_fn(lambda x: (Dis_gaussian._tf_get_pval_gene(X[:, x], X_pred[:, x])), X_cols,
                          dtype=X.dtype, parallel_iterations=self.parallel_iterations)
         return tf.transpose(pval)
+
 
     @staticmethod
     @tf.function

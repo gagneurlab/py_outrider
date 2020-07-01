@@ -22,7 +22,7 @@ class Profile_protrider(Profile_abstract):
         self.loss_dis = Loss_dis_log_gaussian
         self.outlier_dis = Dis_log_gaussian
         self.noise_dis = Dis_gaussian
-        self.noise_factor = 0.5
+        self.noise_factor = 0.5 #0.5
 
 
 

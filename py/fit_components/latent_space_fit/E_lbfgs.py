@@ -27,7 +27,7 @@ class E_lbfgs(E_abstract):
                                          data_trans=self.ds.profile.data_trans,
                                          parallel_iterations=self.ds.parallel_iterations)
 
-        E, H = self.reshape_e_to_H(E_optim_obj["E_optim"], self.ds.fit_input, self.ds.X, self.ds.D, self.ds.cov_sample)
+        E, H = self.reshape_e_to_H(E_optim_obj["E_optim"], self.ds.fit_input_noise, self.ds.X, self.ds.D, self.ds.cov_sample)
         self._update_weights(E=E, H=H)
 
 
