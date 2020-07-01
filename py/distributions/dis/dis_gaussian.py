@@ -26,12 +26,13 @@ class Dis_gaussian(Dis_abstract):
     @tf.function
     def tf_get_pval(self, X, X_pred):
         X_cols = tf.range(tf.shape(X)[1], dtype=tf.int32)
-        pval = tf.map_fn(lambda x: (self._tf_get_pval_gene(X[:, x], X_pred[:, x])), X_cols,
+        pval = tf.map_fn(lambda x: (Dis_gaussian._tf_get_pval_gene(X[:, x], X_pred[:, x])), X_cols,
                          dtype=X.dtype, parallel_iterations=self.parallel_iterations)
         return tf.transpose(pval)
 
+    @staticmethod
     @tf.function
-    def _tf_get_pval_gene(self, X, X_pred):
+    def _tf_get_pval_gene(X, X_pred):
         x_res = X - X_pred
         pvalues_sd = tf.math.reduce_std(x_res)  # != R-version: ddof=1
         dis = tfp.distributions.Normal(loc=X_pred, scale=pvalues_sd)

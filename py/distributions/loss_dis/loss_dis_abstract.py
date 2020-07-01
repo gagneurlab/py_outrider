@@ -65,7 +65,7 @@ class Loss_dis_abstract(ABC):
 
         # print('D_Loss')
         # print(cls.tf_loss)
-        l = cls.tf_loss(x=x, x_pred=x_pred, **kwargs)
+        # l = cls.tf_loss(x=x, x_pred=x_pred, **kwargs)
         # print(l)
 
         return cls.tf_loss(x=x, x_pred=x_pred, **kwargs)
