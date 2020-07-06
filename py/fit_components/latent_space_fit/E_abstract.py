@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
+import utilis.tf_helper_func as tfh
+
 
 
 class E_abstract(ABC):
@@ -61,15 +63,14 @@ class E_abstract(ABC):
             else:
                 E_shape = (tf.shape(D)[1], (tf.shape(D)[0] - tf.shape(cov_sample)[1]))
             E = tf.reshape(e, E_shape)
-            H = tf.matmul(ae_input, E)  #
+            # H = tf.matmul(ae_input, E)  #
+            H = tfh.tf_nan_matmul(ae_input, E)
             # H = tf.concat([tf.matmul(ae_input, E), cov_sample], axis=1)  # uncomment if ae_bfgs_cov1
         else:
             E_shape = (tf.shape(ae_input)[1], tf.shape(D)[0] - tf.shape(cov_sample)[1])
             E = tf.reshape(e, E_shape ) # sample+cov x encod_dim
-            H = tf.concat([tf.matmul(ae_input, E), cov_sample], axis=1)
+            H = tf.concat([tfh.tf_nan_matmul(ae_input, E), cov_sample], axis=1)
         return E, H
-
-
 
 
 

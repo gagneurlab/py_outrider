@@ -5,7 +5,8 @@ import numpy as np
 import tensorflow as tf
 from fit_components.par_meas_fit.par_meas_abstract import Par_meas_abstract
 from utilis.tf_fminbound import tf_fminbound
-from distributions.tf_loss_func import tf_neg_bin_loss
+
+
 
 class Par_meas_fminbound(Par_meas_abstract):
 

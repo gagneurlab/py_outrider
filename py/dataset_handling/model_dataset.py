@@ -7,6 +7,7 @@ import utilis.stats_func as st
 from fit_components.loss_list import Loss_list
 
 import utilis
+import utilis.tf_helper_func as tfh
 
 ### accessing xarray matrices is pretty slow -> new class
 ### data container for all autoencoder data
@@ -28,6 +29,7 @@ class Model_dataset():
         # self.find_stat_used_X(xrds)
 
         self.X = self.xrds["X"].values
+        self.X_na = self.xrds["X_na"].values
         self.X_pred = None  # for pvalue and loss calculation
         self.X_trans = self.xrds["X_trans"].values
         self.X_trans_noise = self.xrds["X_trans_noise"].values
@@ -64,7 +66,7 @@ class Model_dataset():
         ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
                                   par_meas=self.par_meas, parallel_iterations=self.parallel_iterations)
         self.X_pvalue = ds_dis.get_pvalue()
-        self.X_pvalue_adj = ds_dis.get_pvalue_adj()
+        # self.X_pvalue_adj = ds_dis.get_pvalue_adj()  # TODO Uncomment
 
 
     def init_pvalue_fc_z(self):
@@ -100,26 +102,26 @@ class Model_dataset():
 
     ##### prediction calculation steps
     @staticmethod   # need static otherwise self bug error
-    def _pred_X_trans(H, D, b):
+    def _pred_X_trans(X_na, H, D, b):
         # y = np.matmul(H, D)  # y: sample x gene
         # y = y[:, 0:len(b)]  # avoid cov_sample inclusion
-
         y = tf.matmul(H, D)  # y: sample x gene
         y = tf.gather(y, range(len(b)), axis=1)
 
         y_b = y + b
         y_b = utilis.float_limits.min_value_exp(y_b)
+        y_b = tfh.tf_set_nan(y_b, X_na)
         return y_b
 
 
-    def _pred_X(self, H, D, b, par_sample):
-        y = Model_dataset._pred_X_trans(H, D, b)
+    def _pred_X(self,X_na, H, D, b, par_sample):
+        y = Model_dataset._pred_X_trans(X_na=X_na, H=H, D=D, b=b)
         return self.profile.data_trans.rev_transform(y, par_sample=par_sample)
 
 
     def calc_X_pred(self):
-        self.X_trans_pred = self._pred_X_trans(self.H, self.D, self.b)
-        self.X_pred = self._pred_X(self.H, self.D, self.b, self.par_sample)
+        self.X_trans_pred = self._pred_X_trans(X_na=self.X_na, H=self.H, D=self.D, b=self.b)
+        self.X_pred = self._pred_X(X_na=self.X_na, H=self.H, D=self.D, b=self.b, par_sample=self.par_sample)
 
 
     def get_loss(self):
@@ -140,7 +142,7 @@ class Model_dataset():
     def get_xrds(self):
         self.xrds["X_pred"] = (("sample", "meas"), self.X_pred)
         self.xrds["X_pvalue"] = (("sample", "meas"), self.X_pvalue)
-        self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)
+        # self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)
         self.xrds["X_log2fc"] = (("sample", "meas"), self.X_log2fc)
         self.xrds["X_zscore"] = (("sample", "meas"), self.X_zscore)
         self.xrds["X_trans_pred"] = (("sample", "meas"), self.X_trans_pred)

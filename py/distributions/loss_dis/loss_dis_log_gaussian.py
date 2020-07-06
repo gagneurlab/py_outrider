@@ -25,7 +25,10 @@ class Loss_dis_log_gaussian(Loss_dis_abstract):
 
         x_log = tfm.log1p(x)
         x_pred_log = tfm.log1p(x_pred)
-        gaus_loss = tf.keras.losses.MeanSquaredError()(x_log, x_pred_log)
+
+        x_na = tfm.is_finite(x_log)
+        gaus_loss = tf.keras.losses.MeanSquaredError()(tf.boolean_mask(x_log, x_na), tf.boolean_mask(x_pred_log, x_na))
+        # gaus_loss = tf.keras.losses.MeanSquaredError()(x_log, x_pred_log)
         return gaus_loss
 
 

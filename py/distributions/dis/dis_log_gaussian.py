@@ -6,7 +6,6 @@ import tensorflow_probability as tfp
 from distributions.dis.dis_abstract import Dis_abstract
 from distributions.dis.dis_gaussian import Dis_gaussian
 from utilis.stats_func import multiple_testing_nan
-from distributions.tf_loss_func import tf_gaus_loss
 from distributions.loss_dis.loss_dis_log_gaussian import Loss_dis_log_gaussian
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 

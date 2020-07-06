@@ -16,7 +16,8 @@ class Create_xarray():
 
         ### create dict to transform to xarray object
         xrds_dict = {
-            "X":(("sample","meas"), X_file.values)
+            "X":(("sample","meas"), X_file.values),
+            "X_na":(("sample","meas"), np.isfinite(X_file).values )
         }
 
         xrds_coords = {
