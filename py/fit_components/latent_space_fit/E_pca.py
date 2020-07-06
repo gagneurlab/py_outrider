@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf    # 2.0.0
 from sklearn.decomposition import PCA
-
+from nipals import nipals
 # from autoencoder_models.loss_list import Loss_list
 
 from fit_components.latent_space_fit.E_abstract import E_abstract
@@ -17,9 +17,17 @@ class E_pca(E_abstract):
 
 
     def fit(self):
-        pca = PCA(n_components=self.ds.xrds.attrs["encod_dim"], svd_solver='full')
-        pca.fit(self.ds.fit_input)
-        pca_coef = pca.components_  # encod_dim x samples
+
+        ### nipals if nan values are in matrix
+        if np.isnan(self.ds.fit_input).any():
+            nip = nipals.Nipals(self.ds.fit_input)
+            nip.fit(ncomp=self.ds.xrds.attrs["encod_dim"])
+            pca_coef = np.transpose(nip.loadings)
+        else:
+            pca = PCA(n_components=self.ds.xrds.attrs["encod_dim"], svd_solver='full')
+            pca.fit(self.ds.fit_input)
+            pca_coef = pca.components_  # encod_dim x samples
+
         self._update_weights(pca_coef)
 
 

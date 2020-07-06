@@ -27,7 +27,6 @@ class Dis_log_gaussian(Dis_abstract):
 
 
 
-
     ### pval calculation
     def get_pvalue(self):
         self.pvalue = self.tf_get_pval(self.X, self.X_pred).numpy()
@@ -42,16 +41,6 @@ class Dis_log_gaussian(Dis_abstract):
         return tf.transpose(pval)
 
 
-    # @tf.function
-    # def _tf_get_pval_gene(self, X, X_pred):
-    #     x_res = X - X_pred
-    #     pvalues_sd = tf.math.reduce_std(x_res)  # != R-version: ddof=1
-    #     dis = tfp.distributions.LogNormal(loc=X_pred, scale=pvalues_sd)
-    #     cdf_values = dis.cdf(X)
-    #     pval = 2 * tfm.minimum(cdf_values, (1 - cdf_values))
-    #     # pval[np.isnan(X)] = np.nan
-    #     return pval
-
 
 
     ### multiple testing adjusted pvalue
@@ -65,7 +54,6 @@ class Dis_log_gaussian(Dis_abstract):
     ### loss
     def get_loss(self):
         return Loss_dis_gaussian.tf_loss(self.X, self.X_pred).numpy()
-        # return Loss_dis_log_gaussian.tf_loss(self.X, self.X_pred).numpy()
 
 
     @staticmethod
