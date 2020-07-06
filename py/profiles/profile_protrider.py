@@ -15,8 +15,8 @@ class Profile_protrider(Profile_abstract):
 
     def __init__(self):
 
-        # self.fit_model = Model_fit_lbfgs
-        self.fit_model = Model_fit_pca
+        self.fit_model = Model_fit_lbfgs
+        # self.fit_model = Model_fit_pca
         self.data_trans = Trans_log2
         # self.data_trans = Trans_sf
         self.dis = Dis_log_gaussian

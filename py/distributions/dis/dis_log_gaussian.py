@@ -35,7 +35,7 @@ class Dis_log_gaussian(Dis_abstract):
     @tf.function
     def tf_get_pval(self, X, X_pred):
         X_cols = tf.range(tf.shape(X)[1], dtype=tf.int32)
-        pval = tf.map_fn(lambda x: (Dis_gaussian._tf_get_pval_gene(X[:, x], X_pred[:, x])), X_cols,
+        pval = tf.map_fn(lambda x: (Dis_gaussian._tf_get_pval_gaus(X=X[:, x], X_pred=X_pred[:, x])), X_cols,
                          dtype=X.dtype, parallel_iterations=self.parallel_iterations)
         return tf.transpose(pval)
 

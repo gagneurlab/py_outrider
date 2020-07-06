@@ -6,7 +6,7 @@ import tensorflow_probability as tfp
 from distributions.dis.dis_abstract import Dis_abstract
 from utilis.stats_func import multiple_testing_nan
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
-
+import utilis.tf_helper_func as tfh
 
 
 
@@ -27,14 +27,20 @@ class Dis_gaussian(Dis_abstract):
     @tf.function
     def tf_get_pval(self, X, X_pred):
         X_cols = tf.range(tf.shape(X)[1], dtype=tf.int32)
-        pval = tf.map_fn(lambda x: (Dis_gaussian._tf_get_pval_gene(X[:, x], X_pred[:, x])), X_cols,
+        pval = tf.map_fn(lambda x: (Dis_gaussian._tf_get_pval_gaus(X=X[:, x], X_pred=X_pred[:, x])), X_cols,
                          dtype=X.dtype, parallel_iterations=self.parallel_iterations)
         return tf.transpose(pval)
 
 
+
+    @classmethod
+    @tf.function
+    def _tf_get_pval_gaus(cls, X, X_pred):
+        return tfh.tf_nan_func(cls._tf_pval_gaus, X=X, X_pred=X_pred)
+
     @staticmethod
     @tf.function
-    def _tf_get_pval_gene(X, X_pred):
+    def _tf_pval_gaus(X, X_pred):
         x_res = X - X_pred
         pvalues_sd = tf.math.reduce_std(x_res)  # != R-version: ddof=1
         dis = tfp.distributions.Normal(loc=X_pred, scale=pvalues_sd)

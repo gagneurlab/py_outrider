@@ -27,12 +27,12 @@ class Trans_sf(Trans_abstract):
 
     @staticmethod
     def _calc_size_factor_per_sample(gene_list, loggeomeans, counts):
-        sf_sample = np.exp( np.median((np.log(gene_list) - loggeomeans)[np.logical_and(np.isfinite(loggeomeans), counts[0, :] > 0)]))
+        sf_sample = np.exp( np.nanmedian((np.log(gene_list) - loggeomeans)[np.logical_and(np.isfinite(loggeomeans), counts[0, :] > 0)]))
         return sf_sample
 
     @staticmethod
     def calc_size_factor(counts):
-        loggeomeans = np.mean(np.log(counts), axis=0)
+        loggeomeans = np.nanmean(np.log(counts), axis=0)
         sf = [Trans_sf._calc_size_factor_per_sample(x, loggeomeans, counts) for x in counts]
         return sf
 
