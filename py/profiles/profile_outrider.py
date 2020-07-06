@@ -10,9 +10,9 @@ from distributions.dis.dis_gaussian import Dis_gaussian
 from distributions.loss_dis.loss_dis_neg_bin import Loss_dis_neg_bin
 from distributions.loss_dis.loss_dis_log_gaussian import Loss_dis_log_gaussian
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
-from dataset_handling.data_transform.trans_sf import Trans_sf
-from dataset_handling.data_transform.trans_log2 import Trans_log2
-from dataset_handling.data_transform.trans_none import Trans_none
+from dataset_handling.input_transform.trans_sf import Trans_sf
+from dataset_handling.input_transform.trans_log2 import Trans_log2
+from dataset_handling.input_transform.trans_none import Trans_none
 
 
 

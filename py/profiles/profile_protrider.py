@@ -9,7 +9,8 @@ from distributions.dis.dis_log_gaussian import Dis_log_gaussian
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 from distributions.loss_dis.loss_dis_log_gaussian import Loss_dis_log_gaussian
 from distributions.tf_loss_func import tf_gaus_loss_E, tf_gaus_loss_D_single
-from dataset_handling.data_transform.trans_log2 import Trans_log2
+from dataset_handling.input_transform.trans_log2 import Trans_log2
+from dataset_handling.input_transform.trans_sf import Trans_sf
 
 class Profile_protrider(Profile_abstract):
 
@@ -18,6 +19,7 @@ class Profile_protrider(Profile_abstract):
         self.fit_model = Model_fit_lbfgs
         # self.fit_model = Model_fit_pca
         self.data_trans = Trans_log2
+        # self.data_trans = Trans_sf
         self.dis = Dis_log_gaussian
         self.loss_dis = Loss_dis_log_gaussian
         self.outlier_dis = Dis_log_gaussian
