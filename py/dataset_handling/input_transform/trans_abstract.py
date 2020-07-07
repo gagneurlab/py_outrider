@@ -28,7 +28,7 @@ class Trans_abstract(ABC):
         X_trans = cls.get_transformed_xrds(xrds)
 
         ### center to zero
-        X_bias = np.mean(X_trans, axis=0)
+        X_bias = np.nanmean(X_trans, axis=0)
         X_trans_cen = X_trans - X_bias
 
         xrds["X_trans"] = (('sample', 'meas'), X_trans_cen)

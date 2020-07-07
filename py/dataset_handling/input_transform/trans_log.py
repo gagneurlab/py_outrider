@@ -11,9 +11,9 @@ from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 
 
 
-class Trans_log2(Trans_abstract):
+class Trans_log(Trans_abstract):
 
-    trans_name = "trans_log2"
+    trans_name = "trans_log"
 
 
     @staticmethod

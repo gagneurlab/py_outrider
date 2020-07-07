@@ -15,20 +15,6 @@ class Loss_dis_abstract(ABC):
     def tf_loss(x, x_pred, par_meas, par_sample):
          pass
 
-    # @staticmethod
-    # @abstractmethod
-    # def tf_loss_D(self):
-    #      pass
-    #
-    # @staticmethod
-    # @abstractmethod
-    # def tf_loss_D_single(self):
-    #      pass
-    #
-    # @staticmethod
-    # @abstractmethod
-    # def tf_loss_E(self):
-    #     pass
 
 
     @classmethod

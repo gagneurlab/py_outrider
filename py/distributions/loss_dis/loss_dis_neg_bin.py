@@ -21,6 +21,7 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
         else:
             theta = par_meas
 
+        # TODO HANDLE NA VALUES !!
         t1 = x * tfm.log(x_pred) + theta * tfm.log(theta)
         t2 = (x + theta) * tfm.log(x_pred + theta)
         t3 = tfm.lgamma(theta + x) - (tfm.lgamma(theta) + tfm.lgamma(x + 1))  # math: k! = exp(lgamma(k+1))
