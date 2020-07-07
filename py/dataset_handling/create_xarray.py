@@ -52,6 +52,7 @@ class Create_xarray():
         # self.xrds.attrs['float_type'] = self.get_float_type(args_input['float_type'])
         self.xrds.attrs['profile'] = self.get_profile(args_input['profile'])
 
+        ### preprocess xrds
         self.xrds.attrs['profile'].prepro.prepro_xrds(self.xrds)
 
 
@@ -66,7 +67,7 @@ class Create_xarray():
             print(f'file_path specified is None')
             return None
         else:
-            data_file = pd.read_csv(file_path, na_values=['NaN'], sep=',', header=0, index_col=0).fillna(np.nan)
+            data_file = pd.read_csv(file_path, sep=',', header=0, index_col=0).fillna(np.nan)
             return data_file
 
 
@@ -158,34 +159,3 @@ class Create_xarray():
 
 
 
-
-
-#xrds_dict = {
-#         "counts": (("samples", "genes"), ae.x),
-#         "counts_norm": (("samples", "genes"), ae.x_norm),
-#         "counts_pred": (("samples", "genes"), ae.y_pred.numpy()),
-#         "pval": (("samples", "genes"), ae.pval),
-#         "pval_adj": (("samples", "genes"), np.clip(ae.pval_adj, -10, 10)),
-#         "log2fc": (("samples", "genes"), ae.log2fc),
-#         "z_score": (("samples", "genes"), ae.z_score),
-#         "size_factors": (("samples"), ae.cov_samples.numpy()),
-#         "encoder_weights": (("genes", "encod_dim"), ae.get_encoder()),
-#         "decoder_weights": (("encod_dim", "genes"), ae.get_decoder()[0]),
-#         "decoder_bias": (("genes"), ae.get_decoder()[1]),
-#         "hidden_space": (("samples", "encod_dim"), ae.get_hidden_space())
-#     }
-#     if ae.cov_meas is not None:
-#         xrds_dict["theta"] = (("genes"), ae.cov_meas.numpy())
-#
-#     xrds = xr.Dataset(xrds_dict, coords={
-#         "samples": ae.ds_obj.data_file.index,
-#         "genes": ae.ds_obj.data_file.columns,
-#         "encod_dim": ["q_" + str(d) for d in range(ae.ds_obj.encoding_dim)]})
-#
-#     xrds.attrs['encod_dim'] = ae.ds_obj.encoding_dim
-#     xrds.attrs['num_cpus'] = ae.ds_obj.num_cpus
-#
-#     if hasattr(ae, 'loss_list'):  # not implemented for ae_adam, ae_pca
-#         xrds.attrs['loss_list_data'] = np.array(ae.loss_list.loss_summary)
-#         xrds.attrs['loss_list_colnames'] = np.array(ae.loss_list.loss_summary.columns)
-#     return xrds

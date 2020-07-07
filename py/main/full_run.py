@@ -3,6 +3,8 @@ from parser import check_parser
 from dataset_handling.create_xarray import Create_xarray
 import utilis.stats_func as st
 from dataset_handling.model_dataset import Model_dataset
+from utilis.plot_output import Plot_output
+
 
 class Full_run():
 
@@ -40,6 +42,9 @@ class Full_run():
         print(xrds)
         xrds.attrs["profile"] = xrds.attrs["profile"].__class__.__name__
         xrds.to_zarr(xrds.attrs["output"] , mode="w")
+
+        print('start plotting')
+        Plot_output(xrds)
 
 
         # print(xrds)
