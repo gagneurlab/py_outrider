@@ -1,15 +1,19 @@
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import numpy as np
-from utilis.stats_func import get_prec_recall
 from matplotlib.colors import LogNorm
+from utilis.stats_func import get_prec_recall
 from utilis.float_limits import replace_zeroes_min
+from utilis.print_func import np_summary
+
 
 
 def plot_hist(df, title=None, range = None, bins=30):
     plt.clf()
-    plt.hist(df.flatten(), range=range, bins=bins)
-    plt.title(title)
+    df_plot = df.flatten()
+    plt.hist(df_plot, range=range, bins=bins)
+    plt.suptitle(title, y=1.00, fontsize=12)
+    plt.title(np_summary(df_plot), fontsize=8)
 
 
 
@@ -61,14 +65,18 @@ def plot_binhex(x, y, title="", ylab="", xlab="", axis_limit=None, center=False)
     if center:
         ax.set_ylim(-axis_limit, axis_limit)
         ax.set_xlim(-axis_limit, axis_limit)
+        ax.plot(ax.get_xlim(), ax.get_ylim(), c="grey")  # diagonale
     else:
-        ax.set_ylim(0, axis_limit)
-        ax.set_xlim(0, axis_limit)
+        diag=np.linspace(-500,500,51)
+        plt.plot(diag,diag,'k-', c="grey")
+        plt.xlim(np.nanmin(x),np.nanmax(x))
+        plt.ylim(np.nanmin(y),np.nanmax(y))
 
-    ax.plot([0, 1], [0, 1], transform=ax.transAxes, c="grey")  # diagonale
     ax.set_xlabel(xlab)
     ax.set_ylabel(ylab)
     ax.set_title(title)
+    plt.show()
+
 
 
 
@@ -89,8 +97,6 @@ def plot_qqplot(pval, title="qq-plot"):
 
     pval_log = np.array(sorted(pval, reverse=True))
     pval_log = -np.log10(pval_log)
-
-    print(np.max(pval_log))
 
     plot_binhex(points_log, pval_log, title=title,
                 ylab="observed p-values [-log10]", xlab="expected p-values [-log10]",

@@ -1,7 +1,7 @@
 import time
 from tensorflow import math as tfm
 import tensorflow as tf
-
+import numpy as np
 
 def print_time(text, tf_print=False):
     if tf_print:
@@ -60,5 +60,10 @@ def print_tensor_summary(t, return_only=False):
 
 
 
-
+def np_summary(a):
+    DEC_NUM = 3
+    mi = round(np.nanmin(a), DEC_NUM)
+    ma = round(np.nanmax(a), DEC_NUM)
+    me = round(np.nanmedian(a), DEC_NUM)
+    return f'min: {mi}, max: {ma}, median: {me}'
 

@@ -25,8 +25,8 @@ class Plot_output():
                    title="transformed prediction comparison", xlab="X_pred",ylab="X_true") )
         pp.savefig(pl.plot_binhex(xrds["X_trans_noise"].values, xrds["X_trans"].values,
                    title="noise insertion comparison", xlab="X_noise",ylab="X_true", center=True) )
-
-        pp.savefig(pl.plot_qqplot(xrds["X_pvalue"].values, title="qq-plot global") )
+        pp.savefig(pl.plot_qqplot(xrds["X_pvalue"].values, title="p-value qq-plot global") )
+        pp.savefig(pl.plot_hist(xrds["X_pvalue"].values, range=(0,1), title="p-value distribution") )
 
         if "X_is_outlier" in xrds:
             pp.savefig(pl.plot_prec_recall([xrds["X_pvalue"].values], xrds["X_is_outlier"].values,
