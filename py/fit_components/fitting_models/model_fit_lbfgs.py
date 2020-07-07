@@ -28,18 +28,18 @@ class Model_fit_lbfgs(Model_fit_abstract):
 
 
     # @tf.function
-    def run_fit(self, convergence=1e-5, **kwargs):
+    def fit(self, convergence=1e-5, **kwargs):
 
-        E_pca(ds=self.ds).run_fit()
+        E_pca(ds=self.ds).fit()
 
-        Par_meas_mom(ds=self.ds).run_fit()
+        Par_meas_mom(ds=self.ds).fit()
         # self.ds.print_dataset_shapes()
-        #D_lbfgs_whole(ds=self.ds).run_fit()
-        D_lbfgs_single(ds=self.ds).run_fit()
+        #D_lbfgs_whole(ds=self.ds).fit()
+        D_lbfgs_single(ds=self.ds).fit()
 
         # self.ds.print_dataset_shapes()
 
-        Par_meas_fminbound(ds=self.ds).run_fit()
+        Par_meas_fminbound(ds=self.ds).fit()
         # self.ds.print_dataset_shapes()
 
         ### ITERATE UNTIL CONVERGENCE
@@ -47,13 +47,13 @@ class Model_fit_lbfgs(Model_fit_abstract):
             print(f'### ITERATION {iter}')
             time_iter_start = time.time()
 
-            E_lbfgs(ds=self.ds).run_fit()
+            E_lbfgs(ds=self.ds).fit()
             # self.ds.print_dataset_shapes()
 
             # print('### D_SINGLE MODEL FIT')
-            D_lbfgs_single(ds=self.ds).run_fit()
+            D_lbfgs_single(ds=self.ds).fit()
 
-            Par_meas_fminbound(ds=self.ds).run_fit()
+            Par_meas_fminbound(ds=self.ds).fit()
 
             print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))
 
@@ -73,17 +73,17 @@ class Model_fit_lbfgs(Model_fit_abstract):
     #
     #
     #     @tf.function
-    #     def run_fit(self, **kwargs):
+    #     def fit(self, **kwargs):
     #
-    #         E_pca(ds=self.ds).run_fit()
-    #         Par_meas_mom(ds=self.ds).run_fit()
-    #         D_lbfgs_whole(ds=self.ds).run_fit()
-    #         Par_meas_fminbound(ds=self.ds).run_fit()
+    #         E_pca(ds=self.ds).fit()
+    #         Par_meas_mom(ds=self.ds).fit()
+    #         D_lbfgs_whole(ds=self.ds).fit()
+    #         Par_meas_fminbound(ds=self.ds).fit()
     #
     #         for iter in range(max_iter):
-    #             E_lbfgs(ds=self.ds).run_fit()
-    #             D_lbfgs_single(ds=self.ds).run_fit()
-    #             Par_meas_fminbound(ds=self.ds).run_fit()
+    #             E_lbfgs(ds=self.ds).fit()
+    #             D_lbfgs_single(ds=self.ds).fit()
+    #             Par_meas_fminbound(ds=self.ds).fit()
     #
 
 

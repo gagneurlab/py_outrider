@@ -34,7 +34,7 @@ class Loss_dis_abstract(ABC):
     @classmethod
     @tf.function
     def tf_loss_E(cls, e, D, b, x, x_trans, cov_sample, data_trans, **kwargs):
-        _, H = E_abstract.reshape_e_to_H(e=e, ae_input=x_trans, X=x, D=D, cov_sample=cov_sample)
+        _, H = E_abstract.reshape_e_to_H(e=e, fit_input=x_trans, X=x, D=D, cov_sample=cov_sample)
 
         y = tf.matmul(H, D) + b
         x_pred = data_trans.rev_transform(y=y, **kwargs)

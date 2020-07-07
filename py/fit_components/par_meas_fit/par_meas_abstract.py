@@ -27,7 +27,7 @@ class Par_meas_abstract(ABC):
 
 
     @abstractmethod
-    def fit(self):
+    def run_fit(self):
         pass
 
     @abstractmethod
@@ -36,8 +36,8 @@ class Par_meas_abstract(ABC):
 
 
 
-    def run_fit(self):
-        self.fit()
+    def fit(self):
+        self.run_fit()
         self.ds.calc_X_pred()
         self.ds.loss_list.add_loss(self.ds.get_loss(), step_name=self.par_meas_name, print_text=f'{self.par_meas_name} - loss:')
 

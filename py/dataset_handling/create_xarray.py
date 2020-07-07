@@ -92,6 +92,8 @@ class Create_xarray():
 
     def get_covariates(self, sample_anno, cov_used):
 
+        # TODO HANDLE NAN CASES IN COVARIATES
+
         if not set(cov_used).issubset(sample_anno.columns):
             print("INFO: not all covariates could be found in file_sa")
 

@@ -27,7 +27,7 @@ class Loss_dis_neg_bin_sf_trunc(Loss_dis_abstract):
         sf = par_sample
         theta = par_meas
 
-        _, H = E_abstract.reshape_e_to_H(e=e, ae_input=x_trans, X=x, D=D, cov_sample=cov_sample)
+        _, H = E_abstract.reshape_e_to_H(e=e, fit_input=x_trans, X=x, D=D, cov_sample=cov_sample)
 
         y = tf.matmul(H, D) + b
         y = min_value_exp(y)

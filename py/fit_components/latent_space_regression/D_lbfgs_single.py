@@ -18,8 +18,7 @@ class D_lbfgs_single(D_abstract):
             raise ValueError("D is none, need approximate weights for D to perform LBGFS refinement")
 
 
-    # @tf.function
-    def fit(self):
+    def run_fit(self):
         D_optim_obj = self.get_updated_D(loss_func=self.loss_D,
                                             x=self.ds.X, H = self.ds.H, b=self.ds.b,
                                             D=self.ds.D,

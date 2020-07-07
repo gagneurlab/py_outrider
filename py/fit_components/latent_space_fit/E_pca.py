@@ -16,19 +16,31 @@ class E_pca(E_abstract):
         super().__init__(*args, **kwargs)
 
 
-    def fit(self):
+    def run_fit(self):
 
         ### nipals if nan values are in matrix
         if np.isnan(self.ds.fit_input).any():
-            nip = nipals.Nipals(self.ds.fit_input)
-            nip.fit(ncomp=self.ds.xrds.attrs["encod_dim"])
-            pca_coef = np.transpose(nip.loadings)
+            pca_coef = self.get_weights_nipals(fit_input=self.ds.fit_input, encod_dim=self.ds.xrds.attrs["encod_dim"])
         else:
-            pca = PCA(n_components=self.ds.xrds.attrs["encod_dim"], svd_solver='full')
-            pca.fit(self.ds.fit_input)
-            pca_coef = pca.components_  # encod_dim x samples
+            pca_coef = self.get_weights_pca(fit_input=self.ds.fit_input, encod_dim=self.ds.xrds.attrs["encod_dim"])
 
         self._update_weights(pca_coef)
+
+
+
+
+    def get_weights_nipals(self, fit_input, encod_dim):
+        nip = nipals.Nipals(fit_input)
+        nip.fit(ncomp=encod_dim)
+        return np.transpose(nip.loadings.to_numpy())
+
+
+    def get_weights_pca(self, fit_input, encod_dim):
+        pca = PCA(n_components=encod_dim, svd_solver='full')
+        pca.fit(fit_input)
+        return pca.components_  # encod_dim x samples
+
+
 
 
 
@@ -47,7 +59,7 @@ class E_pca(E_abstract):
             self.ds.D = tf.convert_to_tensor(pca_coef_D, dtype=self.ds.X.dtype)
             self.ds.b = tf.convert_to_tensor(self.ds.X_center_bias, dtype=self.ds.X.dtype)
 
-        _, H = self.reshape_e_to_H(self.ds.E, self.ds.fit_input_noise, self.ds.X, self.ds.D, self.ds.cov_sample)
+        _, H = self.reshape_e_to_H(e=self.ds.E, fit_input=self.ds.fit_input_noise, X=self.ds.X, D=self.ds.D, cov_sample=self.ds.cov_sample)
         self.ds.H = H
 
 

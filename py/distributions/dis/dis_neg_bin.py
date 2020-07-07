@@ -38,7 +38,7 @@ class Dis_neg_bin(Dis_abstract):
     @classmethod
     @tf.function
     def _tf_get_pval_neg_bin(cls, X, X_pred, theta):
-        return tfh.tf_nan_func(cls._tf_pval_gaus, X=X, X_pred=X_pred, theta=theta)
+        return tfh.tf_nan_func(cls._tf_pval_neg_bin, X=X, X_pred=X_pred, theta=theta)
 
 
     @staticmethod

@@ -19,15 +19,15 @@ class E_lbfgs(E_abstract):
             raise ValueError("E is none, need approximate weights for E to perform LBGFS refinement")
 
 
-    # @tf.function
-    def fit(self):
+    def run_fit(self):
         E_optim_obj = self.get_updated_E(loss_func = self.loss_E,
                                          E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, x_trans = self.ds.fit_input_noise,
                                          cov_sample=self.ds.cov_sample, par_sample = self.ds.par_sample, par_meas = self.ds.par_meas,
                                          data_trans=self.ds.profile.data_trans,
                                          parallel_iterations=self.ds.parallel_iterations)
 
-        E, H = self.reshape_e_to_H(E_optim_obj["E_optim"], self.ds.fit_input_noise, self.ds.X, self.ds.D, self.ds.cov_sample)
+        E, H = self.reshape_e_to_H(e=E_optim_obj["E_optim"], fit_input=self.ds.fit_input_noise,
+                                   X=self.ds.X, D=self.ds.D, cov_sample=self.ds.cov_sample)
         self._update_weights(E=E, H=H)
 
 

@@ -38,7 +38,7 @@ class D_abstract(ABC):
 
 
     @abstractmethod
-    def fit(self):
+    def run_fit(self):
         pass
 
     @abstractmethod
@@ -46,8 +46,8 @@ class D_abstract(ABC):
         pass
 
 
-    def run_fit(self):
-        self.fit()
+    def fit(self):
+        self.run_fit()
         self.ds.calc_X_pred()
         self.ds.loss_list.add_loss(self.ds.get_loss(), step_name=self.D_name, print_text=f'{self.D_name} - loss:')
 

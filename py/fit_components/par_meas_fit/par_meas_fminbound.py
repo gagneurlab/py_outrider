@@ -19,7 +19,7 @@ class Par_meas_fminbound(Par_meas_abstract):
         self.theta_range = theta_range
 
 
-    def fit(self):
+    def run_fit(self):
         if self.ds.profile.dis.dis_name == "Dis_neg_bin":
             par_meas = self.update_par_meas_fmin(loss_func=self.loss_par_meas, x=self.ds.X, x_pred=self.ds.X_pred,
                                                  par_list=self.theta_range,

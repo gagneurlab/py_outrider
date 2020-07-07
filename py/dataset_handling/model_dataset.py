@@ -66,7 +66,7 @@ class Model_dataset():
         ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
                                   par_meas=self.par_meas, parallel_iterations=self.parallel_iterations)
         self.X_pvalue = ds_dis.get_pvalue()
-        # self.X_pvalue_adj = ds_dis.get_pvalue_adj()  # TODO Uncomment
+        self.X_pvalue_adj = ds_dis.get_pvalue_adj()
 
 
     def init_pvalue_fc_z(self):
@@ -101,6 +101,7 @@ class Model_dataset():
 
 
     ##### prediction calculation steps
+    #@tf.function
     @staticmethod   # need static otherwise self bug error
     def _pred_X_trans(X_na, H, D, b):
         # y = np.matmul(H, D)  # y: sample x gene

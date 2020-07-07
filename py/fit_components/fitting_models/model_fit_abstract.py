@@ -30,14 +30,14 @@ class Model_fit_abstract(ABC):
         self.__ds = ds
 
     @abstractmethod
-    def run_fit(self):
+    def fit(self):
          pass
 
 
     def run_model_fit(self, **kwargs):
         time_ae_start = time.time()
         print_func.print_time('start model fitting')
-        self.run_fit(**kwargs)
+        self.fit(**kwargs)
         print_func.print_time(f'complete model fit time {print_func.get_duration_sec(time.time() - time_ae_start)}')
 
         self.ds.init_pvalue_fc_z()

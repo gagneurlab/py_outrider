@@ -12,12 +12,11 @@ class Model_fit_pca(Model_fit_abstract):
     def __init__(self, ae_dataset):
         super().__init__(ae_dataset)
 
-        self.ds.fit_input = self.ds.X_trans  # no covariate consideration in pca
 
 
-    def run_fit(self, **kwargs):
-        E_pca(ds=self.ds, **kwargs).run_fit()
-        Par_meas_fminbound(ds=self.ds, **kwargs).run_fit()
+    def fit(self, **kwargs):
+        E_pca(ds=self.ds, **kwargs).fit()
+        Par_meas_fminbound(ds=self.ds, **kwargs).fit()
 
 
 
