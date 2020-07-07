@@ -11,6 +11,7 @@ from distributions.loss_dis.loss_dis_neg_bin import Loss_dis_neg_bin
 from distributions.loss_dis.loss_dis_log_gaussian import Loss_dis_log_gaussian
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 from dataset_handling.input_transform.trans_sf import Trans_sf
+from dataset_handling.preprocess.prepro_none import Prepro_none
 from dataset_handling.input_transform.trans_log import Trans_log
 from dataset_handling.input_transform.trans_none import Trans_none
 
@@ -22,6 +23,7 @@ class Profile_outrider(Profile_abstract):
 
         self.fit_model = Model_fit_lbfgs
         # self.fit_model = Model_fit_pca
+        self.prepro = Prepro_none
         self.data_trans = Trans_sf
         # self.data_trans = Trans_log
         # self.data_trans = Trans_none

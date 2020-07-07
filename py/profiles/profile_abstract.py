@@ -16,6 +16,14 @@ class Profile_abstract(ABC):
     def fit_model(self, fit_model):
         self.__fit_model = fit_model
 
+    @property
+    def prepro(self):
+        return self.__prepro
+
+    @prepro.setter
+    def prepro(self, prepro):
+        self.__prepro = prepro
+
 
     @property
     def data_trans(self):
@@ -60,8 +68,6 @@ class Profile_abstract(ABC):
         self.__noise_dis = noise_dis
 
 
-
-
     @property
     def noise_factor(self):
         return self.__noise_factor
@@ -71,9 +77,6 @@ class Profile_abstract(ABC):
         self.__noise_factor = noise_factor
 
 
-
-
-    # def get_profile_str(self):
 
 
 

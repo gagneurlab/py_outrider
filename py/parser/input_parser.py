@@ -23,6 +23,7 @@ def parse_args(args_input):
     parser.add_argument('--profile_data_trans', default=None, choices=['sf', 'log2', 'none'], help='change transformation scheme for measurement data')
     parser.add_argument('--profile_noise_factor', default=None, type=float, help='noise applied for denoising autoencoder')
     parser.add_argument('--profile_loss_dis', default=None, choices=['neg_bin', 'gaus'], help='loss distribution used for training')
+    parser.add_argument('--profile_prepro', default=None, choices=['none', 'sf_log2'], help='preprocess data before input')
 
     args = parser.parse_args(args_input)
     return vars(args)

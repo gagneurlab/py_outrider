@@ -52,6 +52,8 @@ class Create_xarray():
         # self.xrds.attrs['float_type'] = self.get_float_type(args_input['float_type'])
         self.xrds.attrs['profile'] = self.get_profile(args_input['profile'])
 
+        self.xrds.attrs['profile'].prepro.prepro_xrds(self.xrds)
+
 
 
 

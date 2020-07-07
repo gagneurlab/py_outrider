@@ -5,6 +5,7 @@ from distributions.dis.dis_gaussian import Dis_gaussian
 from distributions.dis.dis_log_gaussian import Dis_log_gaussian
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 from dataset_handling.input_transform.trans_log import Trans_log
+from dataset_handling.preprocess.prepro_none import Prepro_none
 
 
 class Profile_pca(Profile_abstract):
@@ -12,6 +13,7 @@ class Profile_pca(Profile_abstract):
     def __init__(self):
 
         self.fit_model = Model_fit_pca
+        self.prepro = Prepro_none
         self.data_trans = Trans_log
         self.dis = Dis_log_gaussian
         self.loss_dis = Loss_dis_gaussian
