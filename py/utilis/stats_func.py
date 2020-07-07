@@ -1,7 +1,7 @@
 import numpy as np
 from statsmodels.stats.multitest import multipletests
 from sklearn.metrics import roc_curve, roc_auc_score, precision_recall_curve, auc
-
+import warnings
 
 
 
@@ -37,6 +37,9 @@ def get_ROC_AUC(X_pvalue, X_is_outlier):
     label = X_is_outlier[~np.isnan(X_is_outlier)]
     label = np.invert(label != 0).astype('int')  # makes outlier 0, other 1
 
+    if np.sum(label) == 0:
+        warnings.warn("no injected outliers found -> no ROC AUC calculation possible")
+
     fpr, tpr, _ = roc_curve(label, score)
     auc = roc_auc_score(label, score)
     return {"auc": auc, "fpr": fpr, "tpr": tpr}
@@ -46,6 +49,10 @@ def get_ROC_AUC(X_pvalue, X_is_outlier):
 def get_prec_recall(X_pvalue, X_is_outlier):
     score = -X_pvalue[~np.isnan(X_pvalue)]
     label = X_is_outlier[~np.isnan(X_is_outlier)]
+
+    if np.sum(label) == 0:
+        warnings.warn("no injected outliers found -> no precision-recall calculation possible")
+
     label = (label != 0).astype('int')
 
     pre, rec, _ = precision_recall_curve(label, score)

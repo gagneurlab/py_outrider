@@ -38,6 +38,7 @@ class Create_xarray():
 
         if args_input["X_is_outlier"] is not None:
             X_is_outlier =  self.get_X_is_outlier(args_input["X_is_outlier"], X_file)
+            X_is_outlier[~xrds_dict["X_na"][1]] = np.nan   # force same nan values as in X
             xrds_dict["X_is_outlier"] = (("sample", "meas"), X_is_outlier.values)
 
         self.xrds = xr.Dataset(xrds_dict, coords = xrds_coords)
