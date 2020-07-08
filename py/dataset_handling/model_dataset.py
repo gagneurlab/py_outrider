@@ -24,9 +24,8 @@ class Model_dataset():
 
 
 
-    ### must be called before model training
+    ### must be called before model training - gets called by model training
     def initialize_ds(self):
-        # self.find_stat_used_X(xrds)
 
         self.X = self.xrds["X"].values
         self.X_na = self.xrds["X_na"].values
@@ -88,12 +87,25 @@ class Model_dataset():
 
     ### TODO avoid injection twice: if X_wo_outlier exists ..
     def inject_outlier(self, inj_freq, inj_mean, inj_sd):
+
         inj_obj = self.profile.outlier_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
                                                                 X_center_bias=self.xrds["X_center_bias"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
                                                         noise_factor=1, par_sample=self.xrds["par_sample"])
+
+        ##TODO force at least one injection otherwise nan prec-rec value - bad practice -> add cancel
+        while np.nansum(inj_obj["X_is_outlier"]) == 0:
+            print("repeat outlier injection")
+            inj_obj = self.profile.outlier_dis.get_injected_outlier(X=self.xrds["X"].values,
+                                                                    X_trans=self.xrds["X_trans"].values,
+                                                                    X_center_bias=self.xrds["X_center_bias"].values,
+                                                                    inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd,
+                                                                    data_trans=self.profile.data_trans,
+                                                                    noise_factor=1, par_sample=self.xrds["par_sample"])
+
         self.xrds["X_wo_outlier"] = (('sample', 'meas'), self.xrds["X"])
         self.xrds["X"] = (('sample', 'meas'), inj_obj["X_outlier"])
+        self.xrds["X_trans_wo_outlier"] = (('sample', 'meas'), self.xrds["X_trans"])
         self.xrds["X_trans"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
         self.xrds["X_is_outlier"] = (('sample', 'meas'), inj_obj["X_is_outlier"])
 
@@ -169,6 +181,8 @@ class Model_dataset():
         else:
             self.xrds.coords["encod_dim_cov"] = self.xrds.coords["encod_dim"]
 
+        print('loss_summary')
+        print(self.loss_list.loss_summary)
 
         ### remove unncessary
         # self.xrds = self.xrds.drop_vars("_X_stat_used")
@@ -184,6 +198,7 @@ class Model_dataset():
                 return None
             else:
                 return tensor.shape
+
         print("### model_dataset shapes ###")
         print(f"  fit_input: {get_shape(self.fit_input)}")
         print(f"  E: {get_shape(self.E)}")
