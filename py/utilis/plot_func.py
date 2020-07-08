@@ -75,7 +75,6 @@ def plot_binhex(x, y, title="", ylab="", xlab="", axis_limit=None, center=False)
     ax.set_xlabel(xlab)
     ax.set_ylabel(ylab)
     ax.set_title(title)
-    plt.show()
 
 
 

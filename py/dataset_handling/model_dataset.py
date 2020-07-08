@@ -143,7 +143,7 @@ class Model_dataset():
     def get_xrds(self):
         self.xrds["X_pred"] = (("sample", "meas"), self.X_pred)
         self.xrds["X_pvalue"] = (("sample", "meas"), self.X_pvalue)
-        # self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)
+        self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)
         self.xrds["X_log2fc"] = (("sample", "meas"), self.X_log2fc)
         self.xrds["X_zscore"] = (("sample", "meas"), self.X_zscore)
         self.xrds["X_trans_pred"] = (("sample", "meas"), self.X_trans_pred)

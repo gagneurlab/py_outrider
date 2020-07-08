@@ -1,22 +1,29 @@
 from pathlib import Path
 from matplotlib.backends.backend_pdf import PdfPages
 import utilis.plot_func as pl
+from utilis.xarray_to_list import xrds_to_list
 
 
 
-class Plot_output():
+class Custom_output():
 
 
     def __init__(self, xrds):
+
+        output_path = Path(xrds.attrs["output"]).parent
+        print(f'writing custom output into {output_path}')
+
+        if xrds.attrs["output_list"] is True:
+            xrds_to_list(xrds, output_file = output_path/ "outrider_result_list.csv" )
+
         if xrds.attrs["output_plots"] is True:
-            self.plot_all(xrds)
+            self.plot_all(xrds, output_file = output_path/ "plot_summary.pdf")
 
 
 
 
-    def plot_all(self, xrds):
-        output_file = Path(xrds.attrs["output"]).parent / "plot_summary.pdf"
-        print(f'writing output into {output_file}')
+    def plot_all(self, xrds, output_file):
+
         pp = PdfPages(output_file)
 
         ### prediction
