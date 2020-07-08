@@ -1,6 +1,6 @@
 import numpy as np
 import utilis.stats_func as st
-
+from sklearn.model_selection import ParameterGrid
 
 
 
@@ -10,22 +10,28 @@ class Hyperpar_opt():
         self.ds = ds
 
         ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
-        
-        xrds = fit_model.run_model_fit()
-        print(xrds)
 
+        # xrds = fit_model.run_model_fit()
+        # print(xrds)
 
-        encod_dim = np.arange(10, 50, 5)  # TODO automatically find appropriate values
-        pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)["auc"]
+        ### get all hyperparamters
+        hyperpar_grid = self.get_hyperpar_grid( self.ds, encod_dim = True, noise_factor = False)
+
+        # pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)["auc"]
 
 
         ### reverse injected outliers
         self.ds.xrds["X_inj_outlier"] = (('sample', 'meas'), self.ds.xrds["X"])
         self.ds.xrds["X"] = (('sample', 'meas'), self.ds.xrds["X_wo_outlier"])
         self.ds.xrds["X_trans"] = (('sample', 'meas'), self.ds.xrds["X_trans_wo_outlier"])
-        self.ds.initialize_ds()
+
+        self.apply_best_hyperpar()
 
 
+    # def run_hyperpar_opt(self, encod_dim, noise_factor=None):
+    #     fit_model = model_ds.profile.fit_model(model_ds)
+    #     print('run model')
+    #     xrds = fit_model.run_model_fit()
 
 
     # ### TODO list to include more hyperparameters:
@@ -59,11 +65,47 @@ class Hyperpar_opt():
 
 
     def apply_best_hyperpar(self):
+        self.ds.xrds.attrs["encod_dim"] = 5
+        self.ds.profile.noise_factor = 2
         pass
         ## get best encod dim
         ## get best noise factor
+        # hyper_df = pd.DataFrame(columns=['encod_dim','noise_factor', 'loss', 'pr_auc','time'])
 
 
+
+
+    def get_hyperpar_grid(self, ds, encod_dim, noise_factor):
+        hyperpar_dict = {}
+
+        if encod_dim:
+            hyperpar_dict["encod_dim"] = self._get_par_encod_dim(ds.xrds["X"])
+        else:
+            hyperpar_dict["encod_dim"] = [round(ds.xrds["X"].shape[0] / 4)]  # default 0.25 x samples
+
+        if noise_factor:
+            hyperpar_dict["noise_factor"] = self._get_par_noise_factors()
+        else:
+            hyperpar_dict["noise_factor"] = [ds.profile.noise_factor]
+
+        return ParameterGrid(hyperpar_dict)
+
+
+    ### from DROP
+    def _get_par_encod_dim(self, x):
+        MP = 3
+
+        a = 5
+        b = round(min(x.shape) / MP)
+        max_steps = 15
+
+        n_steps = min(max_steps, b)  # do at most 15 steps or N/3
+        par_q = np.unique(np.round(np.exp(np.linspace(start=np.log(a), stop=np.log(b), num=n_steps))))
+        return par_q.tolist()
+
+
+    def _get_par_noise_factors(self):
+        return [0, 0.5, 1, 1.5, 2]
 
 
 

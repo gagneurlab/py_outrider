@@ -28,7 +28,8 @@ def main():
         folder_path = '/home/stefan/Desktop/py_outrider/gene_subset_02/'
 
 
-        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 3, 'verbose':True, 'num_cpus':6,
+        # args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 3, 'verbose':True, 'num_cpus':6,
+        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": None, 'verbose':True, 'num_cpus':6,
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "outrider"
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "pca"
                   'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "protrider"

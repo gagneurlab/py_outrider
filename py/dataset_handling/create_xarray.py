@@ -22,8 +22,7 @@ class Create_xarray():
 
         xrds_coords = {
             "sample": X_file.index,
-            "meas": X_file.columns,
-            "encod_dim": ["q_" + str(d) for d in range(args_input["encod_dim"])]
+            "meas": X_file.columns
         }
 
         if args_input["file_sa"] is not None:

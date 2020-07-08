@@ -22,8 +22,8 @@ class Full_run():
 
         model_ds = Model_dataset(xrds)
         print('dataset created')
-        model_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
-        print('outlier injected')
+        # #model_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
+        # print('outlier injected')
 
 
         if xrds.attrs["encod_dim"] is None:
@@ -34,7 +34,7 @@ class Full_run():
         model_ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
 
 
-        fit_model = xrds.attrs["profile"].fit_model(model_ds)
+        fit_model = model_ds.profile.fit_model(model_ds)
         print('run model')
         xrds = fit_model.run_model_fit()
         print(xrds)

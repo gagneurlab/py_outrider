@@ -153,6 +153,8 @@ class Model_dataset():
 
     ## write everything into xrds
     def get_xrds(self):
+        self.xrds.coords["encod_dim"] =  ["q_" + str(d) for d in range(self.xrds.attrs["encod_dim"])]
+
         self.xrds["X_pred"] = (("sample", "meas"), self.X_pred)
         self.xrds["X_pvalue"] = (("sample", "meas"), self.X_pvalue)
         self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)

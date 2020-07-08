@@ -42,10 +42,11 @@ class Check_parser():
 
 
     def check_encod_dim(self, encod_dim):
-        if encod_dim < 2:
-            raise ValueError(f'encod_dim must be >1: {encod_dim}')
-        else:
-            return encod_dim
+        # if encod_dim < 2:
+        #     raise ValueError(f'encod_dim must be >1: {encod_dim}')
+        # else:
+        #     return encod_dim
+        return encod_dim
 
 
     def check_output(self, file_meas, output):
