@@ -34,3 +34,15 @@ def init_tf_config(num_cpus, verbose):
 
 def init_float_type(float_type):
     tf.keras.backend.set_floatx(float_type)
+
+
+
+def init_tf_seed(seed):
+    # sets only global seed and not operator seed
+    # leads to identical values for tf.function calls only
+    tf.random.set_seed(seed)
+    ### TODO check again if it really applies globally or lbfgs need additional operator seed
+
+
+
+

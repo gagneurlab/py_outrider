@@ -17,6 +17,8 @@ class Hyperpar_opt():
         ### get all hyperparamters
         hyperpar_grid = self.get_hyperpar_grid( self.ds, encod_dim = True, noise_factor = False)
 
+        # self.run_hyperpar_opt(self.ds, hyperpar_grid)
+
         # pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)["auc"]
 
 
@@ -28,12 +30,17 @@ class Hyperpar_opt():
         self.apply_best_hyperpar()
 
 
-    # def run_hyperpar_opt(self, encod_dim, noise_factor=None):
-    #     fit_model = model_ds.profile.fit_model(model_ds)
-    #     print('run model')
-    #     xrds = fit_model.run_model_fit()
+
+    def run_hyperpar_opt(self, ds, par_grid):
+        for p in par_grid:
+            print(p)
 
 
+
+
+
+    #
+    #
     # ### TODO list to include more hyperparameters:
     # ### learning_rate, minibatch_size (bad), # training_epochs, amount_noise
     # def run_hyperpar_opt(self, encod_dim):
@@ -59,18 +66,17 @@ class Hyperpar_opt():
     #         time_end = print_ext.get_duration_sec(time.time() - time_start)
     #         with open(self.folder_path + 'hyperopt_stats.txt', 'a+') as f:
     #             f.write(str(q)+','+str(auc_pr)+','+str(ae.get_loss())+','+str(time_end)+'\n')
-
+    #
 
 
 
 
     def apply_best_hyperpar(self):
+        ### find best dim
+        # hyper_df = pd.DataFrame(columns=['encod_dim','noise_factor', 'loss', 'pr_auc','time'])
         self.ds.xrds.attrs["encod_dim"] = 5
         self.ds.profile.noise_factor = 2
         pass
-        ## get best encod dim
-        ## get best noise factor
-        # hyper_df = pd.DataFrame(columns=['encod_dim','noise_factor', 'loss', 'pr_auc','time'])
 
 
 

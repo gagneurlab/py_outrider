@@ -65,7 +65,7 @@ class Dis_gaussian(Dis_abstract):
 
 
     @staticmethod
-    def get_random_values(inj_mean, inj_sd, size):
+    def _get_random_values(inj_mean, inj_sd, size):
         z_score = np.random.normal(loc=inj_mean, scale=inj_sd, size=size)
         return z_score
 

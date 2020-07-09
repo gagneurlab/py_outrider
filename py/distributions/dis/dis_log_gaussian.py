@@ -56,7 +56,7 @@ class Dis_log_gaussian(Dis_abstract):
 
 
     @staticmethod
-    def get_random_values(inj_mean, inj_sd, size):
+    def _get_random_values(inj_mean, inj_sd, size):
         log_mean = np.log(inj_mean) if inj_mean != 0 else 0
         z_score = np.random.lognormal(mean=log_mean, sigma=np.log(inj_sd), size=size)
         return z_score

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import tensorflow as tf
 
+from utilis.other_func import np_set_seed
 
 
 
@@ -96,14 +97,21 @@ class Dis_abstract(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_random_values(inj_mean, inj_sd, size):
+    def _get_random_values(inj_mean, inj_sd, size):
         pass
 
 
     @classmethod
-    def get_injected_outlier(cls, X, X_trans, X_center_bias, inj_freq, inj_mean, inj_sd, noise_factor, data_trans, **kwargs):
-        outlier_mask = np.random.choice([0., -1., 1.], size=X_trans.shape, p=[1 - inj_freq, inj_freq / 2, inj_freq / 2])
-        z_score = cls.get_random_values(inj_mean = inj_mean, inj_sd=inj_sd, size=X_trans.shape)
+    def get_random_values(cls, inj_mean, inj_sd, size, seed=None):
+        return np_set_seed(cls._get_random_values, seed)(inj_mean, inj_sd, size)
+
+
+
+    @classmethod
+    def get_injected_outlier(cls, X, X_trans, X_center_bias, inj_freq, inj_mean, inj_sd, noise_factor, data_trans, seed, **kwargs):
+        outlier_mask = np_set_seed(np.random.choice, seed)([0., -1., 1.], size=X_trans.shape, p=[1 - inj_freq, inj_freq / 2, inj_freq / 2])
+
+        z_score = cls.get_random_values(inj_mean = inj_mean, inj_sd=inj_sd, size=X_trans.shape, seed=seed)
 
         inj_values = np.abs(z_score) * noise_factor * np.nanstd(X_trans, ddof=1, axis=0)
         X_trans_outlier = inj_values * outlier_mask + X_trans

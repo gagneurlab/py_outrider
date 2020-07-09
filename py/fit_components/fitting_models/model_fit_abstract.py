@@ -18,6 +18,7 @@ class Model_fit_abstract(ABC):
 
         fit_components.tf_init.init_tf_config(num_cpus=self.ds.xrds.attrs["num_cpus"], verbose=self.ds.xrds.attrs["verbose"])
         fit_components.tf_init.init_float_type(float_type=self.ds.xrds.attrs["float_type"])
+        fit_components.tf_init.init_tf_seed(seed=self.ds.xrds.attrs["seed"])
 
 
 

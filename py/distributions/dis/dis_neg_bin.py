@@ -72,7 +72,7 @@ class Dis_neg_bin(Dis_abstract):
 
 
     @staticmethod
-    def get_random_values(inj_mean, inj_sd, size):
+    def _get_random_values(inj_mean, inj_sd, size):
         raise NotImplementedError
 
 
