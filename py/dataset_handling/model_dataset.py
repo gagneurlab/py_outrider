@@ -86,11 +86,8 @@ class Model_dataset():
 
 
     def inject_outlier(self, inj_freq, inj_mean, inj_sd):
-        ## avoid double injection
-        X = self.xrds["X_wo_outlier"] if "X_wo_outlier" in self.xrds else self.xrds["X"]
-        X_trans = self.xrds["X_trans_wo_outlier"] if "X_trans_wo_outlier" in self.xrds else self.xrds["X_trans"]
-
-        inj_obj = self.profile.outlier_dis.get_injected_outlier(X=X.values, X_trans=X_trans.values,
+        self._remove_inj_outlier()
+        inj_obj = self.profile.outlier_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
                                                                 X_center_bias=self.xrds["X_center_bias"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
                                                         noise_factor=1, par_sample=self.xrds["par_sample"], seed=self.xrds.attrs["seed"])
@@ -103,7 +100,7 @@ class Model_dataset():
             if tmp_seed is not None:
                 tmp_seed+=1
             print("repeat outlier injection")
-            inj_obj = self.profile.outlier_dis.get_injected_outlier( X=X.values, X_trans=X_trans.values,
+            inj_obj = self.profile.outlier_dis.get_injected_outlier( X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
                                                                     X_center_bias=self.xrds["X_center_bias"].values,
                                                                     inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd,
                                                                     data_trans=self.profile.data_trans,
@@ -114,6 +111,13 @@ class Model_dataset():
         self.xrds["X_trans_wo_outlier"] = (('sample', 'meas'), self.xrds["X_trans"])
         self.xrds["X_trans"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
         self.xrds["X_is_outlier"] = (('sample', 'meas'), inj_obj["X_is_outlier"])
+
+        # TODO X_center_bias again as it changes slightly with outlier injection
+
+
+    def _remove_inj_outlier(self):
+        self.xrds["X"] = self.xrds["X_wo_outlier"] if "X_wo_outlier" in self.xrds else self.xrds["X"]
+        self.xrds["X_trans"] = self.xrds["X_trans_wo_outlier"] if "X_trans_wo_outlier" in self.xrds else self.xrds["X_trans"]
 
 
 

@@ -1,6 +1,8 @@
 import numpy as np
 import utilis.stats_func as st
 from sklearn.model_selection import ParameterGrid
+from utilis import print_func
+import pandas as pd
 
 
 
@@ -11,72 +13,58 @@ class Hyperpar_opt():
 
         ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
 
-        # xrds = fit_model.run_model_fit()
-        # print(xrds)
-
         ### get all hyperparamters
-        hyperpar_grid = self.get_hyperpar_grid( self.ds, encod_dim = True, noise_factor = False)
+        hyperpar_grid = self.get_hyperpar_grid( self.ds, encod_dim = True, noise_factor = False)  # noise factor TRUE
 
-        # self.run_hyperpar_opt(self.ds, hyperpar_grid)
-
-        # pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)["auc"]
-
+        hyperpar_table = self.run_hyperpar_opt(self.ds, hyperpar_grid)
 
         ### reverse injected outliers
         self.ds.xrds["X_inj_outlier"] = (('sample', 'meas'), self.ds.xrds["X"])
-        self.ds.xrds["X"] = (('sample', 'meas'), self.ds.xrds["X_wo_outlier"])
-        self.ds.xrds["X_trans"] = (('sample', 'meas'), self.ds.xrds["X_trans_wo_outlier"])
+        self.ds._remove_inj_outlier()
 
-        self.apply_best_hyperpar()
+        self.apply_best_hyperpar(hyperpar_table)
 
 
 
     def run_hyperpar_opt(self, ds, par_grid):
+        print_func.print_time("start hyperparameter optimisation")
+
+        df_list = []
         for p in par_grid:
             print(p)
 
+            ### set hyperpar
+            ds.xrds.attrs["encod_dim"] = p["encod_dim"]
+            ds.profile.noise_factor = p["noise_factor"]
+
+            ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
+
+            fit_model = ds.profile.fit_model(ds)
+            fit_model.fit()
+            ds.calc_pvalue()
+
+            pre_rec = st.get_prec_recall(ds.X_pvalue, ds.xrds["X_is_outlier"].values)["auc"]
+            df_list.append([p["encod_dim"], p["noise_factor"], pre_rec, ds.get_loss()])
+
+        hyperpar_df = pd.DataFrame(df_list, columns=["encod_dim","noise_factor","prec_rec","loss"])
+
+        print_func.print_time("end hyperparameter optimisation")
+        return hyperpar_df
 
 
 
 
-    #
-    #
-    # ### TODO list to include more hyperparameters:
-    # ### learning_rate, minibatch_size (bad), # training_epochs, amount_noise
-    # def run_hyperpar_opt(self, encod_dim):
-    #
-    #     for q in encod_dim:
-    #         print_ext.print_time('####### start with encod_dim = '+str(q))
-    #         time_start = time.time()
-    #         self.ds_obj.encoding_dim = q
-    #
-    #         ae = self.ae_class(self.ds_obj)
-    #         ae.run_autoencoder(max_iter=10)
-    #
-    #         counts_pred = np.around(ae.y_pred.numpy(), decimals=5)
-    #         theta = np.around(ae.cov_meas.numpy() ,decimals=5)
-    #
-    #         np.savetxt(dh.path(self.folder_path, 'counts_pred_dim'+str(q)+'.csv'), counts_pred, delimiter=",")
-    #         np.savetxt(dh.path(self.folder_path, 'theta_dim'+str(q)+'.csv'), theta, delimiter=",")
-    #
-    #         auc_pr = get_prec_recall(ae.pval, self.outlier_pos)['auc']
-    #         print('### encoding_dim: {} with auc_pr: {}'.format(q, auc_pr))
-    #         print_ext.print_time('### encoding_dim: {} with auc_pr: {}'.format(q, auc_pr))
-    #
-    #         time_end = print_ext.get_duration_sec(time.time() - time_start)
-    #         with open(self.folder_path + 'hyperopt_stats.txt', 'a+') as f:
-    #             f.write(str(q)+','+str(auc_pr)+','+str(ae.get_loss())+','+str(time_end)+'\n')
-    #
+    def apply_best_hyperpar(self, df):
+        self.ds.xrds.attrs["hyperpar_table"] = df.to_dict("records")
 
+        best_row = df.loc[df['prec_rec'].idxmax()]
+        self.ds.xrds.attrs["encod_dim"] = int(best_row["encod_dim"])
+        self.ds.profile.noise_factor = best_row["noise_factor"]
 
+        print('best hyperparameter found:')
+        print(best_row)
+        # print(df)
 
-
-    def apply_best_hyperpar(self):
-        ### find best dim
-        # hyper_df = pd.DataFrame(columns=['encod_dim','noise_factor', 'loss', 'pr_auc','time'])
-        self.ds.xrds.attrs["encod_dim"] = 5
-        self.ds.profile.noise_factor = 2
-        pass
 
 
 
@@ -107,7 +95,7 @@ class Hyperpar_opt():
 
         n_steps = min(max_steps, b)  # do at most 15 steps or N/3
         par_q = np.unique(np.round(np.exp(np.linspace(start=np.log(a), stop=np.log(b), num=n_steps))))
-        return par_q.tolist()
+        return par_q.astype(int).tolist()
 
 
     def _get_par_noise_factors(self):
