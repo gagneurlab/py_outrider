@@ -85,24 +85,25 @@ class Model_dataset():
 
 
 
-    ### TODO avoid injection twice: if X_wo_outlier exists ..
     def inject_outlier(self, inj_freq, inj_mean, inj_sd):
+        ## avoid double injection
+        X = self.xrds["X_wo_outlier"] if "X_wo_outlier" in self.xrds else self.xrds["X"]
+        X_trans = self.xrds["X_trans_wo_outlier"] if "X_trans_wo_outlier" in self.xrds else self.xrds["X_trans"]
 
-        inj_obj = self.profile.outlier_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
+        inj_obj = self.profile.outlier_dis.get_injected_outlier(X=X.values, X_trans=X_trans.values,
                                                                 X_center_bias=self.xrds["X_center_bias"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
                                                         noise_factor=1, par_sample=self.xrds["par_sample"], seed=self.xrds.attrs["seed"])
 
-        ##TODO force at least one injection otherwise nan prec-rec value - bad practice -> add cancel
 
+        ##TODO force at least one injection otherwise nan prec-rec value - bad practice -> add cancel
+        ### makes sure there are injected outliers in measurement table
         tmp_seed = self.xrds.attrs["seed"]
         while np.nansum(inj_obj["X_is_outlier"]) == 0:
             if tmp_seed is not None:
                 tmp_seed+=1
-
             print("repeat outlier injection")
-            inj_obj = self.profile.outlier_dis.get_injected_outlier(X=self.xrds["X"].values,
-                                                                    X_trans=self.xrds["X_trans"].values,
+            inj_obj = self.profile.outlier_dis.get_injected_outlier( X=X.values, X_trans=X_trans.values,
                                                                     X_center_bias=self.xrds["X_center_bias"].values,
                                                                     inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd,
                                                                     data_trans=self.profile.data_trans,
