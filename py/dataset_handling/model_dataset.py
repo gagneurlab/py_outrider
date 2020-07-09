@@ -17,10 +17,21 @@ class Model_dataset():
     def __init__(self, xrds):
         self.xrds = xrds
         self.profile = self.xrds.attrs["profile"]
-
         self.profile.data_trans.transform_xrds(self.xrds)
+        self.encod_dim = self.xrds.attrs["encod_dim"]
 
         # self.initialize_ds()
+
+    @property
+    def encod_dim(self):
+        return self.__encod_dim
+
+    @encod_dim.setter
+    def encod_dim(self, encod_dim):
+        if encod_dim is not None:
+            encod_dim = int(min(self.xrds["X"].shape[1], encod_dim))
+        self.xrds.attrs["encod_dim"] = encod_dim
+        self.__encod_dim = encod_dim
 
 
 
@@ -55,8 +66,13 @@ class Model_dataset():
             [ x.astype(self.xrds.attrs["float_type"], copy=False) if x is not None and x.dtype != self.xrds.attrs["float_type"] else x
               for x in [self.X, self.X_trans, self.X_center_bias, self.cov_sample, self.par_sample, self.par_meas, self.X] ]
 
+        # self.encod_dim = self.xrds.attrs["encod_dim"]  # needed ?
         self.loss_list = Loss_list(conv_limit=0.00001, last_iter=3)
         self.parallel_iterations = self.xrds.attrs["num_cpus"]
+
+
+
+
 
 
 
@@ -158,12 +174,9 @@ class Model_dataset():
 
 
 
-
-
-
     ## write everything into xrds
     def get_xrds(self):
-        self.xrds.coords["encod_dim"] =  ["q_" + str(d) for d in range(self.xrds.attrs["encod_dim"])]
+        self.xrds.coords["encod_dim"] =  ["q_" + str(d) for d in range(self.encod_dim)]
 
         self.xrds["X_pred"] = (("sample", "meas"), self.X_pred)
         self.xrds["X_pvalue"] = (("sample", "meas"), self.X_pvalue)
@@ -177,7 +190,6 @@ class Model_dataset():
         if self.par_meas is not None:
             self.xrds["par_meas"] = (("meas"), self.par_meas)
 
-        ### ae model parameter
         self.xrds["encoder_weights"] = (("meas_cov","encod_dim"), self.E)
         self.xrds["decoder_weights"] = (("encod_dim_cov", "meas"), self.D)
         self.xrds["decoder_bias"] = (("meas"), self.b)

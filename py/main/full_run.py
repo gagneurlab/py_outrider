@@ -37,7 +37,6 @@ class Full_run():
         fit_model = model_ds.profile.fit_model(model_ds)
         print('run model')
         xrds = fit_model.run_model_fit()
-        print(xrds)
 
         if "X_is_outlier" in xrds:
             pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)

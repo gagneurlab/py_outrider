@@ -20,9 +20,9 @@ class E_pca(E_abstract):
 
         ### nipals if nan values are in matrix
         if np.isnan(self.ds.fit_input).any():
-            pca_coef = self.get_weights_nipals(fit_input=self.ds.fit_input, encod_dim=self.ds.xrds.attrs["encod_dim"])
+            pca_coef = self.get_weights_nipals(fit_input=self.ds.fit_input, encod_dim=self.ds.encod_dim)
         else:
-            pca_coef = self.get_weights_pca(fit_input=self.ds.fit_input, encod_dim=self.ds.xrds.attrs["encod_dim"])
+            pca_coef = self.get_weights_pca(fit_input=self.ds.fit_input, encod_dim=self.ds.encod_dim)
 
         self._update_weights(pca_coef)
 

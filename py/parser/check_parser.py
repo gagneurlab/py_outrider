@@ -42,11 +42,8 @@ class Check_parser():
 
 
     def check_encod_dim(self, encod_dim):
-        ### INFO: removed since encod_dim=None leads to hyperpar opt
-        # if encod_dim < 2:
-        #     raise ValueError(f'encod_dim must be >1: {encod_dim}')
-        # else:
-        #     return encod_dim
+        if encod_dim is not None and encod_dim < 1:
+                raise ValueError(f'encod_dim must be >0: {encod_dim}')
         return encod_dim
 
 

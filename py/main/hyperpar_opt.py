@@ -58,7 +58,7 @@ class Hyperpar_opt():
         self.ds.xrds.attrs["hyperpar_table"] = df.to_dict("records")
 
         best_row = df.loc[df['prec_rec'].idxmax()]
-        self.ds.xrds.attrs["encod_dim"] = int(best_row["encod_dim"])
+        self.ds.encod_dim = best_row["encod_dim"]
         self.ds.profile.noise_factor = best_row["noise_factor"]
 
         print('best hyperparameter found:')
@@ -75,7 +75,8 @@ class Hyperpar_opt():
         if encod_dim:
             hyperpar_dict["encod_dim"] = self._get_par_encod_dim(ds.xrds["X"])
         else:
-            hyperpar_dict["encod_dim"] = [round(ds.xrds["X"].shape[0] / 4)]  # default 0.25 x samples
+            q = round(ds.xrds["X"].shape[0] / 4) if ds.encod_dim is None else ds.encod_dim
+            hyperpar_dict["encod_dim"] = [q]
 
         if noise_factor:
             hyperpar_dict["noise_factor"] = self._get_par_noise_factors()
