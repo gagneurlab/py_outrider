@@ -31,7 +31,8 @@ class E_pca(E_abstract):
 
     def get_weights_nipals(self, fit_input, encod_dim):
         nip = nipals.Nipals(fit_input)
-        nip.fit(ncomp=encod_dim, maxiter=1000,tol=0.000001 )
+        # nip.fit(ncomp=encod_dim, maxiter=500,tol=0.000001 ) # default
+        nip.fit(ncomp=encod_dim, maxiter=1500,tol=0.00001 )
         return np.transpose(nip.loadings.to_numpy())
 
 

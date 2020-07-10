@@ -25,15 +25,18 @@ def main():
     else:
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/01_example_blood_subset/'
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/06_sample_blood_outlier_z3/'
-        folder_path = '/home/stefan/Desktop/py_outrider/gene_subset_02/'
+        folder_path = '/home/stefan/Desktop/py_outrider/gene_subset_01/'
+        folder_path = '/home/stefan/Desktop/py_outrider/protein_neutropenia/'
 
 
         # args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 3, 'verbose':True, 'num_cpus':6,
-        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 3, 'verbose':True, 'num_cpus':6, 'seed':5,
+        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": None, 'verbose':True, 'num_cpus':6, 'seed':5,
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "outrider"
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "pca"
-                  'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "protrider"
-                ,'file_sa': folder_path+ 'sa_file_artificially.csv', 'cov_used': ["batch", "oneh"]
+                  # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "protrider"
+                  "max_iter": 2, "profile": "protrider"
+                # ,'file_sa': folder_path+ 'sa_file_artificially.csv', 'cov_used': ["batch", "oneh"]
+                ,'file_sa': folder_path+ 'san_notechrep.csv', 'cov_used': ["sex", "date_processed_y_m_d"]
                   }
 
         # folder_path = '/home/stefan/gagneurlab/s/project/protrider/loipf/data/prok_version_P20200317_with_outliers/'

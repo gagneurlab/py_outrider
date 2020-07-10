@@ -34,7 +34,7 @@ class Hyperpar_opt():
             print(p)
 
             ### set hyperpar
-            ds.xrds.attrs["encod_dim"] = p["encod_dim"]
+            ds.encod_dim = p["encod_dim"]
             ds.profile.noise_factor = p["noise_factor"]
 
             ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
@@ -63,7 +63,7 @@ class Hyperpar_opt():
 
         print('best hyperparameter found:')
         print(best_row)
-        # print(df)
+        print(df)
 
 
 
