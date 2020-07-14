@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 
-from profiles.profile_outrider import Profile_outrider
-from profiles.profile_protrider import Profile_protrider
-from profiles.profile_pca import Profile_pca
+import profiles
+import distributions
+import dataset_handling
 
 
 
@@ -43,16 +43,16 @@ class Create_xarray():
         self.xrds = xr.Dataset(xrds_dict, coords = xrds_coords)
 
         ### add additional metadata
-        for add_attr in ['encod_dim','num_cpus','output','output_list', 'float_type',
-                         'max_iter','verbose','seed','output_plots'] :
+        for add_attr in ["encod_dim","num_cpus","output","output_list", "float_type",
+                         "max_iter","verbose","seed","output_plots"] :
             self.xrds.attrs[add_attr] = args_input[add_attr]
 
         self.xrds["par_sample"] = (("sample"), np.repeat(1, len(self.xrds.coords["sample"])))
-        # self.xrds.attrs['float_type'] = self.get_float_type(args_input['float_type'])
-        self.xrds.attrs['profile'] = self.get_profile(args_input['profile'])
+        # self.xrds.attrs["float_type"] = self.get_float_type(args_input["float_type"])
+        self.xrds.attrs["profile"] = self.get_profile(args_input)
 
         ### preprocess xrds
-        self.xrds.attrs['profile'].prepro.prepro_xrds(self.xrds)
+        self.xrds.attrs["profile"].prepro.prepro_xrds(self.xrds)
 
 
 
@@ -63,10 +63,10 @@ class Create_xarray():
 
     def read_data_file(self, file_path):
         if file_path is None:
-            print(f'file_path specified is None')
+            print(f"file_path specified is None")
             return None
         else:
-            data_file = pd.read_csv(file_path, sep=',', header=0, index_col=0).fillna(np.nan)
+            data_file = pd.read_csv(file_path, sep=",", header=0, index_col=0).fillna(np.nan)
             return data_file
 
 
@@ -84,7 +84,7 @@ class Create_xarray():
         elif len(sample_anno[sample_col_found]) != len(set(sample_anno[sample_col_found])):
             raise ValueError(f"duplicates found in file_sa sample_id column: {sample_col_found}")
         else:
-            sample_anno.rename(columns = {sample_col_found:'sample_id'}, inplace = True)
+            sample_anno.rename(columns = {sample_col_found:"sample_id"}, inplace = True)
             sample_anno.set_index(sample_anno["sample_id"], inplace=True)
 
         ### sort according to X_file and remove unnecessary
@@ -103,9 +103,9 @@ class Create_xarray():
 
         ### transform each cov column to the respective 0|1 code
         for c in cov_sample:
-            col = cov_sample[c].astype('category')
+            col = cov_sample[c].astype("category")
             if len(col.cat.categories) == 1:
-                cov_sample.drop(c, axis=1, inplace=True, errors='ignore')
+                cov_sample.drop(c, axis=1, inplace=True, errors="ignore")
             elif len(col.cat.categories) == 2:
                 only_01 = [True if x in [0,1] else False for x in col.cat.categories]
                 if all(only_01) is True:
@@ -119,7 +119,7 @@ class Create_xarray():
                 # print(f">2 cat: {c}")
                 oneh = pd.get_dummies(cov_sample[c])
                 oneh.columns = [c + "_" + str(x) for x in oneh.columns]
-                cov_sample.drop(c, axis=1, inplace=True, errors='ignore')
+                cov_sample.drop(c, axis=1, inplace=True, errors="ignore")
                 cov_sample = pd.concat([cov_sample, oneh], axis=1)
         return cov_sample
 
@@ -136,9 +136,9 @@ class Create_xarray():
 
 
     # def get_float_type(self, float_type):
-    #     if float_type == 'float32':
+    #     if float_type == "float32":
     #         return np.float32
-    #     elif float_type== 'float64':
+    #     elif float_type== "float64":
     #         return np.float64
     #     else:
     #         print(f"INFO: float_type {float_type} not found, using float64")
@@ -146,14 +146,68 @@ class Create_xarray():
 
 
     def get_profile(self, profile):
-        if profile.lower()=="outrider":
-            return Profile_outrider()
-        elif profile.lower()=="protrider":
-            return Profile_protrider()
-        elif profile.lower()=="pca":
-            return Profile_pca()
+        if profile["profile"].lower()=="outrider":
+            prof = profiles.profile_outrider.Profile_outrider()
+        elif profile["profile"].lower()=="protrider":
+            prof = profiles.profile_protrider.Profile_protrider()
+        elif profile["profile"].lower()=="pca":
+            prof = profiles.profile_pca.Profile_pca()
+
+        ### edit profile if specified in input
+        if profile["prepro"] is not None:
+            prof.prepro = self.get_profile_prepro(profile["prepro"])
+        if profile["distribution"] is not None:
+            prof.dis = self.get_profile_distribution(profile["distribution"])
+        if profile["data_trans"] is not None:
+            prof.data_trans = self.get_profile_data_trans(profile["data_trans"])
+        if profile["noise_factor"] is not None:
+            prof.noise_factor = profile["noise_factor"]
+        if profile["loss_dis"] is not None:
+            prof.loss_dis = self.get_profile_loss_dis(profile["loss_dis"])
+
+        return prof
+
+
+
+    def get_profile_distribution(self, prof_dis):
+        if prof_dis.lower() == "neg_bin":
+            return distributions.dis.dis_neg_bin.Dis_neg_bin
+        elif prof_dis.lower() == "gaus":
+            return distributions.dis.dis_gaussian.Dis_gaussian
         else:
-            print('create own profile here out of parameter')
+            print("dis not found")
+
+    def get_profile_data_trans(self, prof_dt):
+        if prof_dt.lower() == "sf":
+            return dataset_handling.input_transform.trans_sf.Trans_sf
+        elif prof_dt.lower() == "log":
+            return dataset_handling.input_transform.trans_log.Trans_log
+        elif prof_dt.lower() == "none":
+            return dataset_handling.input_transform.trans_none.Trans_none
+        else:
+            print("data_trans not found")
+
+    def get_profile_loss_dis(self, prof_loss):
+        if prof_loss.lower() == "neg_bin":
+            return distributions.loss_dis.loss_dis_neg_bin.Loss_dis_neg_bin
+        elif prof_loss.lower() == "gaus":
+            return distributions.loss_dis.loss_gaussian.Loss_gaussian
+        else:
+            print("loss_dis not found")
+
+    def get_profile_prepro(self, prof_pre):
+        if prof_pre.lower() == "sf_log2":
+            return dataset_handling.preprocess.prepro_sf_log2.Prepro_sf_log2
+        elif prof_pre.lower() == "none":
+            return dataset_handling.preprocess.prepro_none.Prepro_none
+        else:
+            print("prepro not found")
+
+
+
+
+
+
 
 
 
