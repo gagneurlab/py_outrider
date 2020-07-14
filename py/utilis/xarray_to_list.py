@@ -11,8 +11,8 @@ def xrds_to_list(xrds, output_file, full_output=True):
                   "meas": np.tile(xrds.coords["meas"].values, len(xrds.coords["sample"].values)),
                   "log2fc": xrds["X_log2fc"].values.flatten(),
                   "fc": np.power(2, xrds["X_log2fc"].values.flatten()),
-                  "pval": xrds["X_pvalue"].values.flatten(),
-                  "pval_adj": xrds["X_pvalue_adj"].values.flatten(),
+                  "pvalue": xrds["X_pvalue"].values.flatten(),
+                  "pvalue_adj": xrds["X_pvalue_adj"].values.flatten(),
                   "z_score": xrds["X_zscore"].values.flatten(),
                   "meas_raw": xrds["X_raw"].values.flatten(),
                   "meas_trans": (xrds["X_trans"] + xrds["X_center_bias"]).values.flatten(),
@@ -36,12 +36,12 @@ def xrds_to_list(xrds, output_file, full_output=True):
 def xrds_to_tables(xrds, output_path):
     ### seperate case
     df = pd.DataFrame(data=(xrds["X_trans"]+xrds["X_center_bias"]).values, columns = xrds.coords["meas"].values, index=xrds.coords["sample"].values )
-    df.to_csv(Path(output_path) / 'X_trans.csv', delimiter=",")
+    df.to_csv(Path(output_path) / 'X_trans.csv', sep=",")
 
     tables_to_dl = ["X_trans_pred","X_log2fc","X_pvalue","X_pvalue_adj","X_zscore"]
     for ta in tables_to_dl:
         df = pd.DataFrame(data=xrds[ta].values, columns = xrds.coords["meas"].values, index=xrds.coords["sample"].values )
-        df.to_csv(Path(output_path) / ta+'.csv', delimiter=",")
+        df.to_csv(Path(output_path) / ta+'.csv', sep=",")
 
 
 

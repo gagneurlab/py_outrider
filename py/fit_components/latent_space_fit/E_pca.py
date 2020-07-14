@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import tensorflow as tf    # 2.0.0
 from sklearn.decomposition import PCA
 from nipals import nipals
@@ -30,10 +31,19 @@ class E_pca(E_abstract):
 
 
     def get_weights_nipals(self, fit_input, encod_dim):
-        nip = nipals.Nipals(fit_input)
-        # nip.fit(ncomp=encod_dim, maxiter=500,tol=0.000001 ) # default
-        nip.fit(ncomp=encod_dim, maxiter=1500,tol=0.00001 )
-        return np.transpose(nip.loadings.to_numpy())
+        try:
+            ### sometimes fails for big encoding dim for small samples
+            nip = nipals.Nipals(fit_input)
+            # nip.fit(ncomp=encod_dim, maxiter=500,tol=0.000001 ) # default
+            nip.fit(ncomp=encod_dim, maxiter=1500,tol=0.00001 )
+            return np.transpose(nip.loadings.to_numpy())
+        except:
+            print(f"INFO: nipals failed for encod_dim {encod_dim}, using imputed matrix and PCA")
+            ### emergency solution -> fix otherway
+            fit_df =  pd.DataFrame(fit_input)
+            fit_input_imputed = fit_df.fillna(fit_df.mean()).to_numpy()
+            return self.get_weights_pca(fit_input_imputed, encod_dim)
+
 
 
     def get_weights_pca(self, fit_input, encod_dim):

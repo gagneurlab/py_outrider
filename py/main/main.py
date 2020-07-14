@@ -29,18 +29,18 @@ def main():
         folder_path = '/home/stefan/Desktop/py_outrider/protein_neutropenia/'
 
 
-        # args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 3, 'verbose':True, 'num_cpus':6,
-        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": None, 'verbose':True, 'num_cpus':6, 'seed':5,
+        # args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 3, 'verbose':True, 'num_cpus':5,
+        args2 = { "file_meas" : folder_path+"counts_raw.csv", "encod_dim": 3, 'verbose':True, 'num_cpus':5, 'seed':5,
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "outrider"
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "pca"
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "protrider"
-                  "max_iter": 2, "profile": "protrider"
+                  "max_iter": 4, "profile": "protrider"
                 # ,'file_sa': folder_path+ 'sa_file_artificially.csv', 'cov_used': ["batch", "oneh"]
                 ,'file_sa': folder_path+ 'san_notechrep.csv', 'cov_used': ["sex", "date_processed_y_m_d"]
                   }
 
         # folder_path = '/home/stefan/gagneurlab/s/project/protrider/loipf/data/prok_version_P20200317_with_outliers/'
-        # args2 = { "file_meas" : folder_path+"X_raw_out.csv", "encod_dim": 25, 'verbose':True, 'num_cpus':6,
+        # args2 = { "file_meas" : folder_path+"X_raw_out.csv", "encod_dim": 25, 'verbose':True, 'num_cpus':5,
         #           # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "outrider"
         #           # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "pca"
         #           'X_is_outlier': folder_path+"X_out_pos.csv", "max_iter": 10, "profile": "protrider"
@@ -48,11 +48,12 @@ def main():
         #           }
 
 
-        # folder_path = '/home/stefan/gagneurlab/s/project/protrider/loipf/py_outrider_tests/'
-        # args2 = { "file_meas" : folder_path+"X_raw.csv", "encod_dim": 28, 'verbose':True, 'num_cpus':6,
-        #           'X_is_outlier': folder_path+"X_is_outlier.csv", "max_iter": 15, "profile": "pca" #"protrider_cov1" #"protrider"
-        #         ,'file_sa': folder_path+ 'sample_anno.csv', 'cov_used': ["sex", "date_processed_y_m_d"]
-        #           }
+        folder_path = '/home/stefan/gagneurlab/s/project/protrider/loipf/results/20200713_min_sample_size/datasets/'
+        args2 = { "file_meas" : folder_path+"tmt_0_1.csv", "encod_dim": 5, 'verbose':True, 'num_cpus':5,
+                  "max_iter": 15, "profile": "protrider" #"protrider_cov1" #"protrider"
+                ,'file_sa': '/home/stefan/gagneurlab/s/project/protrider/loipf/data/prok_version_P20200317_paper_samples/py_outrider/prok_batches.csv',
+                  'cov_used': ["PROTEOMICS_BATCH","gender","INSTRUMENT"]
+                  }
 
 
 
