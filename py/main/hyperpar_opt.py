@@ -90,7 +90,7 @@ class Hyperpar_opt():
     def _get_par_encod_dim(self, x):
         MP = 3
 
-        a = 5
+        a = 3
         b = round(min(x.shape) / MP)
         max_steps = 15
 

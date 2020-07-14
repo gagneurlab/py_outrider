@@ -36,7 +36,7 @@ class E_pca(E_abstract):
             nip = nipals.Nipals(fit_input)
             # nip.fit(ncomp=encod_dim, maxiter=500,tol=0.000001 ) # default
             nip.fit(ncomp=encod_dim, maxiter=1500,tol=0.00001 )
-            return np.transpose(nip.loadings.to_numpy())
+            return np.transpose(nip.loadings.fillna(0).to_numpy())  # for small encod_dim nan weights possible
         except:
             print(f"INFO: nipals failed for encod_dim {encod_dim}, using imputed matrix and PCA")
             ### emergency solution -> fix otherway

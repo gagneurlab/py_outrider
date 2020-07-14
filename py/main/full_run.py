@@ -38,9 +38,9 @@ class Full_run():
         print('run model')
         xrds = fit_model.run_model_fit()
 
-        if "X_is_outlier" in xrds:
-            pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)
-            print(f'precision-recall: { pre_rec["auc"] }')
+        # if "X_is_outlier" in xrds:
+        #     pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)
+        #     print(f'precision-recall: { pre_rec["auc"] }')
 
 
         ### export
