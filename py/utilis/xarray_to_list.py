@@ -5,6 +5,12 @@ from pathlib import Path
 
 
 def xrds_to_list(xrds, output_file, full_output=True):
+    """
+    transforms xarray object into a long list of samples_meas values
+    :param xrds: xarray dataset object
+    :param output_file: filepath
+    :param full_output: True if all values, False leads to truncated output with pvalue_adj < 0.5
+    """
     sample_dir = {"sample_meas": [str(s) + "_" + str(g) for s in xrds.coords["sample"].values for g in
                                   xrds.coords["meas"].values],
                   "sample": np.repeat(xrds.coords["sample"].values, len(xrds.coords["meas"].values)),
@@ -17,7 +23,7 @@ def xrds_to_list(xrds, output_file, full_output=True):
                   "meas_raw": xrds["X_raw"].values.flatten(),
                   "meas_trans": (xrds["X_trans"] + xrds["X_center_bias"]).values.flatten(),
                   "meas_trans_norm": ((xrds["X_trans"] + xrds["X_center_bias"]) - (
-                              xrds["X_trans_pred"] - xrds["X_center_bias"])).values.flatten(),
+                          xrds["X_trans_pred"] - xrds["X_center_bias"])).values.flatten(),
                   }
 
     if "X_is_outlier" in xrds:
@@ -30,44 +36,19 @@ def xrds_to_list(xrds, output_file, full_output=True):
     sample_outlier_list.to_csv(output_file, index=False)
 
 
-
-
-
-def xrds_to_tables(xrds, output_path):
-    ### seperate case
-    df = pd.DataFrame(data=(xrds["X_trans"]+xrds["X_center_bias"]).values, columns = xrds.coords["meas"].values, index=xrds.coords["sample"].values )
-    df.to_csv(Path(output_path) / 'X_trans.csv', sep=",")
-
-    tables_to_dl = ["X_trans_pred","X_log2fc","X_pvalue","X_pvalue_adj","X_zscore"]
+def xrds_to_tables(xrds, output_path,
+                   tables_to_dl=["X_trans", "X_trans_pred", "X_log2fc", "X_pvalue", "X_pvalue_adj", "X_zscore"]):
+    """
+    outputs .csv tables for selected matrices names
+    :param xrds: xrarry dataset object
+    :param output_path: folder to write tables
+    :param tables_to_dl:  list of tables to write
+    """
     for ta in tables_to_dl:
-        df = pd.DataFrame(data=xrds[ta].values, columns = xrds.coords["meas"].values, index=xrds.coords["sample"].values )
-        df.to_csv(Path(output_path) / ta+'.csv', sep=",")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if ta == "X_trans":
+            df = pd.DataFrame(data=(xrds["X_trans"] + xrds["X_center_bias"]).values, columns=xrds.coords["meas"].values,
+                              index=xrds.coords["sample"].values)
+        else:
+            df = pd.DataFrame(data=xrds[ta].values, columns=xrds.coords["meas"].values,
+                              index=xrds.coords["sample"].values)
+        df.to_csv(Path(output_path) / ta + '.csv', sep=",")

@@ -3,8 +3,16 @@ import tensorflow as tf
 
 @tf.function
 def tf_fminbound(func, x1, x2, args=(), xtol=1e-5, maxfun=500):
-    """Bounded minimization for scalar functions (TensorFlow implemention based on fminbound from scipy.optimize:
+    """
+    bounded minimization for scalar functions (TensorFlow implemention based on fminbound from scipy.optimize:
     https://github.com/scipy/scipy/blob/adc4f4f7bab120ccfab9383aba272954a0a12fb0/scipy/optimize/optimize.py#L1675.
+    :param func: function which returns value to be minimized
+    :param x1: lower optimization limit
+    :param x2: higher optimization limit
+    :param args: extra arguments passed to function
+    :param xtol: convergence tolerance
+    :param maxfun: maximum number of function evaluations
+    :return: parameter value which minimizes objective function
     """
     x1 = tf.keras.backend.cast_to_floatx(x1)
     x2 = tf.keras.backend.cast_to_floatx(x2)

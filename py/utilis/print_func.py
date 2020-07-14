@@ -3,6 +3,7 @@ from tensorflow import math as tfm
 import tensorflow as tf
 import numpy as np
 
+
 def print_time(text, tf_print=False):
     if tf_print:
         tf.print('### ' + time.strftime("%c") + '   ' + text)
@@ -12,15 +13,19 @@ def print_time(text, tf_print=False):
 
 def print_dict(d):
     for i in d:
-        print(i,': ',d[i])
+        print(i, ': ', d[i])
+
 
 def get_duration_sec(sec):
     return time.strftime('%H:%M:%S', time.gmtime(sec))
 
 
-
-### for tf.lbfgs_minimize output object
 def print_lbfgs_optimizer(opt, tf_print=True):
+    """
+    prints summary of optimizer parameters
+    :param opt: tf.lbfgs_minimize output object
+    :param tf_print: True for tf.print(), False for simple print()
+    """
     if tf_print:
         print_func = tf.print
     else:
@@ -40,10 +45,10 @@ def print_lbfgs_optimizer(opt, tf_print=True):
 
     print_func('#                    objective_value: {}'.format(opt.objective_value))
     print_func('#                    position_deltas shape: {}'.format(opt.position_deltas.shape))
-    print_func('#                    objective_gradient ' + print_tensor_summary(opt.objective_gradient, return_only=True))
+    print_func(
+        '#                    objective_gradient ' + print_tensor_summary(opt.objective_gradient, return_only=True))
     print_func('#                    position_deltas ' + print_tensor_summary(opt.position_deltas, return_only=True))
     print_func('#                    gradient_deltas ' + print_tensor_summary(opt.gradient_deltas, return_only=True))
-
 
 
 def print_tensor_summary(t, return_only=False):
@@ -59,11 +64,9 @@ def print_tensor_summary(t, return_only=False):
         tf.print(txt)
 
 
-
 def np_summary(a):
     DEC_NUM = 3
     mi = round(np.nanmin(a), DEC_NUM)
     ma = round(np.nanmax(a), DEC_NUM)
     me = round(np.nanmedian(a), DEC_NUM)
     return f'min: {mi}, max: {ma}, median: {me}'
-
