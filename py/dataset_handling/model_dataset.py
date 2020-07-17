@@ -76,7 +76,6 @@ class Model_dataset():
 
 
 
-
     def calc_pvalue(self):
         ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
                                   par_meas=self.par_meas, parallel_iterations=self.parallel_iterations)
@@ -84,14 +83,11 @@ class Model_dataset():
         self.X_pvalue_adj = ds_dis.get_pvalue_adj()
 
 
-    def get_logfc(self):
-        if self.profile.data_trans == 
 
 
     def init_pvalue_fc_z(self):
         self.calc_pvalue()
-        # self.X_logfc = st.get_logfc(self.X, self.X_pred) ### TODO FIX FOR PROTEINS
-        self.X_logfc = self.X - self.X_pred
+        self.X_logfc = self.profile.data_trans.get_logfc(self.X, self.X_pred, par_sample=self.par_sample )
         self.X_zscore = st.get_z_score(self.X_logfc)
 
 
@@ -178,9 +174,11 @@ class Model_dataset():
 
 
 
-
-    ## write everything into xrds
     def get_xrds(self):
+        """
+        writes whole model_dataset object back into a xarray dataset
+        :return: xarray dataset
+        """
         self.xrds.coords["encod_dim"] =  ["q_" + str(d) for d in range(self.encod_dim)]
 
         self.xrds["X_pred"] = (("sample", "meas"), self.X_pred)
@@ -212,9 +210,6 @@ class Model_dataset():
 
         print('loss_summary')
         print(self.loss_list.loss_summary)
-
-        ### remove unncessary
-        # self.xrds = self.xrds.drop_vars("_X_stat_used")
 
         return self.xrds
 

@@ -49,7 +49,7 @@ def main():
 
 
         folder_path = '/home/stefan/gagneurlab/s/project/protrider/loipf/results/20200713_min_sample_size/datasets/'
-        args2 = { "file_meas" : folder_path+"tmt_0_1.csv", "encod_dim": None, 'verbose':True, 'num_cpus':5,
+        args2 = { "file_meas" : folder_path+"tmt_0_1.csv", "encod_dim": 1, 'verbose':True, 'num_cpus':5,
                   "max_iter": 1, "profile": "protrider" #"protrider_cov1" #"protrider"
                 ,'file_sa': '/home/stefan/gagneurlab/s/project/protrider/loipf/data/prok_version_P20200317_paper_samples/py_outrider/prok_batches.csv',
                   'cov_used': ["PROTEOMICS_BATCH","gender","INSTRUMENT"]

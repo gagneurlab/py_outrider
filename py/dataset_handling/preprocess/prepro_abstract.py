@@ -16,7 +16,7 @@ class Prepro_abstract(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_prepro_x(self):
+    def get_prepro_x(xrds):
         pass
 
 

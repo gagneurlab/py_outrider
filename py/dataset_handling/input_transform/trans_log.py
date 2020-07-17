@@ -7,7 +7,7 @@ from distributions.dis.dis_abstract import Dis_abstract
 from dataset_handling.input_transform.trans_abstract import Trans_abstract
 from utilis.stats_func import multiple_testing_nan
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
-
+from utilis.stats_func import get_fc
 
 
 
@@ -34,10 +34,10 @@ class Trans_log(Trans_abstract):
         #     return np.power(y, 2)
 
 
+
     @staticmethod
-    def get_logfc(X, X_pred):
-        return np.log1p(xrds["X"])
-        # return np.log(xrds["X"] + 1)
+    def get_logfc(X_trans, X_trans_pred, **kwargs):
+        return get_fc(X_trans, X_trans_pred)
 
 
 

@@ -24,7 +24,7 @@ class Trans_vst(Trans_abstract):
 
 
     @staticmethod
-    def rev_transform(y, other_par,**kwargs):
+    def rev_transform(y, other_par, **kwargs):
         ### implement
         # extra_pois, asympt_disp = other_par
         # matrix_inverse_vst(y, extra_pois, asympt_disp)
@@ -34,6 +34,11 @@ class Trans_vst(Trans_abstract):
         else:
             return y
 
+
+
+    @staticmethod
+    def get_logfc(X_trans, X_trans_pred, other_par, **kwargs):
+        pass
 
 
 

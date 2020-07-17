@@ -25,7 +25,7 @@ class Trans_abstract(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_logfc(self):
+    def get_logfc(X_trans, X_trans_pred, **kwargs):
         pass
 
 
