@@ -18,18 +18,18 @@ def multiple_testing_nan(X_pvalue, method='fdr_by'):
     return list(pval_corrected)
 
 
-def get_log2fc(X_true, X_pred):
-    fc = np.log2(X_true + 1) - np.log2(X_pred + 1)
+def get_logfc(X_true, X_pred):
+    fc = np.log1p(X_true) - np.log1p(X_pred)
     return fc
 
 
-def get_log2fc_outlier(X_true, X_pred, log_value=1.5):
-    fc = get_log2fc(X_true, X_pred)
-    return fc > np.log(log_value)
+def get_fc(X_true, X_pred):
+    fc = X_true - X_pred
+    return fc
 
 
-def get_z_score(X_log2fc):
-    z_score = (X_log2fc - np.nanmean(X_log2fc, axis=0)) / np.nanstd(X_log2fc, axis=0)
+def get_z_score(X_logfc):
+    z_score = (X_logfc - np.nanmean(X_logfc, axis=0)) / np.nanstd(X_logfc, axis=0)
     return z_score
 
 

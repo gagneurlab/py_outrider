@@ -23,6 +23,12 @@ class Trans_abstract(ABC):
     def rev_transform(self):
         pass
 
+    @staticmethod
+    @abstractmethod
+    def get_logfc(self):
+        pass
+
+
     @classmethod
     def transform_xrds(cls, xrds):
         X_trans = cls.get_transformed_xrds(xrds)

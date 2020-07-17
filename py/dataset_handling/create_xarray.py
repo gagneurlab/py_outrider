@@ -196,8 +196,8 @@ class Create_xarray():
             print("loss_dis not found")
 
     def get_profile_prepro(self, prof_pre):
-        if prof_pre.lower() == "sf_log2":
-            return dataset_handling.preprocess.prepro_sf_log2.Prepro_sf_log2
+        if prof_pre.lower() == "sf_log":
+            return dataset_handling.preprocess.prepro_sf_log.Prepro_sf_log
         elif prof_pre.lower() == "none":
             return dataset_handling.preprocess.prepro_none.Prepro_none
         else:

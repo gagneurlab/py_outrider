@@ -15,8 +15,8 @@ def xrds_to_list(xrds, output_file, full_output=True):
                                   xrds.coords["meas"].values],
                   "sample": np.repeat(xrds.coords["sample"].values, len(xrds.coords["meas"].values)),
                   "meas": np.tile(xrds.coords["meas"].values, len(xrds.coords["sample"].values)),
-                  "log2fc": xrds["X_log2fc"].values.flatten(),
-                  "fc": np.power(2, xrds["X_log2fc"].values.flatten()),
+                  "logfc": xrds["X_logfc"].values.flatten(),
+                  "fc": np.exp(xrds["X_logfc"].values.flatten()),
                   "pvalue": xrds["X_pvalue"].values.flatten(),
                   "pvalue_adj": xrds["X_pvalue_adj"].values.flatten(),
                   "z_score": xrds["X_zscore"].values.flatten(),
@@ -29,6 +29,7 @@ def xrds_to_list(xrds, output_file, full_output=True):
     if "X_is_outlier" in xrds:
         sample_dir["is_outlier"] = xrds["X_is_outlier"].values.flatten()
 
+    sample_dir["is_significant"] = xrds["X_pvalue_adj"].values.flatten() < 0.05  # default considered as significant
     sample_outlier_list = pd.DataFrame(data=sample_dir)
 
     if full_output is False:
@@ -37,7 +38,7 @@ def xrds_to_list(xrds, output_file, full_output=True):
 
 
 def xrds_to_tables(xrds, output_path,
-                   tables_to_dl=["X_trans", "X_trans_pred", "X_log2fc", "X_pvalue", "X_pvalue_adj", "X_zscore"]):
+                   tables_to_dl=["X_trans", "X_trans_pred", "X_logfc", "X_pvalue", "X_pvalue_adj", "X_zscore"]):
     """
     outputs .csv tables for selected matrices names
     :param xrds: xrarry dataset object

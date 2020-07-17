@@ -19,7 +19,6 @@ class Trans_log(Trans_abstract):
     @staticmethod
     def get_transformed_xrds(xrds):
         return np.log1p(xrds["X"])
-        # return np.log2(xrds["X"] + 1)
 
 
     @staticmethod
@@ -35,7 +34,10 @@ class Trans_log(Trans_abstract):
         #     return np.power(y, 2)
 
 
-
+    @staticmethod
+    def get_logfc(X, X_pred):
+        return np.log1p(xrds["X"])
+        # return np.log(xrds["X"] + 1)
 
 
 

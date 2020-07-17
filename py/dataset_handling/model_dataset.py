@@ -84,10 +84,15 @@ class Model_dataset():
         self.X_pvalue_adj = ds_dis.get_pvalue_adj()
 
 
+    def get_logfc(self):
+        if self.profile.data_trans == 
+
+
     def init_pvalue_fc_z(self):
         self.calc_pvalue()
-        self.X_log2fc = st.get_log2fc(self.X, self.X_pred)
-        self.X_zscore = st.get_z_score(self.X_log2fc)
+        # self.X_logfc = st.get_logfc(self.X, self.X_pred) ### TODO FIX FOR PROTEINS
+        self.X_logfc = self.X - self.X_pred
+        self.X_zscore = st.get_z_score(self.X_logfc)
 
 
 
@@ -181,7 +186,7 @@ class Model_dataset():
         self.xrds["X_pred"] = (("sample", "meas"), self.X_pred)
         self.xrds["X_pvalue"] = (("sample", "meas"), self.X_pvalue)
         self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)
-        self.xrds["X_log2fc"] = (("sample", "meas"), self.X_log2fc)
+        self.xrds["X_logfc"] = (("sample", "meas"), self.X_logfc)
         self.xrds["X_zscore"] = (("sample", "meas"), self.X_zscore)
         self.xrds["X_trans_pred"] = (("sample", "meas"), self.X_trans_pred)
 
