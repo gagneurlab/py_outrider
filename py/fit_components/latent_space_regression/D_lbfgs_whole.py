@@ -8,8 +8,6 @@ from fit_components.latent_space_regression.D_abstract import D_abstract
 
 class D_lbfgs_whole(D_abstract):
 
-    D_name = "D_LBFGS_whole"
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -13,8 +13,6 @@ from utilis.stats_func import get_fc
 
 class Trans_none(Trans_abstract):
 
-    trans_name = "trans_none"
-
     @staticmethod
     def get_transformed_xrds(xrds):
         return xrds["X"]

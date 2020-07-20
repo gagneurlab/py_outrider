@@ -20,11 +20,6 @@ class D_abstract(ABC):
         self.__ds = ds
 
 
-    @property
-    @abstractmethod
-    def D_name(self):
-        pass
-
 
 
     @property
@@ -49,7 +44,8 @@ class D_abstract(ABC):
     def fit(self):
         self.run_fit()
         self.ds.calc_X_pred()
-        self.ds.loss_list.add_loss(self.ds.get_loss(), step_name=self.D_name, print_text=f'{self.D_name} - loss:')
+        D_name =  __class__.__name__
+        self.ds.loss_list.add_loss(self.ds.get_loss(), step_name= D_name, print_text=f'{D_name} - loss:')
 
 
 

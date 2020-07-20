@@ -13,8 +13,6 @@ from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 
 class Trans_vst(Trans_abstract):
 
-    trans_name = "trans_vst"
-
 
     @staticmethod
     def get_transformed_xrds(xrds):

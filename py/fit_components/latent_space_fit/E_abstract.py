@@ -22,11 +22,6 @@ class E_abstract(ABC):
     def ds(self, ds):
         self.__ds = ds
 
-    @property
-    @abstractmethod
-    def E_name(self):
-        pass
-
 
     @property
     def loss_E(self):
@@ -49,7 +44,8 @@ class E_abstract(ABC):
     def fit(self):
         self.run_fit()
         self.ds.calc_X_pred()
-        self.ds.loss_list.add_loss(self.ds.get_loss(), step_name=self.E_name, print_text=f'{self.E_name} - loss:')
+        E_name = __class__.__name__
+        self.ds.loss_list.add_loss(self.ds.get_loss(), step_name=E_name, print_text=f'{E_name} - loss:')
 
 
 

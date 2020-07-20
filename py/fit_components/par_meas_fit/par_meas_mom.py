@@ -8,7 +8,6 @@ from utilis.np_mom_theta import robust_mom_theta
 
 class Par_meas_mom(Par_meas_abstract):
 
-    par_meas_name="par_mom"
 
 
     def __init__(self, theta_range = (1e-2, 1e3),*args, **kwargs):
@@ -17,7 +16,7 @@ class Par_meas_mom(Par_meas_abstract):
 
 
     def run_fit(self):
-        if self.ds.profile.dis.dis_name == "Dis_neg_bin":
+        if self.ds.profile.dis.__name__ == "Dis_neg_bin":
             par_meas = robust_mom_theta(self.ds.X, self.theta_range[0], self.theta_range[1])
         else:
             par_meas = np.zeros(shape=(self.ds.X.shape[1],))

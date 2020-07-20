@@ -11,8 +11,6 @@ from fit_components.latent_space_fit.E_abstract import E_abstract
 class E_pca(E_abstract):
 
 
-    E_name = "E_PCA"
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

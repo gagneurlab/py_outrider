@@ -44,10 +44,6 @@ class Dis_abstract(ABC):
                 X_pred = tf.convert_to_tensor(X_pred.values, dtype=self.float_type)
         self.__X_pred= X_pred
 
-    @property
-    @abstractmethod
-    def dis_name(self):
-        pass
 
     @property
     def par_meas(self):

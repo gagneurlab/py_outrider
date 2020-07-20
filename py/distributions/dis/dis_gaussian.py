@@ -12,7 +12,6 @@ import utilis.tf_helper_func as tfh
 
 class Dis_gaussian(Dis_abstract):
 
-    dis_name = "Dis_gaussian"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

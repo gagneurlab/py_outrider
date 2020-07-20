@@ -10,7 +10,6 @@ from utilis.tf_fminbound import tf_fminbound
 
 class Par_meas_fminbound(Par_meas_abstract):
 
-    par_meas_name="par_fminbound"
 
     def __init__(self, theta_range = (1e-2, 1e3), *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -20,7 +19,7 @@ class Par_meas_fminbound(Par_meas_abstract):
 
 
     def run_fit(self):
-        if self.ds.profile.dis.dis_name == "Dis_neg_bin":
+        if self.ds.profile.dis.__name__ == "Dis_neg_bin":
             par_meas = self.update_par_meas_fmin(loss_func=self.loss_par_meas, x=self.ds.X, x_pred=self.ds.X_pred,
                                                  par_list=self.theta_range,
                                                  parallel_iterations=self.ds.parallel_iterations)

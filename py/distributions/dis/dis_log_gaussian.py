@@ -17,7 +17,6 @@ from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 
 class Dis_log_gaussian(Dis_abstract):
 
-    dis_name = "Dis_log_gaussian"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

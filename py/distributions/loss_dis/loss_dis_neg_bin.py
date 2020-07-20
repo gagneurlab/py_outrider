@@ -34,7 +34,7 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
     @staticmethod
     @tf.function
     def tf_loss_E( e, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans, **kwargs):
-        if data_trans.trans_name=="trans_sf":
+        if data_trans.__name__ =="Trans_sf":
             return Loss_dis_neg_bin_sf_trunc.tf_loss_E(e=e, D=D, b=b, x=x, x_trans=x_trans,
                                              par_sample=par_sample, par_meas=par_meas, cov_sample=cov_sample, **kwargs)
         else:
@@ -52,7 +52,7 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
     @staticmethod
     @tf.function
     def tf_loss_D_single(H, x_i, b_and_D, par_sample, par_meas, data_trans, **kwargs):
-        if data_trans.trans_name=="trans_sf":
+        if data_trans.__name__ =="Trans_sf":
             return Loss_dis_neg_bin_sf_trunc.tf_loss_D_single(H=H, x_i=x_i, b_and_D = b_and_D, par_sample = par_sample,
                                                            par_meas=par_meas, **kwargs)
         else:
@@ -71,7 +71,7 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
     @staticmethod
     @tf.function
     def tf_loss_D(H, x , b_and_D, par_sample, par_meas, data_trans, **kwargs):
-        if data_trans.trans_name=="trans_sf":
+        if data_trans.__name__ =="Trans_sf":
             return Loss_dis_neg_bin_sf_trunc.tf_loss_D(H=H, x=x, b_and_D = b_and_D, par_sample = par_sample,
                                                            par_meas=par_meas, **kwargs)
         else:

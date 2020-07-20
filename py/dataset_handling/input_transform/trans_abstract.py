@@ -8,11 +8,6 @@ import tensorflow as tf
 class Trans_abstract(ABC):
 
 
-    @property
-    @abstractmethod
-    def trans_name(self):
-        pass
-
     @staticmethod
     @abstractmethod
     def get_transformed_xrds(self):

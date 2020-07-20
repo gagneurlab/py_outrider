@@ -8,11 +8,6 @@ import tensorflow as tf
 class Prepro_abstract(ABC):
 
 
-    @property
-    @abstractmethod
-    def prepro_name(self):
-        pass
-
 
     @staticmethod
     @abstractmethod

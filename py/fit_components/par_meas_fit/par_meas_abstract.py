@@ -20,10 +20,6 @@ class Par_meas_abstract(ABC):
     def ds(self, ds):
         self.__ds = ds
 
-    @property
-    @abstractmethod
-    def par_meas_name(self):
-        pass
 
 
     @abstractmethod
@@ -39,7 +35,8 @@ class Par_meas_abstract(ABC):
     def fit(self):
         self.run_fit()
         self.ds.calc_X_pred()
-        self.ds.loss_list.add_loss(self.ds.get_loss(), step_name=self.par_meas_name, print_text=f'{self.par_meas_name} - loss:')
+        par_meas_name = __class__.__name__
+        self.ds.loss_list.add_loss(self.ds.get_loss(), step_name=par_meas_name, print_text=f'{par_meas_name} - loss:')
 
 
 

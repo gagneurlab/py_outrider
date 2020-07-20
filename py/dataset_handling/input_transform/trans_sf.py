@@ -13,8 +13,6 @@ from utilis.stats_func import get_logfc
 
 class Trans_sf(Trans_abstract):
 
-    trans_name = "trans_sf"
-
 
     @staticmethod
     def get_transformed_xrds(xrds):

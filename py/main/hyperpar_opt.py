@@ -43,6 +43,10 @@ class Hyperpar_opt():
             fit_model.fit()
             ds.calc_pvalue()
 
+            xrds2 = ds.xrds.copy()
+            xrds2.attrs["profile"] = xrds2.attrs["profile"].__class__.__name__
+            xrds2.to_zarr(xrds2.attrs["output"]+"/encod_dim_"+str(p["encod_dim"]), mode="w")
+
             pre_rec = st.get_prec_recall(ds.X_pvalue, ds.xrds["X_is_outlier"].values)["auc"]
             df_list.append([p["encod_dim"], p["noise_factor"], pre_rec, ds.get_loss()])
 

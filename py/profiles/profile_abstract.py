@@ -77,6 +77,18 @@ class Profile_abstract(ABC):
         self.__noise_factor = noise_factor
 
 
+    def get_names(self):
+        out_dict = {
+            "fit_model": self.fit_model.__name__ ,
+            "prepro" : self.prepro.__name__ ,
+            "data_trans" : self.data_trans.__name__ ,
+            "dis": self.dis.__name__ ,
+            "loss_dis" : self.loss_dis.__name__ ,
+            "outlier_dis" : self.outlier_dis.__name__ ,
+            "noise_dis": self.noise_dis.__name__ ,
+            "noise_factor": self.noise_factor }
+
+        return out_dict
 
 
 

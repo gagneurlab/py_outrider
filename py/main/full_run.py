@@ -22,7 +22,7 @@ class Full_run():
 
         model_ds = Model_dataset(xrds)
         print('dataset created')
-        # model_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
+        model_ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
         # print('outlier injected')
 
 
@@ -38,15 +38,13 @@ class Full_run():
         print('run model')
         xrds = fit_model.run_model_fit()
 
-        # if "X_is_outlier" in xrds:
-        #     pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)
-        #     print(f'precision-recall: { pre_rec["auc"] }')
-
+        if "X_is_outlier" in xrds:
+            pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)
+            print(f'precision-recall: { pre_rec["auc"] }')
 
         ### export
-        print(xrds)
-        xrds.attrs["profile"] = xrds.attrs["profile"].__class__.__name__
-        xrds.to_zarr(xrds.attrs["output"] , mode="w")
+        xrds.attrs["profile"] = xrds.attrs["profile"].get_names()
+        # xrds.to_zarr(xrds.attrs["output"] , mode="w")
 
         print('start plotting')
         Custom_output(xrds)
