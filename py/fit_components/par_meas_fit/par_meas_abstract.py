@@ -35,7 +35,7 @@ class Par_meas_abstract(ABC):
     def fit(self):
         self.run_fit()
         self.ds.calc_X_pred()
-        par_meas_name = __class__.__name__
+        par_meas_name = self.__class__.__name__
         self.ds.loss_list.add_loss(self.ds.get_loss(), step_name=par_meas_name, print_text=f'{par_meas_name} - loss:')
 
 

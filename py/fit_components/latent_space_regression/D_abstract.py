@@ -44,7 +44,7 @@ class D_abstract(ABC):
     def fit(self):
         self.run_fit()
         self.ds.calc_X_pred()
-        D_name =  __class__.__name__
+        D_name =  self.__class__.__name__
         self.ds.loss_list.add_loss(self.ds.get_loss(), step_name= D_name, print_text=f'{D_name} - loss:')
 
 
