@@ -50,10 +50,11 @@ def main():
 
         folder_path = '/home/stefan/gagneurlab/s/project/protrider/loipf/results/20200713_min_sample_size/datasets/'
         args2 = { "file_meas" : folder_path+"tmt_0_1.csv", "encod_dim": 5, 'verbose':True, 'num_cpus':5,
-                  "max_iter": 0, "profile": "protrider" #"protrider_cov1" #"protrider"
+                  "max_iter": 20, "profile": "protrider" #"protrider_cov1" #"protrider"
                 ,'file_sa': '/home/stefan/gagneurlab/s/project/protrider/loipf/data/prok_version_P20200317_paper_samples/py_outrider/prok_batches.csv',
                   'cov_used': ["PROTEOMICS_BATCH","gender","INSTRUMENT"], "seed":5,
-                  "output":'/home/stefan/gagneurlab/s/project/protrider/loipf/results/20200713_min_sample_size/trained_obj/protrider/tmt_0_1/xrds_output_pytest/'
+                  'X_is_outlier': '/home/stefan/Desktop/X_is_outlier.csv', "float_type":"float32",
+                  "output":'/home/stefan/gagneurlab/s/project/protrider/loipf/results/20200713_min_sample_size/trained_obj/protrider/tmt_0_1/xrds_output_pytest2/'
                   }
 
 
@@ -63,35 +64,6 @@ def main():
         Full_run(args_input=args)
 
         # print_func.print_dict(args)
-
-
-        # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/04_sample_blood_outlier_2/'
-        # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/06_sample_blood_outlier_z3/'
-        # # folder_path = '/home/stefan/gagneurlab/home/Documents/jupyter_protrider/outrider_sample/'
-        #
-        # args = {'filepath': folder_path + 'counts_raw.csv', 'dataset': 'genes_neg_bin',
-        # # args = {'filepath': folder_path + 'counts_vst.csv', 'dataset': 'genes_gaus',
-        #           'output': folder_path, 'q': 25, 'num_cpus': 6, 'max_iter': 0, 'float_type': 'float64', 'verbose': True}
-        # args.update(args)
-
-
-
-        # Prec_rec_test(ae_class=Ae_pca, ds_class=get_dataset_class(args['dataset']), file_path=args['filepath'], encoding_dim=args['q'], output_path=args['output'],
-        #                      num_cpus=args['num_cpus'], max_iter=0, float_type=args['float_type'], verbose=args['verbose'])
-        # Prec_rec_test(ae_class=Ae_adam, ds_class=get_dataset_class(args['dataset']), file_path=args['filepath'], encoding_dim=args['q'], output_path=args['output'],
-        #                      num_cpus=args['num_cpus'], max_iter=300, float_type=args['float_type'], verbose=args['verbose'])
-        # Prec_rec_test(ae_class=Ae_bfgs, ds_class=get_dataset_class(args['dataset']), file_path=args['filepath'], encoding_dim=args['q'], output_path=args['output'],
-        #                      num_cpus=args['num_cpus'], max_iter=0, float_type=args['float_type'], verbose=args['verbose'])
-
-        # Comparison_outrider(ae_class=Ae_bfgs, ds_class=get_dataset_class(args['dataset']), file_path=args['filepath'], encoding_dim=args['q'], output_path=args['output'],
-        #                      num_cpus=args['num_cpus'], max_iter=args['max_iter'], float_type=args['float_type'], verbose=args['verbose'])
-
-        # Full_run(ae_class=Ae_bfgs, ds_class=get_dataset_class(args['dataset']), file_path=args['filepath'], encoding_dim=args['q'], output_path=args['output'],
-        # # Full_run(ae_class=Ae_bfgs, ds_class=get_dataset_class(args['dataset']), file_path=args['filepath'], encoding_dim=args['q'], output_path=args['output'],
-        #                  num_cpus=args['num_cpus'], max_iter=args['max_iter'], float_type=args['float_type'], verbose=args['verbose'] )
-
-
-
 
 
 

@@ -81,6 +81,13 @@ def plot_binhex(x, y, title="", ylab="", xlab="", axis_limit=None, center=False)
 
 
 def ppoints(n, a=0.5):
+    """
+    ppoints function from R
+    ordinates for probability plotting
+    :param n: number of observation points
+    :param a: offset fraction to be used, typically in (0,1)
+    :return: sequence of probability points
+    """
     try:
         n = np.float(len(n))
     except TypeError:
@@ -103,8 +110,11 @@ def plot_qqplot(pval, title="qq-plot"):
 
 
 
-# create empty plot with text only
 def plot_empty_text(txt):
+    """
+    creates an empty plot without axis and only text
+    :param txt: shown text in plot
+    """
     plt.clf()
     plt.plot([0, 1], [0, 1], alpha=0)
     plt.text(0.5, 0.5, txt, horizontalalignment='center', verticalalignment='center', fontsize=30)

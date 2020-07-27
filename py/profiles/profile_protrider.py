@@ -24,12 +24,11 @@ class Profile_protrider(Profile_abstract):
         # self.fit_model = Model_fit_pca
         self.prepro = Prepro_sf_log
         self.data_trans = Trans_none
-        # self.data_trans = Trans_sf
         self.dis = Dis_gaussian
         self.loss_dis = Loss_dis_gaussian
         self.outlier_dis = Dis_log_gaussian
         self.noise_dis = Dis_gaussian
-        self.noise_factor = 0.5 #0.5
+        self.noise_factor = 0.5
 
 
 

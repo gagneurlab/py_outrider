@@ -13,7 +13,7 @@ def parse_args(args_input):
     parser.add_argument('--float_type', default='float64', choices=['float32', 'float64'], help='which float type to be used, highly advised to keep float')
     parser.add_argument('--num_cpus', type=int, default=1, help='number of cpus used')
     parser.add_argument('--max_iter', type=int, default=15, help='number of maximal training iterations')
-    parser.add_argument('--verbose', type=bool, default=False, help='print additional output info')
+    parser.add_argument('--verbose', type=bool, default=True, help='print additional output info')
     parser.add_argument('--seed', type=int, default=0, help='seed used for training [NOT IMPLEMENTED], 0 -> no seed set')
     parser.add_argument('--output_plots', type=bool, default=False, help='outputs a collection of useful plots')
     parser.add_argument('--output_list', type=bool, default=False, help='output results in form of a long list')

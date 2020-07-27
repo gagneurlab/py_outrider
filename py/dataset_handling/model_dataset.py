@@ -61,13 +61,14 @@ class Model_dataset():
         self.b = None
         self.H = None
 
-        ### convert all to the same type
-        self.X, self.X_trans, self.X_center_bias, self.cov_sample, self.par_sample, self.par_meas, self.X = \
+        ### convert all parameters to the same float type, cannot convert to function without copying
+        self.X, self.X_trans, self.X_trans_noise, self.X_center_bias, self.cov_sample,\
+        self.par_sample, self.par_meas, self.X, self.fit_input, self.fit_input_noise = \
             [ x.astype(self.xrds.attrs["float_type"], copy=False) if x is not None and x.dtype != self.xrds.attrs["float_type"] else x
-              for x in [self.X, self.X_trans, self.X_center_bias, self.cov_sample, self.par_sample, self.par_meas, self.X] ]
+              for x in [self.X, self.X_trans, self.X_trans_noise, self.X_center_bias, self.cov_sample,
+                        self.par_sample, self.par_meas, self.X, self.fit_input, self.fit_input_noise] ]
 
-        # self.encod_dim = self.xrds.attrs["encod_dim"]  # needed ?
-        self.loss_list = Loss_list(conv_limit=0.00001, last_iter=3)
+        self.loss_list = Loss_list()
         self.parallel_iterations = self.xrds.attrs["num_cpus"]
 
 

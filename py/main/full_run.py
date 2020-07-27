@@ -38,13 +38,15 @@ class Full_run():
         print('run model')
         xrds = fit_model.run_model_fit()
 
+        xrds.attrs["profile"] = [xrds.attrs["profile"].get_names()]
+        xrds.to_zarr(xrds.attrs["output"] , mode="w")
+
         if "X_is_outlier" in xrds:
             pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)
             print(f'precision-recall: { pre_rec["auc"] }')
 
         ### export
-        xrds.attrs["profile"] = xrds.attrs["profile"].get_names()
-        # xrds.to_zarr(xrds.attrs["output"] , mode="w")
+
 
         print('start plotting')
         Custom_output(xrds)

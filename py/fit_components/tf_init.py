@@ -3,6 +3,11 @@ import tensorflow as tf
 
 ### activates parallelization
 def init_tf_config(num_cpus, verbose):
+    """
+    prepares all configuration to make tensorflow run in parallel or use gpu if available
+    :param num_cpus: number of maximum allowed cores
+    :param verbose: print additional information output
+    """
     tf.config.threading.set_intra_op_parallelism_threads(num_cpus)
     tf.config.threading.set_inter_op_parallelism_threads(num_cpus)
 

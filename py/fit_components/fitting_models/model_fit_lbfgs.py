@@ -7,7 +7,6 @@ import time
 from fit_components.fitting_models.model_fit_abstract import Model_fit_abstract
 # from autoencoder_models.loss_list import Loss_list
 import utilis.print_func as print_func
-from fit_components.loss_list import Loss_list
 
 
 from fit_components.latent_space_regression.D_lbfgs_single import D_lbfgs_single
@@ -28,14 +27,14 @@ class Model_fit_lbfgs(Model_fit_abstract):
 
 
     # @tf.function
-    def fit(self, convergence=1e-5, **kwargs):
+    def fit(self, conv_limit=1e-5, **kwargs):
 
         E_pca(ds=self.ds).fit()
 
         Par_meas_mom(ds=self.ds).fit()
         # self.ds.print_dataset_shapes()
-        #D_lbfgs_whole(ds=self.ds).fit()
-        D_lbfgs_single(ds=self.ds).fit()
+        D_lbfgs_whole(ds=self.ds).fit()
+        # D_lbfgs_single(ds=self.ds).fit()
 
         # self.ds.print_dataset_shapes()
 
@@ -51,16 +50,18 @@ class Model_fit_lbfgs(Model_fit_abstract):
             # self.ds.print_dataset_shapes()
 
             # print('### D_SINGLE MODEL FIT')
-            D_lbfgs_single(ds=self.ds).fit()
+            # D_lbfgs_single(ds=self.ds).fit()
+            D_lbfgs_whole(ds=self.ds).fit()
 
             Par_meas_fminbound(ds=self.ds).fit()
 
             print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))
 
-            # ## check convergence
-            # if self.loss_list.check_converged(verbose=self.ds.xrds.attrs["verbose"]):
-            #     print_func.print_time(f'ae converged with loss: {self.get_loss()}')
-            #     break
+            ## check convergence
+            if self.ds.loss_list.check_converged(conv_limit=conv_limit, verbose=self.ds.xrds.attrs["verbose"]):
+                print_func.print_time(f'model converged at iteration: {iter}')
+                break
+
 
 
 # max_iter=15

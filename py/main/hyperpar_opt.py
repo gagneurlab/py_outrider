@@ -43,9 +43,9 @@ class Hyperpar_opt():
             fit_model.fit()
             ds.calc_pvalue()
 
-            xrds2 = ds.xrds.copy()
-            xrds2.attrs["profile"] = xrds2.attrs["profile"].__class__.__name__
-            xrds2.to_zarr(xrds2.attrs["output"]+"/encod_dim_"+str(p["encod_dim"]), mode="w")
+            # xrds2 = ds.xrds.copy()
+            # xrds2.attrs["profile"] = xrds2.attrs["profile"].__class__.__name__
+            # xrds2.to_zarr(xrds2.attrs["output"]+"/encod_dim_"+str(p["encod_dim"]), mode="w")
 
             pre_rec = st.get_prec_recall(ds.X_pvalue, ds.xrds["X_is_outlier"].values)["auc"]
             df_list.append([p["encod_dim"], p["noise_factor"], pre_rec, ds.get_loss()])
@@ -90,8 +90,13 @@ class Hyperpar_opt():
         return ParameterGrid(hyperpar_dict)
 
 
-    ### from DROP
     def _get_par_encod_dim(self, x):
+        """
+        get max_steps for hyperparameter optimisation for encoding dimension,
+        log scattered for bigger measurement tables, from DROP
+        :param x: measurement matrix
+        :return: list of encoding dimensions
+        """
         MP = 3
 
         a = 3

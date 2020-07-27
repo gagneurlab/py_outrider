@@ -40,6 +40,7 @@ class Model_fit_abstract(ABC):
         print_func.print_time('start model fitting')
         self.fit(**kwargs)
         print_func.print_time(f'complete model fit time {print_func.get_duration_sec(time.time() - time_ae_start)}')
+        print_func.print_time(f'model_fit ended with loss: {self.ds.get_loss()}')
 
         self.ds.init_pvalue_fc_z()
         self.xrds = self.ds.get_xrds()
