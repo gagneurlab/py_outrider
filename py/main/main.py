@@ -35,8 +35,8 @@ def main():
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "pca"
                   # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "protrider"
                   "max_iter": 1, "profile": "protrider"
-                # ,'file_sa': folder_path+ 'sa_file_artificially.csv', 'cov_used': ["batch", "oneh"]
-                ,'file_sa': folder_path+ 'san_notechrep.csv', 'cov_used': ["sex", "date_processed_y_m_d"]
+                # ,'file_sa': folder_path+ 'sa_file_artificially.csv', 'covariates': ["batch", "oneh"]
+                ,'file_sa': folder_path+ 'san_notechrep.csv', 'covariates': ["sex", "date_processed_y_m_d"]
                   }
 
         # folder_path = '/home/stefan/gagneurlab/s/project/protrider/loipf/data/prok_version_P20200317_with_outliers/'
@@ -44,7 +44,7 @@ def main():
         #           # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 2, "profile": "outrider"
         #           # 'X_is_outlier': folder_path+"trueCorruptions.csv", "max_iter": 1, "profile": "pca"
         #           'X_is_outlier': folder_path+"X_out_pos.csv", "max_iter": 10, "profile": "protrider"
-        #         ,'file_sa': folder_path+ 'prok_batches.csv', 'cov_used': ["PROTEOMICS_BATCH","gender","INSTRUMENT"]
+        #         ,'file_sa': folder_path+ 'prok_batches.csv', 'covariates': ["PROTEOMICS_BATCH","gender","INSTRUMENT"]
         #           }
 
 
@@ -52,7 +52,7 @@ def main():
         args2 = { "file_meas" : folder_path+"tmt_0_1.csv", "encod_dim": 5, 'verbose':True, 'num_cpus':5,
                   "max_iter": 20, "profile": "protrider" #"protrider_cov1" #"protrider"
                 ,'file_sa': '/home/stefan/gagneurlab/s/project/protrider/loipf/data/prok_version_P20200317_paper_samples/py_outrider/prok_batches.csv',
-                  'cov_used': ["PROTEOMICS_BATCH","gender","INSTRUMENT"], "seed":5,
+                  'covariates': ["PROTEOMICS_BATCH","gender","INSTRUMENT"], "seed":5,
                   'X_is_outlier': '/home/stefan/Desktop/X_is_outlier.csv', "float_type":"float32",
                   "output":'/home/stefan/gagneurlab/s/project/protrider/loipf/results/20200713_min_sample_size/trained_obj/protrider/tmt_0_1/xrds_output_pytest2/'
                   }

@@ -59,7 +59,7 @@ class Loss_list():
             else:
                 conv = meas_conv == True
                 if verbose:
-                    print(f'### loss_converged: {meas_conv}   {l_short}')
+                    print(f'### loss_converged: {meas_conv}   last 3 losses: {l_short}')
                 return conv, str(conv)
         return False, str(False)
 

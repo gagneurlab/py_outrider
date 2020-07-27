@@ -4,6 +4,8 @@ import tensorflow_probability as tfp
 from sklearn.decomposition import PCA
 import time
 
+
+
 from fit_components.fitting_models.model_fit_abstract import Model_fit_abstract
 # from autoencoder_models.loss_list import Loss_list
 import utilis.print_func as print_func
@@ -33,8 +35,8 @@ class Model_fit_lbfgs(Model_fit_abstract):
 
         Par_meas_mom(ds=self.ds).fit()
         # self.ds.print_dataset_shapes()
-        D_lbfgs_whole(ds=self.ds).fit()
-        # D_lbfgs_single(ds=self.ds).fit()
+        # D_lbfgs_whole(ds=self.ds).fit()
+        D_lbfgs_single(ds=self.ds).fit()
 
         # self.ds.print_dataset_shapes()
 
@@ -50,8 +52,8 @@ class Model_fit_lbfgs(Model_fit_abstract):
             # self.ds.print_dataset_shapes()
 
             # print('### D_SINGLE MODEL FIT')
-            # D_lbfgs_single(ds=self.ds).fit()
-            D_lbfgs_whole(ds=self.ds).fit()
+            D_lbfgs_single(ds=self.ds).fit()
+            # D_lbfgs_whole(ds=self.ds).fit()
 
             Par_meas_fminbound(ds=self.ds).fit()
 

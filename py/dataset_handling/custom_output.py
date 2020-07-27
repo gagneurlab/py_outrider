@@ -1,7 +1,7 @@
 from pathlib import Path
 from matplotlib.backends.backend_pdf import PdfPages
 import utilis.plot_func as pl
-from utilis.xarray_to_list import xrds_to_list
+from utilis.xarray_output import xrds_to_list
 
 
 

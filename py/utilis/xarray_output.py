@@ -4,6 +4,23 @@ import xarray as xr
 from pathlib import Path
 
 
+def xrds_to_zarr(xrds_obj, output_path):
+    """
+    separate method which perpares an xrds to be exported
+    :param xrds_obj: xarray object
+    :param output_path: path output should be written in
+    """
+    xrds = xrds_obj.copy(deep=True)
+    xrds.attrs["profile"] = [xrds.attrs["profile"].get_names()]
+
+    ### None attributes can not be exported
+    for at in xrds.attrs.keys():
+        if xrds.attrs[at] is None:
+            xrds.attrs[at] = "None"
+
+    xrds.to_zarr(output_path, mode="w")
+
+
 def xrds_to_list(xrds, output_file, full_output=True):
     """
     transforms xarray object into a long list of samples_meas values

@@ -31,9 +31,9 @@ class Create_xarray():
             xrds_dict["sample_anno"] = (("sample", "sample_anno_col"), sample_anno.values.astype(str))
             xrds_coords["sample_anno_col"] = sample_anno.columns
 
-            if args_input["cov_used"] is not None:
-                cov_sample = self.get_covariates(sample_anno, args_input["cov_used"])
-                xrds_dict["cov_sample"] = (("sample", "cov_used"), cov_sample.values)
+            if args_input["covariates"] is not None:
+                cov_sample = self.get_covariates(sample_anno, args_input["covariates"])
+                xrds_dict["cov_sample"] = (("sample", "covariates"), cov_sample.values)
                 xrds_coords["cov_sample_col"] = cov_sample.columns
 
         if args_input["X_is_outlier"] is not None:
@@ -45,11 +45,12 @@ class Create_xarray():
 
         ### add additional metadata
         for add_attr in ["encod_dim", "num_cpus", "output", "output_list", "float_type",
-                         "max_iter", "verbose", "seed", "output_plots"]:
+                         "max_iter", "verbose", "output_plots"]:
             self.xrds.attrs[add_attr] = args_input[add_attr]
 
         self.xrds["par_sample"] = (("sample"), np.repeat(1, len(self.xrds.coords["sample"])))
         # self.xrds.attrs["float_type"] = self.get_float_type(args_input["float_type"])
+        self.xrds.attrs["seed"] = self.get_seed(args_input["seed"])
         self.xrds.attrs["profile"] = self.get_profile(args_input)
 
         ### preprocess xrds
@@ -87,14 +88,14 @@ class Create_xarray():
         return sample_anno
 
 
-    def get_covariates(self, sample_anno, cov_used):
+    def get_covariates(self, sample_anno, covariates):
         # TODO HANDLE NAN CASES IN COVARIATES
 
-        if not set(cov_used).issubset(sample_anno.columns):
-            print("INFO: not all covariates could be found in file_sa")
+        if not set(covariates).issubset(sample_anno.columns):
+            print(f"INFO: not all covariates could be found in file_sa (read in names are: {covariates}")
 
-        cov_used = [x for x in cov_used if x in sample_anno.columns]
-        cov_sample = sample_anno[cov_used].copy()
+        covariates = [x for x in covariates if x in sample_anno.columns]
+        cov_sample = sample_anno[covariates].copy()
 
         ### transform each cov column to the respective 0|1 code
         for c in cov_sample:
@@ -199,3 +200,19 @@ class Create_xarray():
             return prepro_none.Prepro_none
         else:
             print("prepro not found")
+
+
+    def get_seed(self, seed):
+        if seed < 0:
+            return None
+        else:
+            return seed
+
+
+
+
+
+
+
+
+

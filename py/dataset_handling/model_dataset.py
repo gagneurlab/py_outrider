@@ -177,7 +177,7 @@ class Model_dataset():
 
     def get_xrds(self):
         """
-        writes whole model_dataset object back into a xarray dataset
+        writes whole model_dataset object back into a xarray dataset, ready to output
         :return: xarray dataset
         """
         self.xrds.coords["encod_dim"] =  ["q_" + str(d) for d in range(self.encod_dim)]
@@ -209,8 +209,9 @@ class Model_dataset():
         else:
             self.xrds.coords["encod_dim_cov"] = self.xrds.coords["encod_dim"]
 
-        print('loss_summary')
-        print(self.loss_list.loss_summary)
+        if self.xrds.verbose:
+            print('loss_summary')
+            print(self.loss_list.loss_summary)
 
         return self.xrds
 

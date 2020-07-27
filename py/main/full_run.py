@@ -4,6 +4,7 @@ from dataset_handling.create_xarray import Create_xarray
 import utilis.stats_func as st
 from dataset_handling.model_dataset import Model_dataset
 from dataset_handling.custom_output import Custom_output
+from utilis.xarray_output import xrds_to_zarr
 from hyperpar_opt import Hyperpar_opt
 
 
@@ -38,8 +39,8 @@ class Full_run():
         print('run model')
         xrds = fit_model.run_model_fit()
 
-        xrds.attrs["profile"] = [xrds.attrs["profile"].get_names()]
-        xrds.to_zarr(xrds.attrs["output"] , mode="w")
+        xrds_to_zarr(xrds_obj=xrds, output_path=xrds.attrs["output"])
+
 
         if "X_is_outlier" in xrds:
             pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)
