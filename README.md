@@ -1,8 +1,9 @@
 # py_outrider
 
 py_outrider is a flexible framework for outlier detection in omics datasets.
-it is currently implemented as a collection of modules which can be stacked together, 
-but it should definitely be transformed into a package.
+it is currently implemented as a collection of modules which can be plugged together, 
+but in any case it should be converted into a package,
+while still being able to run it on the command line as follows:
 
 ---
 # how to start
@@ -29,7 +30,7 @@ python /home/user/gitlab/py_outrider/py/main/main.py --file_meas count_table.csv
 # PROTRIDER
 more accurate (but with longer runtime) fitting method for proteins with covariate consideration
 ```sh
-python /home/user/gitlab/py_outrider/py/main/main.py --file_meas protein_intensities.csv --encod_dim 5 --profile protrider --output OUTPUT_DIR --num_cpus 10 --file_sa sample_anno.csv --cov_used batch gender --output_list True  --output_plots True
+python /home/user/gitlab/py_outrider/py/main/main.py --file_meas protein_intensities.csv --encod_dim 5 --profile protrider --output OUTPUT_DIR --num_cpus 10 --file_sa sample_anno.csv --cov batch gender --output_list True  --output_plots True
 ```
 
 missing values due to missing detection in the mass-spectrometry must be declared as such, e.g. NAN and must not be kept 0, as this will be considered as true value.
@@ -57,7 +58,7 @@ usage: py_outrider/py/main/main.py [-h] [-in FILE_MEAS] [-q ENCOD_DIM] [-sa FILE
 |`-in` |`--file_meas`   |`None`    |path to a measurement file, like a gene count table, format: rows:samples x columns:genes, must be comma separated, needs 1. row and 1. column to have names  |
 |`-q`  |`--encod_dim`   |`None`    |number of encoding dimensions, if None: runs hyperparameter optimization to determine best encoding dimension                                                 |
 |`-sa` |`--file_sa`     |`None`    |path to sample annotation file, must be comma separated, automatically selects colum which has file_meas rownames in it                                       |
-|`-cov`|`--covariates`  |`None`    |list of covariate names in file_sa, can be columns with 1|0, numbers or strings                                                                               |
+|`-cov`|`--covariates`  |`None`    |list of covariate names in file_sa, can either be columns filled with 0 and 1, multiple numbers or strings (will be automatically converted to one-hot encoded matrix for training) |                                                                             |
 |`-p`  |`--profile`     |`outrider`|choose which pre-defined implementation should be used                                                                                                        |
 |`-o`  |`--output`      |`None`    |folder to save results (xarray object, plots, result list), creates new folder if it does not exist, otherwise creates new folder within to save xarray object|
 |`-fl` |`--float_type`  |`float64` |which float type should be used, highly advised to keep float64 which may take longer, but accuracy is strongly impaired by float32                           |
