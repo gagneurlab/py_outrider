@@ -33,7 +33,10 @@ more accurate (but with longer runtime) fitting method for proteins with covaria
 python /home/user/gitlab/py_outrider/py/main/main.py --file_meas protein_intensities.csv --encod_dim 5 --profile protrider --output OUTPUT_DIR --num_cpus 10 --file_sa sample_anno.csv --cov batch gender --output_list True  --output_plots True
 ```
 
-missing values due to missing detection in the mass-spectrometry must be declared as such, e.g. NAN and must not be kept 0, as this will be considered as true value.
+> missing values due to missing detection in the mass-spectrometry must be declared as such, e.g. NAN and must not be kept 0, as this will be considered as true value.
+
+(xarray dataset object can be transformed to `.hdf` and read in as PROTRIDER object for plotting, see [script](https://gitlab.cmm.in.tum.de/yepez/proteome_analysis/-/blob/master/Scripts/MultiOmics/Aberrant_Expression/PROTRIDER/hdf5_to_se.R) )
+
 
 
 ---

@@ -114,7 +114,7 @@ def xrds_to_hdf5(xrds_obj, output_path, hdf5_chunks=True, hdf5_compression="gzip
 
         g5 = hf.create_group('metadata')
         for i in xrds.attrs:
-            g5[i] = np.string_(xrds.attrs[i])
+            g5[i] = np.string_(str(xrds.attrs[i]))
 
 
 
