@@ -124,6 +124,22 @@ def plot_empty_text(txt):
 
 
 
+def plot_hyperpar_fit(hyperpar_df):
+    """
+    plots the precision-recall performance during the hyperparameter optimisation
+    :param hyperpar_df: dataframe of dictionary xrds.attrs["hyperpar_table"]
+    """
+    plt.clf()
+
+    fig, ax = plt.subplots()
+    for label, group in hyperpar_df.groupby('noise_factor'):
+        ax.plot(group["encod_dim"], group["prec_rec"], label=label)
+
+    ax.set_ylabel('precision-recall [AUC]')
+    ax.set_xlabel('encoding dimension')
+    ax.set_title('hyperparameter optimisation')
+    ax.legend(title="noise factor")
+
 
 
 

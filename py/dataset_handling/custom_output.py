@@ -1,5 +1,7 @@
 from pathlib import Path
 from matplotlib.backends.backend_pdf import PdfPages
+import pandas as pd
+
 import utilis.plot_func as pl
 from utilis.xarray_output import xrds_to_list
 
@@ -45,6 +47,12 @@ class Custom_output():
         pp.savefig(pl.plot_hist(xrds["encoder_weights"].values, title="encoder_weights") )
         pp.savefig(pl.plot_hist(xrds["decoder_weights"].values, title="decoder_weights") )
         pp.savefig(pl.plot_hist(xrds["decoder_bias"].values, title="decoder_bias") )
+
+        ### hyperparameter optimisation
+        pp.savefig(pl.plot_empty_text("other plots"))
+        if "hyperpar_table" in xrds.attrs:
+            hyperpar_df = pd.DataFrame.from_dict(xrds.attrs["hyperpar_table"])
+            pp.savefig(pl.plot_hyperpar_fit(hyperpar_df))
 
         pp.close()
 
