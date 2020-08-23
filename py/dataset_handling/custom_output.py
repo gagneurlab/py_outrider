@@ -41,7 +41,6 @@ class Custom_output():
             pp.savefig(pl.plot_prec_recall([xrds["X_pvalue"].values], xrds["X_is_outlier"].values,
                                            names=["py_outrider"], title="precision-recall on artifically injected outliers"))
 
-
         ### model summary
         pp.savefig(pl.plot_empty_text("model weights"))
         pp.savefig(pl.plot_hist(xrds["encoder_weights"].values, title="encoder_weights") )

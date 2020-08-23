@@ -59,7 +59,7 @@ def xrds_to_list(xrds_obj, output_file, full_output=True):
 def xrds_to_tables(xrds_obj, output_path,
                    tables_to_dl=["X_trans", "X_trans_pred", "X_logfc", "X_pvalue", "X_pvalue_adj", "X_zscore"]):
     """
-    outputs .csv tables for selected matrices names
+    outputs (multiple) .csv tables for selected matrices names
     :param xrds_obj: xrarry dataset object
     :param output_path: folder to write tables
     :param tables_to_dl:  list of tables to write
@@ -75,6 +75,7 @@ def xrds_to_tables(xrds_obj, output_path,
 
 
 
+
 def xrds_to_hdf5(xrds_obj, output_path, hdf5_chunks=True, hdf5_compression="gzip", hdf5_compression_opts=9):
     """
     exports xarray object in hdf5 format, compressses it or saves in chunks,
@@ -87,32 +88,40 @@ def xrds_to_hdf5(xrds_obj, output_path, hdf5_chunks=True, hdf5_compression="gzip
     """
 
     xrds = xrds_obj.copy(deep=True)
-    xrds.attrs["profile"] = [xrds.attrs["profile"].get_names()]
 
-    hf = h5py.File(output_path, 'w')
+    with h5py.File(output_path, 'w') as hf:
 
-    g1 = hf.create_group('X_tables')
-    for i in [x_name for x_name in xrds.keys() if 'X' in x_name]:
-        g1.create_dataset(i,data=xrds[i], chunks=hdf5_chunks, compression=hdf5_compression, compression_opts =hdf5_compression_opts)
+        g1 = hf.create_group('X_tables')
+        for i in [x_name for x_name in xrds.keys() if 'X' in x_name]:
+            g1.create_dataset(i, data=xrds[i], chunks=hdf5_chunks, compression=hdf5_compression,
+                              compression_opts=hdf5_compression_opts)
 
-    g2 = hf.create_group('model_weights')
-    for i in [x_name for x_name in xrds.keys() if 'coder' in x_name]:
-        g2.create_dataset(i,data=xrds[i], chunks=hdf5_chunks, compression=hdf5_compression, compression_opts =hdf5_compression_opts)
+        g2 = hf.create_group('model_weights')
+        for i in [x_name for x_name in xrds.keys() if 'coder' in x_name]:
+            g2.create_dataset(i, data=xrds[i], chunks=hdf5_chunks, compression=hdf5_compression,
+                              compression_opts=hdf5_compression_opts)
 
-    g3 = hf.create_group('other_tables')
-    for i in [x_name for x_name in xrds.keys() if 'coder' not in x_name and "X" not in x_name]:
-        print(i)
-        g3.create_dataset(i, data=np.string_(xrds[i]), chunks=hdf5_chunks, compression=hdf5_compression, compression_opts = hdf5_compression_opts)
+        g3 = hf.create_group('other_tables')
+        for i in [x_name for x_name in xrds.keys() if 'coder' not in x_name and "X" not in x_name]:
+            g3.create_dataset(i, data=np.string_(xrds[i]), chunks=hdf5_chunks, compression=hdf5_compression,
+                              compression_opts=hdf5_compression_opts)
 
-    g4 = hf.create_group('axis_labels')
-    for i in xrds.coords:
-        g4.attrs[i] = i
+        g4 = hf.create_group('axis_labels')
+        for i in xrds.coords:
+            # axis labels sometimes too large to be squeezed in .attrs variables
+            g4.create_dataset(i, data=np.string_(xrds.coords[i]), chunks=hdf5_chunks, compression=hdf5_compression,
+                              compression_opts=hdf5_compression_opts)
 
-    g5 = hf.create_group('metadata')
-    for i in xrds.attrs:
-        g5.attrs[i] = i
+        g5 = hf.create_group('metadata')
+        for i in xrds.attrs:
+            g5[i] = np.string_(xrds.attrs[i])
 
-    hf.close()
+
+
+
+
+
+
 
 
 
