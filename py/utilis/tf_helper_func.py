@@ -35,7 +35,8 @@ def tf_nan_func(func, **kwargs):
     empty_t = tf.cast(tf.fill(mask.shape, np.nan), dtype=kwargs["X"].dtype)
 
     for i in kwargs:
-        kwargs[i] = tf.boolean_mask(kwargs[i], tfm.is_finite(kwargs[i]))  # keep only finite
+        if kwargs[i].shape!=():  # workaround of tf.rank(kwargs[i]) > 0, avoid scalar value in mask
+            kwargs[i] = tf.boolean_mask(kwargs[i], tfm.is_finite(kwargs[i]))  # keep only finite
     res_func = func(**kwargs)
 
     full_t = tf.tensor_scatter_nd_update(empty_t, tf.where(mask), res_func)

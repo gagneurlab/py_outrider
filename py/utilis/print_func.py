@@ -1,6 +1,6 @@
 import time
-from tensorflow import math as tfm
 import tensorflow as tf
+from tensorflow import math as tfm
 import numpy as np
 
 

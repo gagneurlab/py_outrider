@@ -22,14 +22,10 @@ class Profile_outrider(Profile_abstract):
     def __init__(self):
 
         self.fit_model = Model_fit_lbfgs
-        # self.fit_model = Model_fit_pca
         self.prepro = Prepro_none
         self.data_trans = Trans_sf
-        # self.data_trans = Trans_log
-        # self.data_trans = Trans_none
         self.dis = Dis_neg_bin
         self.loss_dis = Loss_dis_neg_bin
-        # self.loss_dis = Loss_dis_log_gaussian
         self.outlier_dis = Dis_log_gaussian
         self.noise_dis = Dis_gaussian
         self.noise_factor = 0
