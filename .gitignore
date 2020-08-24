@@ -88,4 +88,21 @@ data
 *.swp
 *.swo
 
+# other file formats
+*.pdf
+*.png
+
+
+# test created data
+/tests/sample_gene_output/
+/tests/sample_prot_output/
+
+
+
+
+
+
+
+
+
 
