@@ -1,7 +1,7 @@
 import numpy as np
-import utilis.stats_func as st
+import utils.stats_func as st
 from sklearn.model_selection import ParameterGrid
-from utilis import print_func
+from utils import print_func
 import pandas as pd
 
 

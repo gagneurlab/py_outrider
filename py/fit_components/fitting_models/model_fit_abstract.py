@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import fit_components.tf_init
 # from autoencoder_models.loss_list import Loss_list
-import utilis.print_func as print_func
+import utils.print_func as print_func
 
 
 # from ae_tf_functions import vst_transform

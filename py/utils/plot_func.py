@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import numpy as np
 from matplotlib.colors import LogNorm
-from utilis.stats_func import get_prec_recall
-from utilis.float_limits import replace_zeroes_min
-from utilis.print_func import np_summary
+from utils.stats_func import get_prec_recall
+from utils.float_limits import replace_zeroes_min
+from utils.print_func import np_summary
 
 
 

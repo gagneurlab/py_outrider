@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow import math as tfm
-from utilis.float_limits import min_value_exp
+from utils.float_limits import min_value_exp
 
 from fit_components.latent_space_fit.E_abstract import E_abstract
 

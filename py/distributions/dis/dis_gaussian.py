@@ -4,9 +4,9 @@ from tensorflow import math as tfm
 import tensorflow_probability as tfp
 
 from distributions.dis.dis_abstract import Dis_abstract
-from utilis.stats_func import multiple_testing_nan
+from utils.stats_func import multiple_testing_nan
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
-import utilis.tf_helper_func as tfh
+import utils.tf_helper_func as tfh
 
 
 

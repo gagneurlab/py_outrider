@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from fit_components.par_meas_fit.par_meas_abstract import Par_meas_abstract
-from utilis.np_mom_theta import robust_mom_theta
+from utils.np_mom_theta import robust_mom_theta
 
 
 

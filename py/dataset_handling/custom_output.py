@@ -2,8 +2,8 @@ from pathlib import Path
 from matplotlib.backends.backend_pdf import PdfPages
 import pandas as pd
 
-import utilis.plot_func as pl
-from utilis.xarray_output import xrds_to_list
+import utils.plot_func as pl
+from utils.xarray_output import xrds_to_list
 
 
 

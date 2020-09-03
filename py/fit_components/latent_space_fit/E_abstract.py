@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-import utilis.tf_helper_func as tfh
+import utils.tf_helper_func as tfh
 
 
 

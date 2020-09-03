@@ -8,7 +8,7 @@ import time
 
 from fit_components.fitting_models.model_fit_abstract import Model_fit_abstract
 # from autoencoder_models.loss_list import Loss_list
-import utilis.print_func as print_func
+import utils.print_func as print_func
 
 
 from fit_components.latent_space_regression.D_lbfgs_single import D_lbfgs_single

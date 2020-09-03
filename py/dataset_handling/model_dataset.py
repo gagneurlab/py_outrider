@@ -3,11 +3,11 @@ import tensorflow as tf    # 2.0.0
 import tensorflow_probability as tfp
 from tensorflow import math as tfm
 
-import utilis.stats_func as st
+import utils.stats_func as st
 from fit_components.loss_list import Loss_list
 
-import utilis
-import utilis.tf_helper_func as tfh
+import utils
+import utils.tf_helper_func as tfh
 
 ### accessing xarray matrices is pretty slow -> new class
 ### data container for all autoencoder data
@@ -150,7 +150,7 @@ class Model_dataset():
         y = tf.gather(y, range(len(b)), axis=1)
 
         y_b = y + b
-        y_b = utilis.float_limits.min_value_exp(y_b)
+        y_b = utils.float_limits.min_value_exp(y_b)
         y_b = tfh.tf_set_nan(y_b, X_na)
         return y_b
 

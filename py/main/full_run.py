@@ -1,12 +1,12 @@
 
 from parser import check_parser
 from dataset_handling.create_xarray import Create_xarray
-import utilis.stats_func as st
+import utils.stats_func as st
 from dataset_handling.model_dataset import Model_dataset
 from dataset_handling.custom_output import Custom_output
-from utilis.xarray_output import xrds_to_zarr
+from utils.xarray_output import xrds_to_zarr
 from hyperpar_opt import Hyperpar_opt
-from utilis.print_func import print_time
+from utils.print_func import print_time
 
 
 

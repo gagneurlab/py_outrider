@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import tensorflow as tf
 
-from utilis.other_func import np_set_seed
+from utils.other_func import np_set_seed
 
 
 
