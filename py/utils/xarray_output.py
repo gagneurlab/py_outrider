@@ -41,8 +41,8 @@ def xrds_to_list(xrds_obj, output_file, full_output=True):
                   "z_score": xrds_obj["X_zscore"].values.flatten(),
                   "meas_raw": xrds_obj["X_raw"].values.flatten(),
                   "meas_trans": (xrds_obj["X_trans"] + xrds_obj["X_center_bias"]).values.flatten(),
-                  "meas_trans_norm": ((xrds_obj["X_trans"] + xrds_obj["X_center_bias"]) - (
-                          xrds_obj["X_trans_pred"] - xrds_obj["X_center_bias"])).values.flatten(),
+                  "meas_norm": xrds_obj["X_norm"].values.flatten(),
+                  "meas_trans_norm": ((xrds_obj["X_trans"] + xrds_obj["X_center_bias"]) - (xrds_obj["X_trans_pred"] - xrds_obj["X_center_bias"])).values.flatten(),
                   }
 
     if "X_is_outlier" in xrds_obj:
