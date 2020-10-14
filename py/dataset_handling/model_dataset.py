@@ -88,7 +88,7 @@ class Model_dataset():
 
     def init_pvalue_fc_z(self):
         self.calc_pvalue()
-        self.X_logfc = self.profile.data_trans.get_logfc(self.X, self.X_pred, par_sample=self.par_sample )
+        self.X_logfc = self.profile.data_trans.get_logfc(X_trans=self.X_trans, X_trans_pred=self.X_trans_pred, par_sample=self.par_sample )
         self.X_zscore = st.get_z_score(self.X_logfc)
 
 
