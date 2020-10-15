@@ -96,6 +96,7 @@ data
 # test created data
 /tests/sample_gene_output/
 /tests/sample_protein_output/
+/tests/outrider_result_list.csv
 
 
 
