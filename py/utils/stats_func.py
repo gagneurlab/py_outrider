@@ -18,14 +18,20 @@ def multiple_testing_nan(X_pvalue, method='fdr_by'):
     return list(pval_corrected)
 
 
+
+def get_fc(X_true, X_pred):
+    fc = X_true / X_pred
+    return fc
+
+
 def get_logfc(X_true, X_pred):
     fc = np.log1p(X_true) - np.log1p(X_pred)
     return fc
 
-
-def get_fc(X_true, X_pred):
+def get_fc_in_logspace(X_true, X_pred):
     fc = X_true - X_pred
     return fc
+
 
 
 def get_z_score(X_logfc):

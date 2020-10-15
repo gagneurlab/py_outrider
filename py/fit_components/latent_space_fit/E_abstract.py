@@ -6,7 +6,6 @@ import tensorflow as tf
 import utils.tf_helper_func as tfh
 
 
-
 class E_abstract(ABC):
 
     def __init__(self, ds):

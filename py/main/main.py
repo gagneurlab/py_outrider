@@ -24,19 +24,19 @@ def main():
         ### test run options for protrider | outrider on sample data
         test_dir = Path(__file__).parent.absolute().parents[1] / "tests"
 
-        sample_args = { "file_meas" : test_dir / "sample_protein.csv", "encod_dim": 10,
-                  'verbose':True, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
-                  "max_iter": 0, "profile": "protrider",
-                  'file_sa': test_dir / 'sample_protein_sa.csv', 'covariates': ["is_male", "batch"],
-                 "output": test_dir / "sample_protein_output"
-                  }
-
-        # sample_args = { "file_meas" : test_dir / "sample_gene.csv", "encod_dim": 10,
-        #           'verbose':False, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
-        #           "max_iter": 5, "profile": "outrider",
-        #           # 'file_sa': test_dir / 'sample_gene_sa.csv', 'covariates': ["is_male", "batch"],
-        #          "output": test_dir / "sample_gene_output"
+        # sample_args = { "file_meas" : test_dir / "sample_protein.csv", "encod_dim": 10,
+        #           'verbose':True, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
+        #           "max_iter": 3, "profile": "protrider",
+        #           'file_sa': test_dir / 'sample_protein_sa.csv', 'covariates': ["is_male", "batch"],
+        #          "output": test_dir / "sample_protein_output"
         #           }
+
+        sample_args = { "file_meas" : test_dir / "sample_gene.csv", "encod_dim": 10,
+                  'verbose':False, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
+                  "max_iter": 3, "profile": "outrider",
+                  # 'file_sa': test_dir / 'sample_gene_sa.csv', 'covariates': ["is_male", "batch"],
+                 "output": test_dir / "sample_gene_output"
+                  }
 
 
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/01_example_blood_subset/'

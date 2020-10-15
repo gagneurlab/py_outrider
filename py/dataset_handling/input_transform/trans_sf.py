@@ -10,7 +10,6 @@ from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 from utils.stats_func import get_logfc
 
 
-
 class Trans_sf(Trans_abstract):
 
 

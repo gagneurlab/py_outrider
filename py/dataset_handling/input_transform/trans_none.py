@@ -7,7 +7,7 @@ from distributions.dis.dis_abstract import Dis_abstract
 from dataset_handling.input_transform.trans_abstract import Trans_abstract
 from utils.stats_func import multiple_testing_nan
 from distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
-from utils.stats_func import get_fc
+from utils.stats_func import get_fc_in_logspace
 
 
 
@@ -24,9 +24,9 @@ class Trans_none(Trans_abstract):
         return y
 
 
-
+    ### trans_none assumes that data is already in log-space, needed for profile_protrider
     @staticmethod
     def get_logfc(X_trans, X_trans_pred, **kwargs):
-        return get_fc(X_trans, X_trans_pred)
+        return get_fc_in_logspace(X_trans, X_trans_pred)
 
 
