@@ -97,6 +97,13 @@ data
 /tests/sample_gene_output/
 /tests/sample_protein_output/
 
+# test files
+test/
+
+# Rstudio
+*.Rproj
+*.RData
+*.Rhistory
 
 
 
@@ -104,5 +111,4 @@ data
 
 
 
-
-
+.Rproj.user
