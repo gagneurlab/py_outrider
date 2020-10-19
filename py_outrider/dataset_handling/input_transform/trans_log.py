@@ -7,7 +7,7 @@ from py_outrider.distributions.dis.dis_abstract import Dis_abstract
 from py_outrider.dataset_handling.input_transform.trans_abstract import Trans_abstract
 from py_outrider.utils.stats_func import multiple_testing_nan
 from py_outrider.distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
-from py_outrider.utils.stats_func import get_fc
+from py_outrider.utils.stats_func import get_logfc
 
 
 
@@ -35,7 +35,9 @@ class Trans_log(Trans_abstract):
 
     @staticmethod
     def get_logfc(X_trans, X_trans_pred, **kwargs):
-        return get_fc(X_trans, X_trans_pred)
+        X = Trans_log.rev_transform(X_trans)
+        X_pred = Trans_log.rev_transform(X_trans_pred)
+        return get_logfc(X, X_pred)
 
 
 

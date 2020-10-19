@@ -10,7 +10,6 @@ from py_outrider.distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussi
 from py_outrider.utils.stats_func import get_logfc
 
 
-
 class Trans_sf(Trans_abstract):
 
 

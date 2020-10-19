@@ -88,7 +88,7 @@ class Model_dataset():
 
     def init_pvalue_fc_z(self):
         self.calc_pvalue()
-        self.X_logfc = self.profile.data_trans.get_logfc(self.X, self.X_pred, par_sample=self.par_sample )
+        self.X_logfc = self.profile.data_trans.get_logfc(X_trans=self.X_trans, X_trans_pred=self.X_trans_pred, par_sample=self.par_sample )
         self.X_zscore = st.get_z_score(self.X_logfc)
 
 
@@ -189,11 +189,8 @@ class Model_dataset():
         self.xrds["X_zscore"] = (("sample", "meas"), self.X_zscore)
         self.xrds["X_trans_pred"] = (("sample", "meas"), self.X_trans_pred)
 
-        ae_norm_values = self.X / self.X_pred * tfm.reduce_mean(self.X, axis=0)  # TODO DOES NOT WORK WITH NAN !!!
-        # print("ae_norm")
-        # print(self.X)
-        # print(self.X_pred)
-        # print(tfm.reduce_mean(self.X, axis=0))
+        # ae_norm_values = self.X / self.X_pred * tfm.reduce_mean(self.X, axis=0)  # TODO DOES NOT WORK WITH NAN !!!
+        ae_norm_values = self.X / self.X_pred * np.nanmean(self.X, axis=0)
 
         self.xrds["X_norm"] = (("sample", "meas"), ae_norm_values)
 

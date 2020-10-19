@@ -103,14 +103,19 @@ def xrds_to_hdf5(xrds_obj, output_path, hdf5_chunks=True, hdf5_compression="gzip
 
         g3 = hf.create_group('other_tables')
         for i in [x_name for x_name in xrds.keys() if 'coder' not in x_name and "X" not in x_name]:
-            g3.create_dataset(i, data=np.string_(xrds[i]), chunks=hdf5_chunks, compression=hdf5_compression,
+            ### TODO HANDLE ENCODING ERROR FOR SAMPLE_ANNO
+            try:
+                g3.create_dataset(i, data=np.string_(xrds[i]), chunks=hdf5_chunks, compression=hdf5_compression,
                               compression_opts=hdf5_compression_opts)
+            except SystemError as e:
+                print(f"encoding failed for {i}")
+                print(e)
 
         g4 = hf.create_group('axis_labels')
         for i in xrds.coords:
             # axis labels sometimes too large to be squeezed in .attrs variables
             g4.create_dataset(i, data=np.string_(xrds.coords[i]), chunks=hdf5_chunks, compression=hdf5_compression,
-                              compression_opts=hdf5_compression_opts)
+                    compression_opts=hdf5_compression_opts)
 
         g5 = hf.create_group('metadata')
         for i in xrds.attrs:

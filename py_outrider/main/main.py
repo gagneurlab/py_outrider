@@ -26,24 +26,17 @@ def main():
 
         # sample_args = { "file_meas" : test_dir / "sample_protein.csv", "encod_dim": 10,
         #           'verbose':True, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
-        #           "max_iter": 0, "profile": "protrider",
+        #           "max_iter": 3, "profile": "protrider",
         #           'file_sa': test_dir / 'sample_protein_sa.csv', 'covariates': ["is_male", "batch"],
         #          "output": test_dir / "sample_protein_output"
         #           }
 
-        # sample_args = { "file_meas" : test_dir / "sample_gene.csv", "encod_dim": 10,
-        #           'verbose':False, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
-        #           "max_iter": 5, "profile": "outrider",
-        #           # 'file_sa': test_dir / 'sample_gene_sa.csv', 'covariates': ["is_male", "batch"],
-        #          "output": test_dir / "sample_gene_output"
-        #           }
-
-        test_dir = Path(__file__).parent.absolute().parents[1]
-        sample_args = {"file_meas": test_dir / "example_data" / "MLL_MDS_sub.csv",
-                       "encod_dim": 50, 'num_cpus': 2, "profile": "outrider",
-                       'file_sa': "/s/project/mll/processed_data/sample_info/sample_annotation_for_py_or_MDS.csv",
-                       "output": test_dir / "test" / "MLL_MDS_test_out"
-                       }
+        sample_args = { "file_meas" : test_dir / "sample_gene.csv", "encod_dim": 10,
+                  'verbose':False, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
+                  "max_iter": 3, "profile": "outrider",
+                  # 'file_sa': test_dir / 'sample_gene_sa.csv', 'covariates': ["is_male", "batch"],
+                 "output": test_dir / "sample_gene_output"
+                  }
 
 
         # folder_path = '/home/stefan/gagneurlab/home/Documents/mofa_outrider/01_example_blood_subset/'
