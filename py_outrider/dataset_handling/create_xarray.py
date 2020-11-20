@@ -11,23 +11,31 @@ from py_outrider.dataset_handling.preprocess import prepro_sf_log, prepro_none
 
 class Create_xarray():
 
-    def __init__(self, args_input):
+    def __init__(self, args_input, X_input=None, sample_anno_input=None):
 
-        X_file = self.read_data_file(args_input["file_meas"])
+        if X_input is None:
+            X_file = self.read_data_file(args_input["file_meas"])
+        else: 
+            X_file = self.check_input_matrix(X_input)
 
         ### create dict to transform to xarray object
         xrds_dict = {
             "X": (("sample", "meas"), X_file.values),
-            "X_na": (("sample", "meas"), np.isfinite(X_file).values)
+            "X_na": (("sample", "meas"), np.isfinite(X_file).values) # , dtype=float
         }
 
         xrds_coords = {
             "sample": X_file.index,
             "meas": X_file.columns
         }
-
-        if args_input["file_sa"] is not None:
-            sample_anno = self.get_sample_anno(args_input["file_sa"], X_file)
+        
+        ### use sample annotation if supplied
+        if (sample_anno_input is not None) or (args_input["file_sa"] is not None):
+            if sample_anno_input is not None:
+                sample_anno = self.check_input_sample_anno(sample_anno_input, X_file)
+            else:
+                sample_anno = self.get_sample_anno(args_input["file_sa"], X_file)
+        
             xrds_dict["sample_anno"] = (("sample", "sample_anno_col"), sample_anno.values.astype(str))
             xrds_coords["sample_anno_col"] = sample_anno.columns
 
@@ -66,9 +74,39 @@ class Create_xarray():
             return data_file
 
 
+    def check_input_matrix(self, X_input):
+        # check that X_input is pandas DataFrame
+        if not isinstance(X_input, pd.DataFrame):
+            print(f"X_input has to be a pandas DataFrame!")
+            return None
+        return X_input
+        
+    def check_input_sample_anno(self, sample_anno, X_input):
+        # check that sample_anno is pandas DataFrame
+        if not isinstance(sample_anno, pd.DataFrame):
+            print(f"sample_anno has to be a pandas DataFrame!")
+            return None
+            
+        ### find sample_id column
+        sample_col_found = None
+        for col in sample_anno:
+            if set(X_input.index).issubset(sample_anno[col]):
+                sample_col_found = col
+
+        if sample_col_found is None:
+            raise ValueError("X_input sample names not found in sample_anno_input or not complete")
+        elif len(sample_anno[sample_col_found]) != len(set(sample_anno[sample_col_found])):
+            raise ValueError(f"duplicates found in sample_anno_input sample_id column: {sample_col_found}")
+        else:
+            sample_anno.rename(columns={sample_col_found: "sample_id"}, inplace=True)
+            sample_anno.set_index(sample_anno["sample_id"], inplace=True)
+
+        ### sort according to X_input and remove unnecessary
+        sample_anno = sample_anno.reindex(X_input.index)
+        return sample_anno
+
     def get_sample_anno(self, sa_file_path, X_file):
         sample_anno = self.read_data_file(sa_file_path)  # TODO fix with no index col ?
-
         ### find sample_id column
         sample_col_found = None
         for col in sample_anno:
@@ -150,6 +188,7 @@ class Create_xarray():
             prof = profile_pca.Profile_pca()
 
         ### edit profile if specified in input
+        print("checking if profile should be edited")
         if profile["prepro"] is not None:
             prof.prepro = self.get_profile_prepro(profile["prepro"])
         if profile["distribution"] is not None:
@@ -207,8 +246,6 @@ class Create_xarray():
             return None
         else:
             return seed
-
-
 
 
 

@@ -48,7 +48,7 @@ class Trans_sf(Trans_abstract):
     def get_logfc(X_trans, X_trans_pred, par_sample, **kwargs):
         X = Trans_sf.rev_transform(X_trans, par_sample=par_sample)
         X_pred = Trans_sf.rev_transform(X_trans_pred, par_sample=par_sample)
-        return get_logfc(X, X_pred, log_trans=True)
+        return get_logfc(X, X_pred)
 
 
 

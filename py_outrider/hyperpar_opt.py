@@ -5,7 +5,6 @@ from py_outrider.utils import print_func
 import pandas as pd
 
 
-
 class Hyperpar_opt():
 
     def __init__(self, ds):
