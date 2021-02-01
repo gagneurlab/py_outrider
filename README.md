@@ -5,42 +5,44 @@ it is currently implemented as a collection of modules which can be plugged toge
 but in any case it should be converted into a package,
 while still being able to run it on the command line as follows:
 
----
-# how to start
 
-before running, you might have to set your python path to the right directory:
+# How to start
+
+After cloning this repository, you can set up your own environment with all required packages using the `environment.yml`
+or you run it using the following conda environment: `conda activate outrider2`
+
+(It is recommended to use `Tensorflow`>2.0.2, which fixed some rather significant runtime issues.)
+
+Then, run `pip install -e /path/to/py_outrider/` to install py_outrider in this environment. 
+As an alternative to installing py_outrider, you can also set your python path to the right directory:
 ```sh
-export PYTHONPATH="/home/user/gitlab/py_outrider/py"
+export PYTHONPATH="/path/to/py_outrider"
 ```
-you can set up your own environment with all required packages in `requirements.txt`
-or you run it using the following conda environment: `conda activate loipfi_tf2`
 
-(it is recommended to use `Tensorflow`>2.0.2, which fixed some rather significant runtime issues)
 
----
 # OUTRIDER
-for large data sets, the python version has a way faster fitting procedure of outrider as the R version
+For large data sets, the python version has a way faster fitting procedure of outrider as the R version
 ```sh
 python /home/user/gitlab/py_outrider/py/main/main.py --file_meas count_table.csv --encod_dim 5 --profile outrider --output OUTPUT_DIR --num_cpus 10 
 ```
 
-> be careful: input matrix file_meas must have the format: rows:samples x columns:genes, must be comma separated, needs 1. row and 1. column to have names
+> Be careful: input matrix file_meas must have the format: rows:samples x columns:genes, must be comma separated, needs 1. row and 1. column to have names
 
----
+
 # PROTRIDER
-more accurate (but with longer runtime) fitting method for proteins with covariate consideration
+More accurate (but with longer runtime) fitting method for proteins with covariate consideration
 ```sh
 python /home/user/gitlab/py_outrider/py/main/main.py --file_meas protein_intensities.csv --encod_dim 5 --profile protrider --output OUTPUT_DIR --num_cpus 10 --file_sa sample_anno.csv -cov batch gender --output_list True  --output_plots True
 ```
 
-> missing values due to missing detection in the mass-spectrometry must be declared as such, e.g. NAN and must not be kept 0, as this will be considered as true value.
+> Missing values due to missing detection in the mass-spectrometry must be declared as such, e.g. NAN and must not be kept 0, as this will be considered as true value.
 
 (xarray dataset object can be transformed to `.hdf` and read in as PROTRIDER object for plotting, see [script](https://gitlab.cmm.in.tum.de/yepez/proteome_analysis/-/blob/master/Scripts/MultiOmics/Aberrant_Expression/PROTRIDER/hdf5_to_se.R) )
 
 
 
 ---
-the full parser and possibilites are:
+The full parser and possibilites are:
 
 ## Usage
 ```
