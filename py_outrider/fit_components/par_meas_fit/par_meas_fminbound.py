@@ -35,7 +35,7 @@ class Par_meas_fminbound(Par_meas_abstract):
 
     def update_par_meas_fmin(self, loss_func, x, x_pred, par_list, parallel_iterations=1):
 
-            @tf.function
+            @tf.function(experimental_relax_shapes=True)
             def my_map(*args, **kwargs):
                 return tf.map_fn(*args, **kwargs)
 
@@ -48,6 +48,7 @@ class Par_meas_fminbound(Par_meas_abstract):
                 y_true_pred_stacked, parallel_iterations=parallel_iterations)
 
             return cov_meas
+            
 
 
 

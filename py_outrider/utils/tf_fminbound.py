@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-@tf.function
+@tf.function(experimental_relax_shapes=True)
 def tf_fminbound(func, x1, x2, args=(), xtol=1e-5, maxfun=500):
     """
     bounded minimization for scalar functions (TensorFlow implemention based on fminbound from scipy.optimize:
@@ -14,6 +14,7 @@ def tf_fminbound(func, x1, x2, args=(), xtol=1e-5, maxfun=500):
     :param maxfun: maximum number of function evaluations
     :return: parameter value which minimizes objective function
     """
+    # print("Tracing tf_fminbound with func = ", func, "\n\tx1 = ", x1, "\n\tx2 =", x2, "\n\targs =", args, "\n\txtol = ", xtol, "\n\tmaxfun = ", maxfun)
     x1 = tf.keras.backend.cast_to_floatx(x1)
     x2 = tf.keras.backend.cast_to_floatx(x2)
     xatol = tf.keras.backend.cast_to_floatx(xtol)

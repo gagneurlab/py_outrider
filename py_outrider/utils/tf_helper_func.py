@@ -10,6 +10,7 @@ def tf_nan_to_zero(t):
 
 @tf.function
 def tf_nan_matmul(a, b):
+    # print("Tracing tf_nan_matmul with a = ", a, ", b = ", b)
     a_0 = tf_nan_to_zero(a)
     b_0 = tf_nan_to_zero(b)
     return tf.matmul(a_0, b_0)

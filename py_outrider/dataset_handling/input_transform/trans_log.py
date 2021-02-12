@@ -8,7 +8,7 @@ from py_outrider.dataset_handling.input_transform.trans_abstract import Trans_ab
 from py_outrider.utils.stats_func import multiple_testing_nan
 from py_outrider.distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
 from py_outrider.utils.stats_func import get_logfc
-
+from py_outrider.utils.float_limits import check_range_exp, check_range_for_log
 
 
 class Trans_log(Trans_abstract):
@@ -39,7 +39,14 @@ class Trans_log(Trans_abstract):
         X_pred = Trans_log.rev_transform(X_trans_pred)
         return get_logfc(X, X_pred)
 
-
+        
+    @staticmethod
+    def check_range_trans(x):
+        return check_range_exp(x)
+        
+    @staticmethod
+    def check_range_rev_trans(x):
+        return check_range_for_log(x)
 
 
 

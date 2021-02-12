@@ -22,6 +22,16 @@ class Trans_abstract(ABC):
     @abstractmethod
     def get_logfc(X_trans, X_trans_pred, **kwargs):
         pass
+    
+    @staticmethod
+    @abstractmethod
+    def check_range_trans(x):
+        pass
+    
+    @staticmethod
+    @abstractmethod
+    def check_range_rev_trans(x):
+        pass
 
 
     @classmethod

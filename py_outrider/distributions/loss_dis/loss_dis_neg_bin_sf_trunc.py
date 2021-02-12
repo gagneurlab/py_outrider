@@ -47,6 +47,7 @@ class Loss_dis_neg_bin_sf_trunc(Loss_dis_abstract):
 
         b_i = b_and_D[0]
         D_i = b_and_D[1:]
+        # print("Tracing tf_loss_D_single with H = ", H, "\nx_i = ", x_i, "\nD_i = ", D_i, "\nb_i = ", b_i)
         y = tf.squeeze( tf.matmul(H, tf.expand_dims(D_i,1)) + b_i )
         y = min_value_exp(y)
 

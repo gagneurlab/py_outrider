@@ -6,7 +6,7 @@ from py_outrider.fit_components.latent_space_fit.E_abstract import E_abstract
 
 from py_outrider.distributions.loss_dis.loss_dis_abstract import Loss_dis_abstract
 from py_outrider.distributions.loss_dis.loss_dis_neg_bin_sf_trunc import Loss_dis_neg_bin_sf_trunc
-
+from py_outrider.utils.float_limits import check_range_for_log
 
 
 class Loss_dis_neg_bin(Loss_dis_abstract):
@@ -15,18 +15,22 @@ class Loss_dis_neg_bin(Loss_dis_abstract):
     @staticmethod
     @tf.function
     def tf_loss(x, x_pred, par_meas, **kwargs):
+        # print("Tracing with nb_tf_loss x = ", x, "\nx_pred =", x_pred, "\npar_meas =", par_meas)
         if par_meas is None:
             warnings.warn("calculate Dis_neg_bin par_meas theta first to get reliable loss")
             theta = tf.ones(shape=(x_pred.shape[1]), dtype=x_pred.dtype)
         else:
             theta = par_meas
 
-        # TODO HANDLE NA VALUES !!
+        # handling inf / 0 values (roughly for y < -700 or y > 700)
+        #x_pred = check_range_for_log(x_pred)
+        
         t1 = x * tfm.log(x_pred) + theta * tfm.log(theta)
         t2 = (x + theta) * tfm.log(x_pred + theta)
         t3 = tfm.lgamma(theta + x) - (tfm.lgamma(theta) + tfm.lgamma(x + 1))  # math: k! = exp(lgamma(k+1))
 
-        ll = - tf.reduce_mean(t1 - t2 + t3)
+        # Ignoring non-finite values in final loss
+        ll = - tf.reduce_mean(tf.boolean_mask(t1 - t2 + t3, tfm.is_finite(t1 - t2 + t3)))
         return ll
 
 

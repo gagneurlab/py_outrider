@@ -7,9 +7,13 @@ import tensorflow as tf
 
 class D_abstract(ABC):
 
-    def __init__(self, ds):
+    def __init__(self, ds, parallelize=False):
         self.ds = ds
-        self.loss_D = self.ds.profile.loss_dis.tf_loss_D
+        self.parallelize = parallelize
+        if parallelize is True:
+            self.loss_D = self.ds.profile.loss_dis.tf_loss_D_single
+        else:
+            self.loss_D = self.ds.profile.loss_dis.tf_loss_D
 
     @property
     def ds(self):

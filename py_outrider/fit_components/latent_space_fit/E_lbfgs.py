@@ -36,9 +36,12 @@ class E_lbfgs(E_abstract):
 
 
 
-
-    @tf.function
-    def get_updated_E(self, loss_func, E, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans, parallel_iterations=1):
+    @staticmethod
+    @tf.function(experimental_relax_shapes=True)
+    def get_updated_E(loss_func, E, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans, parallel_iterations=1):
+        # print("Tracing get_updated_E with \nloss_func = ", loss_func, "\nE = ", E, "\nD = ", D, "\nb = ", b , 
+        #     "\nx = ", x, "\nx_trans = ", x_trans, "\npar_sample = ", par_sample, "\npar_meas = ", par_meas, "\ncov_sample = ", cov_sample, 
+        #     "\ndata_trans = ", data_trans, "\nparallel_iterations = ", parallel_iterations)
         e = tf.reshape(E, shape=[tf.size(E), ])
 
         def lbfgs_input(e):

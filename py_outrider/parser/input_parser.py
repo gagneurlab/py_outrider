@@ -23,6 +23,10 @@ def parse_args(args_input):
     parser.add_argument('-nf','--noise_factor', default=None, type=float, help='[predefined in profile] factor which defines the amount of noise applied for a denoising autoencoder model')
     parser.add_argument('-ld','--loss_dis', default=None, choices=['neg_bin', 'gaus'], help='[predefined in profile] loss distribution used for training')
     parser.add_argument('-pre','--prepro', default=None, choices=['none', 'sf_log'], help='[predefined in profile] preprocess data before input')
+    parser.add_argument('--batch_size', type=int, default=None, help='batch_size used for stochastic training. Default is to not train stochastically')
+    parser.add_argument('--parallelize_D', action='store_true', dest='parallelize_D', help='If this flag is given, parallelizes fitting of decoder per feature. Default behavior depends on sample size.')
+    parser.add_argument('--no_parallelize_D', action='store_false', dest='parallelize_D', help='If this flag is given, decoder fit will not be parallelized per feature. Default behavior depends on sample size.')
+    parser.set_defaults(parallelize_D=None)
 
     args = parser.parse_args(args_input)
     return vars(args)

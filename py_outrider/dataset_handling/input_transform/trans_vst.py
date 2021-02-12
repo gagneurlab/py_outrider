@@ -38,6 +38,14 @@ class Trans_vst(Trans_abstract):
     def get_logfc(X_trans, X_trans_pred, other_par, **kwargs):
         pass
 
+        
+    @staticmethod
+    def check_range_trans(x):
+        return x
+        
+    @staticmethod
+    def check_range_rev_trans(x):
+        return x
 
 
     ### TODO CHANGE TO FLEXIBLY TAKE PARAMETER

@@ -29,4 +29,11 @@ class Trans_none(Trans_abstract):
     def get_logfc(X_trans, X_trans_pred, **kwargs):
         return get_fc_in_logspace(X_trans, X_trans_pred)
 
-
+        
+    @staticmethod
+    def check_range_trans(x):
+        return x
+        
+    @staticmethod
+    def check_range_rev_trans(x):
+        return x

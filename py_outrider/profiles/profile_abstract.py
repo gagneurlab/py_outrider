@@ -89,6 +89,9 @@ class Profile_abstract(ABC):
             "noise_factor": self.noise_factor }
 
         return out_dict
+        
+    def __str__(self):
+        return str(self.__class__.__name__) + ": " + str(self.get_names()) 
 
 
 

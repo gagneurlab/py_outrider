@@ -91,6 +91,7 @@ data
 # other file formats
 *.pdf
 *.png
+*.html
 
 
 # test created data

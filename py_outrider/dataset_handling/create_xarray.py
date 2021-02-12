@@ -53,13 +53,17 @@ class Create_xarray():
 
         ### add additional metadata
         for add_attr in ["encod_dim", "num_cpus", "output", "output_list", "float_type",
-                         "max_iter", "verbose", "output_plots"]:
+                         "max_iter", "batch_size", "parallelize_D", "verbose", "output_plots"]:
             self.xrds.attrs[add_attr] = args_input[add_attr]
 
         self.xrds["par_sample"] = (("sample"), np.repeat(1, len(self.xrds.coords["sample"])))
         # self.xrds.attrs["float_type"] = self.get_float_type(args_input["float_type"])
         self.xrds.attrs["seed"] = self.get_seed(args_input["seed"])
         self.xrds.attrs["profile"] = self.get_profile(args_input)
+        
+        # determine if to parallelize D fit (depending on sample size)  (or do depending on feature size?)
+        if self.xrds.attrs["parallelize_D"] is None:
+            self.xrds.attrs["parallelize_D"] = len(self.xrds.coords["sample"]) > 500
 
         ### preprocess xrds
         self.xrds.attrs["profile"].prepro.prepro_xrds(self.xrds)

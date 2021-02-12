@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf    # 2.0.0
 import tensorflow_probability as tfp
 from tensorflow import math as tfm
+import copy
 
 import py_outrider.utils.stats_func as st
 from py_outrider.fit_components.loss_list import Loss_list
@@ -143,25 +144,26 @@ class Model_dataset():
     ##### prediction calculation steps
     #@tf.function
     @staticmethod   # need static otherwise self bug error
-    def _pred_X_trans(X_na, H, D, b):
+    def _pred_X_trans(X_na, H, D, b, data_trans):
         # y = np.matmul(H, D)  # y: sample x gene
         # y = y[:, 0:len(b)]  # avoid cov_sample inclusion
         y = tf.matmul(H, D)  # y: sample x gene
         y = tf.gather(y, range(len(b)), axis=1)
 
         y_b = y + b
-        y_b = py_outrider.utils.float_limits.min_value_exp(y_b)
+        #y_b = py_outrider.utils.float_limits.min_value_exp(y_b) # only meaningful for log transformation
+        y_b = data_trans.check_range_trans(y_b)
         y_b = tfh.tf_set_nan(y_b, X_na)
         return y_b
 
 
     def _pred_X(self,X_na, H, D, b, par_sample):
-        y = Model_dataset._pred_X_trans(X_na=X_na, H=H, D=D, b=b)
+        y = Model_dataset._pred_X_trans(X_na=X_na, H=H, D=D, b=b, data_trans=self.profile.data_trans)
         return self.profile.data_trans.rev_transform(y, par_sample=par_sample)
 
 
     def calc_X_pred(self):
-        self.X_trans_pred = self._pred_X_trans(X_na=self.X_na, H=self.H, D=self.D, b=self.b)
+        self.X_trans_pred = self._pred_X_trans(X_na=self.X_na, H=self.H, D=self.D, b=self.b, data_trans=self.profile.data_trans)
         self.X_pred = self._pred_X(X_na=self.X_na, H=self.H, D=self.D, b=self.b, par_sample=self.par_sample)
 
 
@@ -241,6 +243,23 @@ class Model_dataset():
         print(f"  X_pred: {get_shape(self.X_pred)}")
         print(f"  cov_sample: {get_shape(self.cov_sample)}")
 
+    def subset_samples(self, sample_idx):
+        # create subsetted object
+        sub = copy.copy(self)
+        sub.xrds = sub.xrds.isel(sample=sample_idx)
+        sub.X = sub.X[sample_idx,:]
+        sub.X_na = sub.X_na[sample_idx,:]
+        sub.X_pred = tf.gather(sub.X_pred, indices=sample_idx, axis=0)
+        sub.X_trans = sub.X_trans[sample_idx,:]
+        sub.X_trans_noise = sub.X_trans_noise[sample_idx,:]
+        sub.fit_input = sub.fit_input[sample_idx,:]
+        sub.fit_input_noise = sub.fit_input_noise[sample_idx,:]
+        sub.par_sample = sub.par_sample[sample_idx]
+        sub.H = tf.gather(sub.H, indices=sample_idx, axis=0)
+        
+        return sub
 
+    
+        
 
 
