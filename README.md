@@ -22,16 +22,16 @@ py_outrider --help
 # OUTRIDER
 For large data sets, the python version has a way faster fitting procedure of outrider as the R version
 ```sh
-py_outrider --file_meas count_table.csv --encod_dim 5 --profile outrider --output OUTPUT_DIR --num_cpus 10 
+py_outrider --input count_table.csv --encod_dim 5 --profile outrider --output OUTPUT_DIR --num_cpus 10 
 ```
 
-> Be careful: input matrix file_meas must have the format: rows:samples x columns:genes, must be comma separated, needs 1. row and 1. column to have names
+> Be careful: input matrix must have the format: rows:samples x columns:genes, must be comma separated, needs 1. row and 1. column to have names
 
 
 # PROTRIDER
 More accurate (but with longer runtime) fitting method for proteins with covariate consideration
 ```sh
-py_outrider --file_meas protein_intensities.csv --encod_dim 5 --profile protrider --output OUTPUT_DIR --num_cpus 10 --file_sa sample_anno.csv -cov batch gender --output_list True  --output_plots True
+py_outrider --input protein_intensities.csv --encod_dim 5 --profile protrider --output OUTPUT_DIR --num_cpus 10 --sample_anno sample_anno.csv -cov batch gender --output_list True  --output_plots True
 ```
 
 > Missing values due to missing detection in the mass-spectrometry must be declared as such, e.g. NAN and must not be kept 0, as this will be considered as true value.
@@ -62,8 +62,8 @@ usage: py_outrider [-h] [-in INPUT] [-q ENCOD_DIM] [-sa SAMPLE_ANNO]
 |`-h`  |`--help`            |          |Show this help message and exit.                                                                                                                               |
 |`-in` |`--input`           |`None`    |Path to a file containing the input data matrix, like a gene count table, format: rows:samples x columns:genes, must be comma separated, needs 1. row and 1. column to have names.  |
 |`-q`  |`--encod_dim`       |`None`    |Number of encoding dimensions, if None: runs hyperparameter optimization to determine best encoding dimension.                                                 |
-|`-sa` |`--sample_anno`     |`None`    |Path to sample annotation file, must be comma separated, automatically selects colum which has file_meas rownames in it.                                       |
-|`-cov`|`--covariates`      |`None`    |List of covariate names in file_sa, can either be columns filled with 0 and 1, multiple numbers or strings (will be automatically converted to one-hot encoded matrix for training). |                                                                             |
+|`-sa` |`--sample_anno`     |`None`    |Path to sample annotation file, must be comma separated, automatically selects sampleID column as the one which has input_file rownames in it.                                       |
+|`-cov`|`--covariates`      |`None`    |List of covariate names in sample_anno, can either be columns filled with 0 and 1, multiple numbers or strings (will be automatically converted to one-hot encoded matrix for training). |                                                                             |
 |`-p`  |`--profile`         |`outrider`|Choose which pre-defined implementation should be used.                                                                                                        |
 |`-o`  |`--output`          |`None`    |Folder to save results (xarray object, plots, result list), creates new folder if it does not exist, otherwise creates new folder within to save xarray object.|
 |`-fl` |`--float_type`      |`float64` |Which float type should be used, highly advised to keep float64 which may take longer, but accuracy is strongly impaired by float32.                           |
