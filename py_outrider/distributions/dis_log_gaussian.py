@@ -3,19 +3,17 @@ import tensorflow as tf    # 2.0.0
 from tensorflow import math as tfm
 import tensorflow_probability as tfp
 
-from py_outrider.distributions.dis.dis_abstract import Dis_abstract
-from py_outrider.distributions.dis.dis_gaussian import Dis_gaussian
-from py_outrider.utils.stats_func import multiple_testing_nan
-from py_outrider.distributions.loss_dis.loss_dis_log_gaussian import Loss_dis_log_gaussian
-from py_outrider.distributions.loss_dis.loss_dis_gaussian import Loss_dis_gaussian
-
+from .dis_abstract import Distribution
+from .dis_gaussian import Dis_gaussian
+from ..utils.stats_func import multiple_testing_nan
+from ..fit_components.latent_space_fit.E_abstract import E_abstract
 
 #https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/LogNormal
 
 
 
 
-class Dis_log_gaussian(Dis_abstract):
+class Dis_log_gaussian(Distribution):
 
 
     def __init__(self, **kwargs):
@@ -51,7 +49,7 @@ class Dis_log_gaussian(Dis_abstract):
 
     ### loss
     def get_loss(self):
-        return Loss_dis_gaussian.tf_loss(self.X, self.X_pred).numpy()
+        return self.tf_loss(self.X, self.X_pred).numpy()
 
 
     @staticmethod
@@ -59,6 +57,28 @@ class Dis_log_gaussian(Dis_abstract):
         log_mean = np.log(inj_mean) if inj_mean != 0 else 0
         z_score = np.random.lognormal(mean=log_mean, sigma=np.log(inj_sd), size=size)
         return z_score
+        
+        
+    # @tf.function
+    @staticmethod
+    def tf_loss(x, x_pred, **kwargs):
+        # return tfm.log1p(tf.keras.losses.MeanSquaredError()(x, x_pred))
+
+        # print('log_loss')
+        # print(x)
+        # print(x_pred)
+
+        # tf.print(x)
+        # print(x)
+        # tf.print(x_pred.numpy())
+
+        x_log = tfm.log1p(x)
+        x_pred_log = tfm.log1p(x_pred)
+
+        x_na = tfm.is_finite(x_log)
+        gaus_loss = tf.keras.losses.MeanSquaredError()(tf.boolean_mask(x_log, x_na), tf.boolean_mask(x_pred_log, x_na))
+        # gaus_loss = tf.keras.losses.MeanSquaredError()(x_log, x_pred_log)
+        return gaus_loss
 
 
 

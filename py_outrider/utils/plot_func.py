@@ -1,10 +1,10 @@
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-import numpy as np
-from matplotlib.colors import LogNorm
-from py_outrider.utils.stats_func import get_prec_recall
-from py_outrider.utils.float_limits import replace_zeroes_min
-from py_outrider.utils.print_func import np_summary
+
+from .stats_func import get_prec_recall
+from .float_limits import replace_zeroes_min
+from .print_func import np_summary
 
 
 

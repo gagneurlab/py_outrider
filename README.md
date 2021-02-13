@@ -45,7 +45,7 @@ The full parser and possibilites are:
 
 ## Usage
 ```
-usage: py_outrider [-h] [-in FILE_MEAS] [-q ENCOD_DIM] [-sa FILE_SA]
+usage: py_outrider [-h] [-in INPUT] [-q ENCOD_DIM] [-sa SAMPLE_ANNO]
                    [-cov [COVARIATES [COVARIATES ...]]]
                    [-p {outrider,protrider,pca}] [-o OUTPUT]
                    [-fl {float32,float64}] [-cpu NUM_CPUS] [-m MAX_ITER]
@@ -59,27 +59,27 @@ usage: py_outrider [-h] [-in FILE_MEAS] [-q ENCOD_DIM] [-sa FILE_SA]
 ### Quick reference table
 |Short |Long                |Default   |Description                                                                                                                                                   |
 |------|----------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`-h`  |`--help`            |          |show this help message and exit                                                                                                                               |
-|`-in` |`--file_meas`       |`None`    |path to a measurement file, like a gene count table, format: rows:samples x columns:genes, must be comma separated, needs 1. row and 1. column to have names  |
-|`-q`  |`--encod_dim`       |`None`    |number of encoding dimensions, if None: runs hyperparameter optimization to determine best encoding dimension                                                 |
-|`-sa` |`--file_sa`         |`None`    |path to sample annotation file, must be comma separated, automatically selects colum which has file_meas rownames in it                                       |
-|`-cov`|`--covariates`      |`None`    |list of covariate names in file_sa, can either be columns filled with 0 and 1, multiple numbers or strings (will be automatically converted to one-hot encoded matrix for training) |                                                                             |
-|`-p`  |`--profile`         |`outrider`|choose which pre-defined implementation should be used                                                                                                        |
-|`-o`  |`--output`          |`None`    |folder to save results (xarray object, plots, result list), creates new folder if it does not exist, otherwise creates new folder within to save xarray object|
-|`-fl` |`--float_type`      |`float64` |which float type should be used, highly advised to keep float64 which may take longer, but accuracy is strongly impaired by float32                           |
-|`-cpu`|`--num_cpus`        |`1`       |number of cpus used                                                                                                                                           |
-|`-m`  |`--max_iter`        |`15`      |number of maximal training iterations                                                                                                                         |
-|`-v`  |`--verbose`         |          |print additional output info during training                                                                                                                  |
-|`-s`  |`--seed`            |`7`       |seed used for training, negative values (e.g. -1) -> no seed set                                                                                              |
-|`-op` |`--output_plots`    |          |outputs a collection of useful plots                                                                                                                          |
-|`-ol` |`--output_list`     |          |outputs result in form of a long list                                                                                                                         |
-|      |`--X_is_outlier`    |`None`    |path to a measurement file with values of 0|1 for injected outliers, automatically performs precision-recall on in                                            |
-|`-dis`|`--distribution`    |`None`    |distribution assumed for the measurement data [predefined in profile]                                                                                         |
-|`-dt` |`--data_trans`      |`None`    |change transformation scheme for measurement data during training [predefined in profile]                                                                     |
-|`-nf` |`--noise_factor`    |`None`    |factor which defines the amount of noise applied for a denoising autoencoder model [predefined in profile]                                                    |
-|`-ld` |`--loss_dis`        |`None`    |loss distribution used for training [predefined in profile]                                                                                                   |
-|`-pre`|`--prepro`          |`None`    |preprocess data before input [predefined in profile]                                                                                                          |
-|      |`--batch_size`      |`None`    |batch_size used for stochastic training. Default is to not train stochastically                                                                               |
+|`-h`  |`--help`            |          |Show this help message and exit.                                                                                                                               |
+|`-in` |`--input`           |`None`    |Path to a file containing the input data matrix, like a gene count table, format: rows:samples x columns:genes, must be comma separated, needs 1. row and 1. column to have names.  |
+|`-q`  |`--encod_dim`       |`None`    |Number of encoding dimensions, if None: runs hyperparameter optimization to determine best encoding dimension.                                                 |
+|`-sa` |`--sample_anno`     |`None`    |Path to sample annotation file, must be comma separated, automatically selects colum which has file_meas rownames in it.                                       |
+|`-cov`|`--covariates`      |`None`    |List of covariate names in file_sa, can either be columns filled with 0 and 1, multiple numbers or strings (will be automatically converted to one-hot encoded matrix for training). |                                                                             |
+|`-p`  |`--profile`         |`outrider`|Choose which pre-defined implementation should be used.                                                                                                        |
+|`-o`  |`--output`          |`None`    |Folder to save results (xarray object, plots, result list), creates new folder if it does not exist, otherwise creates new folder within to save xarray object.|
+|`-fl` |`--float_type`      |`float64` |Which float type should be used, highly advised to keep float64 which may take longer, but accuracy is strongly impaired by float32.                           |
+|`-cpu`|`--num_cpus`        |`1`       |Number of cpus used.                                                                                                                                           |
+|`-m`  |`--max_iter`        |`15`      |Number of maximal training iterations.                                                                                                                         |
+|`-v`  |`--verbose`         |          |Print additional output info during training.                                                                                                                  |
+|`-s`  |`--seed`            |`7`       |Seed used for training, negative values (e.g. -1) -> no seed set.                                                                                              |
+|`-op` |`--output_plots`    |          |Outputs a collection of useful plots.                                                                                                                          |
+|`-ol` |`--output_list`     |          |Outputs result in form of a long list.                                                                                                                         |
+|      |`--X_is_outlier`    |`None`    |Path to a measurement file with values of 0|1 for injected outliers, automatically performs precision-recall on in.                                            |
+|`-dis`|`--distribution`    |`None`    |Distribution assumed for the measurement data [predefined in profile].                                                                                         |
+|`-dt` |`--data_trans`      |`None`    |Change transformation scheme for measurement data during training [predefined in profile].                                                                     |
+|`-nf` |`--noise_factor`    |`None`    |Factor which defines the amount of noise applied for a denoising autoencoder model [predefined in profile].                                                    |
+|`-ld` |`--loss_dis`        |`None`    |Loss distribution used for training [predefined in profile].                                                                                                   |
+|`-pre`|`--prepro`          |`None`    |Preprocess data before input [predefined in profile].                                                                                                          |
+|      |`--batch_size`      |`None`    |batch_size used for stochastic training. Default is to not train stochastically.                                                                               |
 |      |`--parallelize_D`   |          |If this flag is given, parallelizes fitting of decoder per feature. Default behavior depends on sample size.                                                  |
 |      |`--no_parallelize_D`|          |If this flag is given, decoder fit will not be parallelized per feature. Default behavior depends on sample size.                                             |
 

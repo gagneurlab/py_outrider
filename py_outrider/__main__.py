@@ -3,23 +3,21 @@ import sys, os
 # sys.path.append(dir_path) # print(dir_path)
 from pathlib import Path
 
-from py_outrider.parser import input_parser
-from py_outrider.utils.print_func import print_dict
-from py_outrider.parser import check_parser
-from py_outrider.dataset_handling.create_xarray import Create_xarray
-import py_outrider.utils.stats_func as st
-from py_outrider.dataset_handling.model_dataset import Model_dataset
-# from py_outrider.dataset_handling.custom_output import Custom_output # if uncommented reticulate wont recognize this file as a module for some reason
-from py_outrider.utils.xarray_output import xrds_to_zarr
-from py_outrider.hyperpar_opt import Hyperpar_opt
-from py_outrider.utils.print_func import print_time
+from . import parser
+from .dataset_handling.create_xarray import Create_xarray
+from .dataset_handling.model_dataset import Model_dataset
+# from .dataset_handling.custom_output import Custom_output # if uncommented reticulate wont recognize this file as a module for some reason
+from .hyperpar_opt import Hyperpar_opt
+from .utils import stats_func as st
+from .utils.print_func import print_dict, print_time
+from .utils.xarray_output import xrds_to_zarr
 
 
 def main():
-    args = input_parser.parse_args(sys.argv[1:])
+    args = parser.parse_args(sys.argv[1:])
 
     # print(args)
-    if args['file_meas'] is not None:    #
+    if args['input'] is not None:    #
         full_run(args_input=args)
 
     else:
@@ -27,18 +25,18 @@ def main():
         test_dir = Path(__file__).parent.absolute().parents[0] / "tests"
 
         # OUTRIDER test run (RNA-seq gene counts):
-        sample_args = { "file_meas" : test_dir / "sample_gene.csv", "encod_dim": 10,
+        sample_args = { "input" : test_dir / "sample_gene.csv", "encod_dim": 10,
                   'verbose':False, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
                   "max_iter": 3, "profile": "outrider",
-                  # 'file_sa': test_dir / 'sample_gene_sa.csv', 'covariates': ["is_male", "batch"],
+                  # 'sample_anno': test_dir / 'sample_gene_sa.csv', 'covariates': ["is_male", "batch"],
                  "output": test_dir / "sample_gene_output"
                   }
                   
         # PROTRIDER test run (protein MS intensities):
-        # sample_args = { "file_meas" : test_dir / "sample_protein.csv", "encod_dim": 10,
+        # sample_args = { "input" : test_dir / "sample_protein.csv", "encod_dim": 10,
         #           'verbose':True, 'num_cpus':5, 'seed':5, "output_plots":True, "output_list":True,
         #           "max_iter": 3, "profile": "protrider",
-        #           'file_sa': test_dir / 'sample_protein_sa.csv', 'covariates': ["is_male", "batch"],
+        #           'sample_anno': test_dir / 'sample_protein_sa.csv', 'covariates': ["is_male", "batch"],
         #          "output": test_dir / "sample_protein_output"
         #           }
 
@@ -49,7 +47,7 @@ def main():
 
 def full_run(args_input):
     print_time('parser check for correct input arguments')
-    args_mod = check_parser.Check_parser(args_input).args_mod
+    args_mod = parser.Check_parser(args_input).args_mod
 
     print_time('create xarray object out of input data')
     xrds = Create_xarray(args_mod).xrds
@@ -73,7 +71,7 @@ def full_run(args_input):
     
 def run_from_R_OUTRIDER(X_input, sample_anno_input, args_input):
     print_time('parser check for correct input arguments')
-    args_input = input_parser.parse_args(args_input)
+    args_input = parser.parse_args(args_input)
 
     print_time('create xarray object out of input data')
     xrds = Create_xarray(X_input=X_input, sample_anno_input=sample_anno_input, args_input=args_input).xrds

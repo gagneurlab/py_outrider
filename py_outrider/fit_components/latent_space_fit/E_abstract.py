@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-import py_outrider.utils.tf_helper_func as tfh
+from ...utils import tf_helper_func as tfh
 
 
 class E_abstract(ABC):

@@ -2,11 +2,10 @@ import pandas as pd
 import numpy as np
 import xarray as xr
 
-from py_outrider.profiles import profile_pca, profile_protrider, profile_outrider
-from py_outrider.distributions.dis import dis_gaussian, dis_log_gaussian, dis_neg_bin
-from py_outrider.distributions.loss_dis import loss_dis_gaussian, loss_dis_log_gaussian, loss_dis_neg_bin
-from py_outrider.dataset_handling.input_transform import trans_sf, trans_none, trans_log
-from py_outrider.dataset_handling.preprocess import prepro_sf_log, prepro_none
+from ..profile import Profile
+from ..distributions import dis_gaussian, dis_log_gaussian, dis_neg_bin
+from .input_transform import Trans_sf, Trans_none, Trans_log
+from .preprocess import Prepro_sf_log, Prepro_none
 
 
 class Create_xarray():
@@ -14,27 +13,27 @@ class Create_xarray():
     def __init__(self, args_input, X_input=None, sample_anno_input=None):
 
         if X_input is None:
-            X_file = self.read_data_file(args_input["file_meas"])
+            X_file = self.read_data_file(args_input["input"])
         else: 
             X_file = self.check_input_matrix(X_input)
 
         ### create dict to transform to xarray object
         xrds_dict = {
-            "X": (("sample", "meas"), X_file.values),
-            "X_na": (("sample", "meas"), np.isfinite(X_file).values) # , dtype=float
+            "X": (("sample", "feature"), X_file.values),
+            "X_na": (("sample", "feature"), np.isfinite(X_file).values) # , dtype=float
         }
 
         xrds_coords = {
             "sample": X_file.index,
-            "meas": X_file.columns
+            "feature": X_file.columns
         }
         
         ### use sample annotation if supplied
-        if (sample_anno_input is not None) or (args_input["file_sa"] is not None):
+        if (sample_anno_input is not None) or (args_input["sample_anno"] is not None):
             if sample_anno_input is not None:
                 sample_anno = self.check_input_sample_anno(sample_anno_input, X_file)
             else:
-                sample_anno = self.get_sample_anno(args_input["file_sa"], X_file)
+                sample_anno = self.get_sample_anno(args_input["sample_anno"], X_file)
         
             xrds_dict["sample_anno"] = (("sample", "sample_anno_col"), sample_anno.values.astype(str))
             xrds_coords["sample_anno_col"] = sample_anno.columns
@@ -47,7 +46,7 @@ class Create_xarray():
         if args_input["X_is_outlier"] is not None:
             X_is_outlier = self.get_X_is_outlier(args_input["X_is_outlier"], X_file)
             X_is_outlier[~xrds_dict["X_na"][1]] = np.nan  # force same nan values as in X
-            xrds_dict["X_is_outlier"] = (("sample", "meas"), X_is_outlier.values)
+            xrds_dict["X_is_outlier"] = (("sample", "feature"), X_is_outlier.values)
 
         self.xrds = xr.Dataset(xrds_dict, coords=xrds_coords)
 
@@ -56,7 +55,7 @@ class Create_xarray():
                          "max_iter", "batch_size", "parallelize_D", "verbose", "output_plots"]:
             self.xrds.attrs[add_attr] = args_input[add_attr]
 
-        self.xrds["par_sample"] = (("sample"), np.repeat(1, len(self.xrds.coords["sample"])))
+        self.xrds["sizefactors"] = (("sample"), np.repeat(1, len(self.xrds.coords["sample"])))
         # self.xrds.attrs["float_type"] = self.get_float_type(args_input["float_type"])
         self.xrds.attrs["seed"] = self.get_seed(args_input["seed"])
         self.xrds.attrs["profile"] = self.get_profile(args_input)
@@ -118,9 +117,9 @@ class Create_xarray():
                 sample_col_found = col
 
         if sample_col_found is None:
-            raise ValueError("file_meas sample names not found in file_sa or not complete")
+            raise ValueError("input sample names not found in sample_anno or not complete")
         elif len(sample_anno[sample_col_found]) != len(set(sample_anno[sample_col_found])):
-            raise ValueError(f"duplicates found in file_sa sample_id column: {sample_col_found}")
+            raise ValueError(f"duplicates found in sample_anno sample_id column: {sample_col_found}")
         else:
             sample_anno.rename(columns={sample_col_found: "sample_id"}, inplace=True)
             sample_anno.set_index(sample_anno["sample_id"], inplace=True)
@@ -134,7 +133,7 @@ class Create_xarray():
         # TODO HANDLE NAN CASES IN COVARIATES
 
         if not set(covariates).issubset(sample_anno.columns):
-            print(f"INFO: not all covariates could be found in file_sa (read in names are: {covariates}")
+            print(f"INFO: not all covariates could be found in sample_anno (read in names are: {covariates}")
 
         covariates = [x for x in covariates if x in sample_anno.columns]
         cov_sample = sample_anno[covariates].copy()
@@ -184,12 +183,7 @@ class Create_xarray():
 
 
     def get_profile(self, profile):
-        if profile["profile"].lower() == "outrider":
-            prof = profile_outrider.Profile_outrider()
-        elif profile["profile"].lower() == "protrider":
-            prof = profile_protrider.Profile_protrider()
-        elif profile["profile"].lower() == "pca":
-            prof = profile_pca.Profile_pca()
+        prof = Profile(type=profile["profile"].lower())
 
         ### edit profile if specified in input
         print("checking if profile should be edited")
@@ -212,35 +206,39 @@ class Create_xarray():
             return dis_neg_bin.Dis_neg_bin
         elif prof_dis.lower() == "gaus":
             return dis_gaussian.Dis_gaussian
+        elif prof_dis.lower() == "log_gaus":
+            return dis_log_gaussian.Dis_log_gaussian
         else:
             print("dis not found")
 
 
     def get_profile_data_trans(self, prof_dt):
         if prof_dt.lower() == "sf":
-            return trans_sf.Trans_sf
+            return Trans_sf
         elif prof_dt.lower() == "log":
-            return trans_log.Trans_log
+            return Trans_log
         elif prof_dt.lower() == "none":
-            return trans_none.Trans_none
+            return Trans_none
         else:
             print("data_trans not found")
 
 
     def get_profile_loss_dis(self, prof_loss):
         if prof_loss.lower() == "neg_bin":
-            return loss_dis_neg_bin.Loss_dis_neg_bin
+            return dis_neg_bin.Dis_neg_bin
         elif prof_loss.lower() == "gaus":
-            return loss_dis_gaussian.Loss_dis_gaussian
+            return dis_gaussian.Dis_gaussian
+        elif prof_loss.lower() == "log_gaus":
+            return dis_log_gaussian.Dis_log_gaussian
         else:
             print("loss_dis not found")
 
 
     def get_profile_prepro(self, prof_pre):
         if prof_pre.lower() == "sf_log":
-            return prepro_sf_log.Prepro_sf_log
+            return Prepro_sf_log
         elif prof_pre.lower() == "none":
-            return prepro_none.Prepro_none
+            return Prepro_none
         else:
             print("prepro not found")
 

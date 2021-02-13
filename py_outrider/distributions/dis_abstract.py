@@ -1,18 +1,19 @@
 from abc import ABC, abstractmethod
 import numpy as np
 import tensorflow as tf
+from tensorflow import math as tfm
 
-from py_outrider.utils.other_func import np_set_seed
+from ..utils.other_func import np_set_seed
+from ..fit_components.latent_space_fit.E_abstract import E_abstract
 
 
+class Distribution(ABC):
 
-class Dis_abstract(ABC):
-
-    def __init__(self, X, X_pred, par_meas, parallel_iterations, **kwargs):
+    def __init__(self, X, X_pred, dispersions, parallel_iterations, **kwargs):
         self.float_type = X_pred.dtype  # keep init first
         self.X = X
         self.X_pred = X_pred
-        self.par_meas = par_meas
+        self.dispersions = dispersions
         self.parallel_iterations = parallel_iterations
         self.pvalue = None
 
@@ -46,17 +47,17 @@ class Dis_abstract(ABC):
 
 
     @property
-    def par_meas(self):
-        return self.__par_meas
+    def dispersions(self):
+        return self.__dispersions
 
-    @par_meas.setter
-    def par_meas(self, par_meas):
-        if par_meas is not None and not tf.is_tensor(par_meas):
-            if isinstance(par_meas, np.ndarray):
-                par_meas = tf.convert_to_tensor(par_meas, dtype=self.float_type)
+    @dispersions.setter
+    def dispersions(self, dispersions):
+        if dispersions is not None and not tf.is_tensor(dispersions):
+            if isinstance(dispersions, np.ndarray):
+                dispersions = tf.convert_to_tensor(dispersions, dtype=self.float_type)
             else:
-                par_meas = tf.convert_to_tensor(par_meas.values, dtype=self.float_type)
-        self.__par_meas= par_meas
+                dispersions = tf.convert_to_tensor(dispersions.values, dtype=self.float_type)
+        self.__dispersions= dispersions
 
 
     @property
@@ -121,18 +122,54 @@ class Dis_abstract(ABC):
 
         X_outlier = data_trans.rev_transform(X_trans_outlier + X_center_bias, **kwargs)
         return {"X_trans_outlier": X_trans_outlier, "X_outlier": X_outlier, "X_is_outlier": outlier_mask}
+        
+    
+    
+    # @tf.function
+    @staticmethod
+    @abstractmethod
+    def tf_loss(x, x_pred, dispersions, sizefactors):
+         pass
 
 
+    @classmethod
+    @tf.function
+    def tf_loss_E(cls, e, D, b, x, x_trans, cov_sample, data_trans, **kwargs):
+        _, H = E_abstract.reshape_e_to_H(e=e, fit_input=x_trans, X=x, D=D, cov_sample=cov_sample)
+
+        y = tf.matmul(H, D) + b
+        x_pred = data_trans.rev_transform(y=y, **kwargs)
+        return cls.tf_loss(x=x, x_pred=x_pred, **kwargs)
 
 
+    # @tf.function
+    @classmethod
+    def tf_loss_D_single(cls, H, x_i, b_and_D, data_trans, **kwargs):
+        b_i = b_and_D[0]
+        D_i = b_and_D[1:]
+        y = tf.squeeze( tf.matmul(H, tf.expand_dims(D_i,1)) + b_i )
+        x_pred = data_trans.rev_transform(y=y, **kwargs)
+
+        return cls.tf_loss(x=x_i, x_pred=x_pred, **kwargs)
 
 
+    # @tf.function
+    @classmethod
+    def tf_loss_D(cls, H, x , b_and_D, data_trans, **kwargs):
+        b_and_D = tf.reshape(b_and_D, [H.shape[1] + 1, x.shape[1]])
+        b = b_and_D[0, :]
+        D = b_and_D[1:, :]
 
+        y = tf.matmul(H, D) + b
+        x_pred = data_trans.rev_transform(y=y, **kwargs)
 
+        # print('D_Loss')
+        # print(cls.tf_loss)
+        # l = cls.tf_loss(x=x, x_pred=x_pred, **kwargs)
+        # print(l)
 
-
-
-
+        return cls.tf_loss(x=x, x_pred=x_pred, **kwargs)
+        
 
 
 

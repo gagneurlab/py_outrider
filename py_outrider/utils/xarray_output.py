@@ -25,24 +25,24 @@ def xrds_to_zarr(xrds_obj, output_path):
 
 def xrds_to_list(xrds_obj, output_file, full_output=True):
     """
-    transforms xarray object into a long list of samples_meas values
+    transforms xarray object into a long list of samples_feature values
     :param xrds_obj: xarray dataset object
     :param output_file: filepath
     :param full_output: True if all values, False leads to truncated output with pvalue_adj < 0.5
     """
-    sample_dir = {"sample_meas": [str(s) + "_" + str(g) for s in xrds_obj.coords["sample"].values for g in
-                                  xrds_obj.coords["meas"].values],
-                  "sample": np.repeat(xrds_obj.coords["sample"].values, len(xrds_obj.coords["meas"].values)),
-                  "meas": np.tile(xrds_obj.coords["meas"].values, len(xrds_obj.coords["sample"].values)),
+    sample_dir = {"sample_feature": [str(s) + "_" + str(g) for s in xrds_obj.coords["sample"].values for g in
+                                  xrds_obj.coords["feature"].values],
+                  "sample": np.repeat(xrds_obj.coords["sample"].values, len(xrds_obj.coords["feature"].values)),
+                  "feature": np.tile(xrds_obj.coords["feature"].values, len(xrds_obj.coords["sample"].values)),
                   "logfc": xrds_obj["X_logfc"].values.flatten(),
                   "fc": np.exp(xrds_obj["X_logfc"].values.flatten()),
                   "pvalue": xrds_obj["X_pvalue"].values.flatten(),
                   "pvalue_adj": xrds_obj["X_pvalue_adj"].values.flatten(),
                   "z_score": xrds_obj["X_zscore"].values.flatten(),
-                  "meas_raw": xrds_obj["X_raw"].values.flatten(),
-                  "meas_trans": (xrds_obj["X_trans"] + xrds_obj["X_center_bias"]).values.flatten(),
-                  "meas_norm": xrds_obj["X_norm"].values.flatten(),
-                  "meas_trans_norm": ((xrds_obj["X_trans"] + xrds_obj["X_center_bias"]) - (xrds_obj["X_trans_pred"] - xrds_obj["X_center_bias"])).values.flatten(),
+                  "raw_value": xrds_obj["X_raw"].values.flatten(),
+                  "transformed_value": (xrds_obj["X_trans"] + xrds_obj["X_center_bias"]).values.flatten(),
+                  "normalized_value": xrds_obj["X_norm"].values.flatten(),
+                  "trans_norm_value": ((xrds_obj["X_trans"] + xrds_obj["X_center_bias"]) - (xrds_obj["X_trans_pred"] - xrds_obj["X_center_bias"])).values.flatten(),
                   }
 
     if "X_is_outlier" in xrds_obj:
@@ -66,10 +66,10 @@ def xrds_to_tables(xrds_obj, output_path,
     """
     for ta in tables_to_dl:
         if ta == "X_trans":
-            df = pd.DataFrame(data=(xrds_obj["X_trans"] + xrds_obj["X_center_bias"]).values, columns=xrds_obj.coords["meas"].values,
+            df = pd.DataFrame(data=(xrds_obj["X_trans"] + xrds_obj["X_center_bias"]).values, columns=xrds_obj.coords["feature"].values,
                               index=xrds_obj.coords["sample"].values)
         else:
-            df = pd.DataFrame(data=xrds_obj[ta].values, columns=xrds_obj.coords["meas"].values,
+            df = pd.DataFrame(data=xrds_obj[ta].values, columns=xrds_obj.coords["feature"].values,
                               index=xrds_obj.coords["sample"].values)
         df.to_csv(Path(output_path) / ta + '.csv', sep=",")
 

@@ -1,10 +1,7 @@
 import tensorflow as tf    # 2.0.0
 import tensorflow_probability as tfp
 
-# from autoencoder_models.loss_list import Loss_list
-
-from py_outrider.fit_components.latent_space_fit.E_abstract import E_abstract
-
+from .E_abstract import E_abstract
 
 
 class E_lbfgs(E_abstract):
@@ -20,7 +17,7 @@ class E_lbfgs(E_abstract):
     def run_fit(self):
         E_optim_obj = self.get_updated_E(loss_func = self.loss_E,
                                          E = self.ds.E, D= self.ds.D, b = self.ds.b, x = self.ds.X, x_trans = self.ds.fit_input_noise,
-                                         cov_sample=self.ds.cov_sample, par_sample = self.ds.par_sample, par_meas = self.ds.par_meas,
+                                         cov_sample=self.ds.cov_sample, sizefactors = self.ds.sizefactors, dispersions = self.ds.dispersions,
                                          data_trans=self.ds.profile.data_trans,
                                          parallel_iterations=self.ds.parallel_iterations)
 
@@ -38,15 +35,15 @@ class E_lbfgs(E_abstract):
 
     @staticmethod
     @tf.function(experimental_relax_shapes=True)
-    def get_updated_E(loss_func, E, D, b, x, x_trans, par_sample, par_meas, cov_sample, data_trans, parallel_iterations=1):
+    def get_updated_E(loss_func, E, D, b, x, x_trans, sizefactors, dispersions, cov_sample, data_trans, parallel_iterations=1):
         # print("Tracing get_updated_E with \nloss_func = ", loss_func, "\nE = ", E, "\nD = ", D, "\nb = ", b , 
-        #     "\nx = ", x, "\nx_trans = ", x_trans, "\npar_sample = ", par_sample, "\npar_meas = ", par_meas, "\ncov_sample = ", cov_sample, 
+        #     "\nx = ", x, "\nx_trans = ", x_trans, "\nsizefactors = ", sizefactors, "\ndispersions = ", dispersions, "\ncov_sample = ", cov_sample, 
         #     "\ndata_trans = ", data_trans, "\nparallel_iterations = ", parallel_iterations)
         e = tf.reshape(E, shape=[tf.size(E), ])
 
         def lbfgs_input(e):
-            loss = loss_func(e=e, D=D, b=b, x=x, x_trans=x_trans, par_sample=par_sample,
-                             par_meas=par_meas, cov_sample=cov_sample, data_trans=data_trans)
+            loss = loss_func(e=e, D=D, b=b, x=x, x_trans=x_trans, sizefactors=sizefactors,
+                             dispersions=dispersions, cov_sample=cov_sample, data_trans=data_trans)
             gradients = tf.gradients(loss, e)[0]
             return loss, tf.clip_by_value(gradients, -100., 100.)
 

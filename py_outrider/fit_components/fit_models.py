@@ -1,3 +1,5 @@
+import time
+from abc import ABC, abstractmethod
 import numpy as np
 import tensorflow as tf    # 2.0.0
 import tensorflow_probability as tfp
@@ -5,21 +7,63 @@ from sklearn.decomposition import PCA
 import time
 import math
 
-
-from py_outrider.fit_components.fitting_models.model_fit_abstract import Model_fit_abstract
-# from autoencoder_models.loss_list import Loss_list
-import py_outrider.utils.print_func as print_func
-
-
-# from py_outrider.fit_components.latent_space_regression.D_lbfgs_single import D_lbfgs_single
-# from py_outrider.fit_components.latent_space_regression.D_lbfgs_whole import D_lbfgs_whole D_lbfgs
-from py_outrider.fit_components.latent_space_regression.D_lbfgs import D_lbfgs
-from py_outrider.fit_components.latent_space_fit.E_pca import E_pca
-from py_outrider.fit_components.latent_space_fit.E_lbfgs import E_lbfgs
-from py_outrider.fit_components.par_meas_fit.par_meas_fminbound import Par_meas_fminbound
-from py_outrider.fit_components.par_meas_fit.par_meas_mom import Par_meas_mom
+from . import tf_init
+from ..utils import print_func as print_func
+from .latent_space_fit.E_pca import E_pca
+from .latent_space_fit.E_lbfgs import E_lbfgs
+from .latent_space_regression.D_lbfgs import D_lbfgs
+from .dispersion_fit import Dispersions_fminbound, Dispersions_mom
 
 
+class Model_fit_abstract(ABC):
+
+    def __init__(self, model_dataset):
+        self.ds = model_dataset
+        self.ds.initialize_ds()
+
+        tf_init.init_tf_config(num_cpus=self.ds.xrds.attrs["num_cpus"], verbose=self.ds.xrds.attrs["verbose"])
+        tf_init.init_float_type(float_type=self.ds.xrds.attrs["float_type"])
+        tf_init.init_tf_seed(seed=self.ds.xrds.attrs["seed"])
+
+
+    @property
+    def ds(self):
+        return self.__ds
+
+    @ds.setter
+    def ds(self, ds):
+        self.__ds = ds
+
+    @abstractmethod
+    def fit(self):
+         pass
+
+    def run_model_fit(self, **kwargs):
+        time_ae_start = time.time()
+        print_func.print_time('start model fitting')
+        self.fit(**kwargs)
+        print_func.print_time(f'complete model fit time {print_func.get_duration_sec(time.time() - time_ae_start)}')
+        print_func.print_time(f'model_fit ended with loss: {self.ds.get_loss()}')
+
+        self.ds.init_pvalue_fc_z()
+        self.xrds = self.ds.get_xrds()
+        return self.xrds
+
+
+
+class Model_fit_pca(Model_fit_abstract):
+
+
+    def __init__(self, ae_dataset):
+        super().__init__(ae_dataset)
+
+
+
+    def fit(self, **kwargs):
+        E_pca(ds=self.ds, **kwargs).fit()
+        Dispersions_fminbound(ds=self.ds, **kwargs).fit()
+        
+        
 
 class Model_fit_lbfgs(Model_fit_abstract):
 
@@ -61,13 +105,13 @@ class Model_fit_lbfgs(Model_fit_abstract):
         E_pca(ds=self.ds).fit()
 
         # init theta with method of moment
-        Par_meas_mom(ds=self.ds).fit()
+        Dispersions_mom(ds=self.ds).fit()
 
         # inital D fit
         D_lbfgs(ds=self.ds, parallelize=self.fit_D_parallel).fit()
 
         # initial theta fit
-        Par_meas_fminbound(ds=self.ds).fit()
+        Dispersions_fminbound(ds=self.ds).fit()
 
         ### ITERATE UNTIL CONVERGENCE
         for iter in range(self.ds.xrds.attrs["max_iter"]):
@@ -91,13 +135,13 @@ class Model_fit_lbfgs(Model_fit_abstract):
             #     D_lbfgs(ds=ds_batch, parallelize=self.fit_D_parallel).fit()
             # 
             #     # Dispersion fit
-            #     Par_meas_fminbound(ds=ds_batch).fit()
+            #     Dispersions_fminbound(ds=ds_batch).fit()
             #     
             #     # update matrices in full dataset
             #     self.ds.E = ds_batch.E
             #     self.ds.D = ds_batch.D
             #     self.ds.b = ds_batch.b
-            #     self.ds.par_meas = ds_batch.par_meas
+            #     self.ds.dispersions = ds_batch.dispersions
             
             # Encoder fit
             print(f'### # Fitting the latent space ...')
@@ -130,7 +174,7 @@ class Model_fit_lbfgs(Model_fit_abstract):
             # Dispersion fit
             print(f'### # Fitting the dispersion parameters ...')
             print(f'###\tBATCH 1/1: ', end='')
-            Par_meas_fminbound(ds=self.ds).fit()
+            Dispersions_fminbound(ds=self.ds).fit()
 
             print('duration loop: {}'.format(print_func.get_duration_sec(time.time() - time_iter_start)))
 
@@ -139,33 +183,6 @@ class Model_fit_lbfgs(Model_fit_abstract):
                                                  last_iter=len(batches)*2+1):
                 print_func.print_time(f'model converged at iteration: {iter+1}')
                 break
-
-
-
-# max_iter=15
-# for i in 10:
-    #
-    # class Model_fit_lbfgs(Model_fit_abstract):
-    #
-    #     def __init__(self, ae_dataset):
-    #         super().__init__(ae_dataset)
-    #
-    #
-    #     @tf.function
-    #     def fit(self, **kwargs):
-    #
-    #         E_pca(ds=self.ds).fit()
-    #         Par_meas_mom(ds=self.ds).fit()
-    #         D_lbfgs_whole(ds=self.ds).fit()
-    #         Par_meas_fminbound(ds=self.ds).fit()
-    #
-    #         for iter in range(max_iter):
-    #             E_lbfgs(ds=self.ds).fit()
-    #             D_lbfgs_single(ds=self.ds).fit()
-    #             Par_meas_fminbound(ds=self.ds).fit()
-    #
-
-
 
 
 

@@ -6,10 +6,8 @@ import pandas as pd
 import tensorflow as tf    # 2.0.0
 from sklearn.decomposition import PCA
 from nipals import nipals
-# from autoencoder_models.loss_list import Loss_list
 
-from py_outrider.fit_components.latent_space_fit.E_abstract import E_abstract
-
+from .E_abstract import E_abstract
 
 class E_pca(E_abstract):
 

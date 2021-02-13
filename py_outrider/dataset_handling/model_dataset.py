@@ -4,11 +4,10 @@ import tensorflow_probability as tfp
 from tensorflow import math as tfm
 import copy
 
-import py_outrider.utils.stats_func as st
-from py_outrider.fit_components.loss_list import Loss_list
-
-import py_outrider.utils
-import py_outrider.utils.tf_helper_func as tfh
+from ..fit_components.loss_list import Loss_list
+from .. import utils
+from ..utils import stats_func as st
+from ..utils import tf_helper_func as tfh
 
 ### accessing xarray matrices is pretty slow -> new class
 ### data container for all autoencoder data
@@ -46,8 +45,8 @@ class Model_dataset():
         self.X_trans_noise = self.xrds["X_trans_noise"].values
         self.X_center_bias = self.xrds["X_center_bias"].values
         self.cov_sample = self.xrds["cov_sample"].values if "cov_sample" in self.xrds else None
-        self.par_sample = self.xrds["par_sample"].values if "par_sample" in self.xrds else None
-        self.par_meas = self.xrds["par_meas"].values if "par_meas" in self.xrds else None
+        self.sizefactors = self.xrds["sizefactors"].values if "sizefactors" in self.xrds else None
+        self.dispersions = self.xrds["dispersions"].values if "dispersions" in self.xrds else None
 
         ### covariate consideration
         if self.cov_sample is not None:
@@ -64,10 +63,10 @@ class Model_dataset():
 
         ### convert all parameters to the same float type, cannot convert to function without copying
         self.X, self.X_trans, self.X_trans_noise, self.X_center_bias, self.cov_sample,\
-        self.par_sample, self.par_meas, self.X, self.fit_input, self.fit_input_noise = \
+        self.sizefactors, self.dispersions, self.X, self.fit_input, self.fit_input_noise = \
             [ x.astype(self.xrds.attrs["float_type"], copy=False) if x is not None and x.dtype != self.xrds.attrs["float_type"] else x
               for x in [self.X, self.X_trans, self.X_trans_noise, self.X_center_bias, self.cov_sample,
-                        self.par_sample, self.par_meas, self.X, self.fit_input, self.fit_input_noise] ]
+                        self.sizefactors, self.dispersions, self.X, self.fit_input, self.fit_input_noise] ]
 
         self.loss_list = Loss_list()
         self.parallel_iterations = self.xrds.attrs["num_cpus"]
@@ -80,7 +79,7 @@ class Model_dataset():
 
     def calc_pvalue(self):
         ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
-                                  par_meas=self.par_meas, parallel_iterations=self.parallel_iterations)
+                                  dispersions=self.dispersions, parallel_iterations=self.parallel_iterations)
         self.X_pvalue = ds_dis.get_pvalue()
         self.X_pvalue_adj = ds_dis.get_pvalue_adj()
 
@@ -89,7 +88,7 @@ class Model_dataset():
 
     def init_pvalue_fc_z(self):
         self.calc_pvalue()
-        self.X_logfc = self.profile.data_trans.get_logfc(X_trans=self.X_trans, X_trans_pred=self.X_trans_pred, par_sample=self.par_sample )
+        self.X_logfc = self.profile.data_trans.get_logfc(X_trans=self.X_trans, X_trans_pred=self.X_trans_pred, sizefactors=self.sizefactors )
         self.X_zscore = st.get_z_score(self.X_logfc)
 
 
@@ -98,9 +97,9 @@ class Model_dataset():
         inj_obj = self.profile.noise_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
                                                               X_center_bias=self.xrds["X_center_bias"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
-                                                        noise_factor=self.profile.noise_factor, seed=self.xrds.attrs["seed"], par_sample=self.xrds["par_sample"])
-        self.xrds["X_trans_noise"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
-        self.xrds["X_noise"] = (('sample', 'meas'), inj_obj["X_outlier"])
+                                                        noise_factor=self.profile.noise_factor, seed=self.xrds.attrs["seed"], sizefactors=self.xrds["sizefactors"])
+        self.xrds["X_trans_noise"] = (('sample', 'feature'), inj_obj["X_trans_outlier"])
+        self.xrds["X_noise"] = (('sample', 'feature'), inj_obj["X_outlier"])
 
 
 
@@ -109,7 +108,7 @@ class Model_dataset():
         inj_obj = self.profile.outlier_dis.get_injected_outlier(X=self.xrds["X"].values, X_trans=self.xrds["X_trans"].values,
                                                                 X_center_bias=self.xrds["X_center_bias"].values,
                                                         inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd, data_trans=self.profile.data_trans,
-                                                        noise_factor=1, par_sample=self.xrds["par_sample"], seed=self.xrds.attrs["seed"])
+                                                        noise_factor=1, sizefactors=self.xrds["sizefactors"], seed=self.xrds.attrs["seed"])
 
 
         ##TODO force at least one injection otherwise nan prec-rec value - bad practice -> add cancel
@@ -123,13 +122,13 @@ class Model_dataset():
                                                                     X_center_bias=self.xrds["X_center_bias"].values,
                                                                     inj_freq=inj_freq, inj_mean=inj_mean, inj_sd=inj_sd,
                                                                     data_trans=self.profile.data_trans,
-                                                                    noise_factor=1, par_sample=self.xrds["par_sample"], seed=tmp_seed)
+                                                                    noise_factor=1, sizefactors=self.xrds["sizefactors"], seed=tmp_seed)
 
-        self.xrds["X_wo_outlier"] = (('sample', 'meas'), self.xrds["X"])
-        self.xrds["X"] = (('sample', 'meas'), inj_obj["X_outlier"])
-        self.xrds["X_trans_wo_outlier"] = (('sample', 'meas'), self.xrds["X_trans"])
-        self.xrds["X_trans"] = (('sample', 'meas'), inj_obj["X_trans_outlier"])
-        self.xrds["X_is_outlier"] = (('sample', 'meas'), inj_obj["X_is_outlier"])
+        self.xrds["X_wo_outlier"] = (('sample', 'feature'), self.xrds["X"])
+        self.xrds["X"] = (('sample', 'feature'), inj_obj["X_outlier"])
+        self.xrds["X_trans_wo_outlier"] = (('sample', 'feature'), self.xrds["X_trans"])
+        self.xrds["X_trans"] = (('sample', 'feature'), inj_obj["X_trans_outlier"])
+        self.xrds["X_is_outlier"] = (('sample', 'feature'), inj_obj["X_is_outlier"])
 
         # TODO X_center_bias again as it changes slightly with outlier injection
 
@@ -157,19 +156,19 @@ class Model_dataset():
         return y_b
 
 
-    def _pred_X(self,X_na, H, D, b, par_sample):
+    def _pred_X(self,X_na, H, D, b, sizefactors):
         y = Model_dataset._pred_X_trans(X_na=X_na, H=H, D=D, b=b, data_trans=self.profile.data_trans)
-        return self.profile.data_trans.rev_transform(y, par_sample=par_sample)
+        return self.profile.data_trans.rev_transform(y, sizefactors=sizefactors)
 
 
     def calc_X_pred(self):
         self.X_trans_pred = self._pred_X_trans(X_na=self.X_na, H=self.H, D=self.D, b=self.b, data_trans=self.profile.data_trans)
-        self.X_pred = self._pred_X(X_na=self.X_na, H=self.H, D=self.D, b=self.b, par_sample=self.par_sample)
+        self.X_pred = self._pred_X(X_na=self.X_na, H=self.H, D=self.D, b=self.b, sizefactors=self.sizefactors)
 
 
     def get_loss(self):
         ds_dis = self.profile.dis(X=self.X, X_pred=self.X_pred,
-                                     par_meas=self.par_meas, parallel_iterations=self.parallel_iterations)
+                                     dispersions=self.dispersions, parallel_iterations=self.parallel_iterations)
         loss = ds_dis.get_loss()
         return loss
 
@@ -184,32 +183,32 @@ class Model_dataset():
         """
         self.xrds.coords["encod_dim"] =  ["q_" + str(d) for d in range(self.encod_dim)]
 
-        self.xrds["X_pred"] = (("sample", "meas"), self.X_pred)
-        self.xrds["X_pvalue"] = (("sample", "meas"), self.X_pvalue)
-        self.xrds["X_pvalue_adj"] = (("sample", "meas"), self.X_pvalue_adj)
-        self.xrds["X_logfc"] = (("sample", "meas"), self.X_logfc)
-        self.xrds["X_zscore"] = (("sample", "meas"), self.X_zscore)
-        self.xrds["X_trans_pred"] = (("sample", "meas"), self.X_trans_pred)
+        self.xrds["X_pred"] = (("sample", "feature"), self.X_pred)
+        self.xrds["X_pvalue"] = (("sample", "feature"), self.X_pvalue)
+        self.xrds["X_pvalue_adj"] = (("sample", "feature"), self.X_pvalue_adj)
+        self.xrds["X_logfc"] = (("sample", "feature"), self.X_logfc)
+        self.xrds["X_zscore"] = (("sample", "feature"), self.X_zscore)
+        self.xrds["X_trans_pred"] = (("sample", "feature"), self.X_trans_pred)
 
         # ae_norm_values = self.X / self.X_pred * tfm.reduce_mean(self.X, axis=0)  # TODO DOES NOT WORK WITH NAN !!!
         ae_norm_values = self.X / self.X_pred * np.nanmean(self.X, axis=0)
 
-        self.xrds["X_norm"] = (("sample", "meas"), ae_norm_values)
+        self.xrds["X_norm"] = (("sample", "feature"), ae_norm_values)
 
-        if self.par_sample is not None:
-            self.xrds["par_sample"] = (("sample"), self.par_sample)
-        if self.par_meas is not None:
-            self.xrds["par_meas"] = (("meas"), self.par_meas)
+        if self.sizefactors is not None:
+            self.xrds["sizefactors"] = (("sample"), self.sizefactors)
+        if self.dispersions is not None:
+            self.xrds["dispersions"] = (("feature"), self.dispersions)
 
-        self.xrds["encoder_weights"] = (("meas_cov","encod_dim"), self.E)
-        self.xrds["decoder_weights"] = (("encod_dim_cov", "meas"), self.D)
-        self.xrds["decoder_bias"] = (("meas"), self.b)
+        self.xrds["encoder_weights"] = (("feature_cov","encod_dim"), self.E)
+        self.xrds["decoder_weights"] = (("encod_dim_cov", "feature"), self.D)
+        self.xrds["decoder_bias"] = (("feature"), self.b)
 
         ### init new coordinates
-        if self.E.shape[0] != len(self.xrds.coords["meas"]):
-            self.xrds.coords["meas_cov"] = np.concatenate( [self.xrds.coords["meas"], self.xrds.coords["cov_sample_col"]])
+        if self.E.shape[0] != len(self.xrds.coords["feature"]):
+            self.xrds.coords["feature_cov"] = np.concatenate( [self.xrds.coords["feature"], self.xrds.coords["cov_sample_col"]])
         else:
-            self.xrds.coords["meas_cov"] = self.xrds.coords["meas"]
+            self.xrds.coords["feature_cov"] = self.xrds.coords["feature"]
 
         if self.D.shape[0] != len(self.xrds.coords["encod_dim"]):
             self.xrds.coords["encod_dim_cov"] = np.concatenate( [self.xrds.coords["encod_dim"], self.xrds.coords["cov_sample_col"]])
@@ -242,6 +241,7 @@ class Model_dataset():
         print(f"  X: {get_shape(self.X)}")
         print(f"  X_pred: {get_shape(self.X_pred)}")
         print(f"  cov_sample: {get_shape(self.cov_sample)}")
+        print(f"  dispersions: {get_shape(self.dispersions)}")
 
     def subset_samples(self, sample_idx):
         # create subsetted object
@@ -254,7 +254,7 @@ class Model_dataset():
         sub.X_trans_noise = sub.X_trans_noise[sample_idx,:]
         sub.fit_input = sub.fit_input[sample_idx,:]
         sub.fit_input_noise = sub.fit_input_noise[sample_idx,:]
-        sub.par_sample = sub.par_sample[sample_idx]
+        sub.sizefactors = sub.sizefactors[sample_idx]
         sub.H = tf.gather(sub.H, indices=sample_idx, axis=0)
         
         return sub

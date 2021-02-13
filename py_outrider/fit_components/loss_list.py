@@ -4,8 +4,8 @@ import tensorflow_probability as tfp
 import pandas as pd
 import numpy as np
 import time
-import py_outrider.utils.print_func as print_func
 
+from ..utils import print_func as print_func
 
 ### class which keeps track of the training process
 

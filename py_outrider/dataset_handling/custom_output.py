@@ -2,8 +2,8 @@ from pathlib import Path
 from matplotlib.backends.backend_pdf import PdfPages
 import pandas as pd
 
-import py_outrider.utils.plot_func as pl
-from py_outrider.utils.xarray_output import xrds_to_list
+from ..utils import plot_func as pl
+from ..utils.xarray_output import xrds_to_list
 
 
 class Custom_output():

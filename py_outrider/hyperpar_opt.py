@@ -1,8 +1,9 @@
 import numpy as np
-import py_outrider.utils.stats_func as st
-from sklearn.model_selection import ParameterGrid
-from py_outrider.utils import print_func
 import pandas as pd
+from sklearn.model_selection import ParameterGrid
+
+from .utils import stats_func as st
+from .utils import print_func
 
 
 class Hyperpar_opt():

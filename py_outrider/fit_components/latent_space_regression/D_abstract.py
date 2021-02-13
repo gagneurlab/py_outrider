@@ -4,7 +4,6 @@ import numpy as np
 import tensorflow as tf
 
 
-
 class D_abstract(ABC):
 
     def __init__(self, ds, parallelize=False):
