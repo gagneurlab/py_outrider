@@ -19,6 +19,8 @@ class Loss_list():
 
 
     def add_loss(self, loss, print_text="", step_name=''):
+        if tf.is_tensor(loss):
+            loss = loss.numpy()
         self.losses.append(loss)
         curr_sec = round(time.time() - self.start_time)
 

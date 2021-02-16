@@ -102,6 +102,9 @@ data
 # test files
 test/
 
+# old code
+old_code/
+
 # Rstudio
 *.Rproj
 *.RData

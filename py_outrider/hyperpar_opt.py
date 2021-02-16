@@ -4,29 +4,28 @@ from sklearn.model_selection import ParameterGrid
 
 from .utils import stats_func as st
 from .utils import print_func
-
+from .outrider import outrider
+from .preprocess import inject_outliers # TODO
 
 class Hyperpar_opt():
 
-    def __init__(self, ds):
-        self.ds = ds
+    def __init__(self, adata, **kwargs):
+        self.adata = adata.copy()
+        self.hyperpar_table = None
+        self.best_encod_dim = None
+        self.best_noise_factor = None
+        del kwargs['encod_dim']
+        del kwargs['noise_factor']
 
-        ds.inject_outlier(inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
+        # inject artifical outliers
+        self.adata = inject_outliers(self.adata, inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
 
         ### get all hyperparamters
-        hyperpar_grid = self.get_hyperpar_grid( self.ds, encod_dim = True, noise_factor = False)  # noise factor TRUE
-
-        hyperpar_table = self.run_hyperpar_opt(self.ds, hyperpar_grid)
-
-        ### reverse injected outliers
-        self.ds.xrds["X_inj_outlier"] = (('sample', 'meas'), self.ds.xrds["X"])
-        self.ds._remove_inj_outlier()
-
+        hyperpar_grid = self.get_hyperpar_grid(self.adata, encod_dim = True, noise_factor = False)  # noise factor TRUE
+        self.hyperpar_table = self.run_hyperpar_opt(self.adata, hyperpar_grid, **kwargs)
         self.apply_best_hyperpar(hyperpar_table)
 
-
-
-    def run_hyperpar_opt(self, ds, par_grid):
+    def run_hyperpar_opt(self, adata, par_grid, **kwargs):
         print_func.print_time("start hyperparameter optimisation")
 
         df_list = []
@@ -34,61 +33,49 @@ class Hyperpar_opt():
             print(p)
 
             ### set hyperpar
-            ds.encod_dim = p["encod_dim"]
-            ds.profile.noise_factor = p["noise_factor"]
+            hyperpar_data = adata.copy()
+            encod_dim = p["encod_dim"]
+            noise_factor = p["noise_factor"]
+            
+            res = outrider(hyperpar_data, 
+                           encod_dim=encod_dim, 
+                           noise_factor=noise_factor, 
+                           **kwargs)
 
-            ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
+            pre_rec = st.get_prec_recall(hyperpar_data.layers["X_pvalue"], hyperpar_data.layers["X_is_outlier"])["auc"]
+            df_list.append([p["encod_dim"], p["noise_factor"], pre_rec])
 
-            fit_model = ds.profile.fit_model(ds)
-            fit_model.fit()
-            ds.calc_pvalue()
-
-            # xrds2 = ds.xrds.copy()
-            # xrds2.attrs["profile"] = xrds2.attrs["profile"].__class__.__name__
-            # xrds2.to_zarr(xrds2.attrs["output"]+"/encod_dim_"+str(p["encod_dim"]), mode="w")
-
-            pre_rec = st.get_prec_recall(ds.X_pvalue, ds.xrds["X_is_outlier"].values)["auc"]
-            df_list.append([p["encod_dim"], p["noise_factor"], pre_rec, ds.get_loss()])
-
-        hyperpar_df = pd.DataFrame(df_list, columns=["encod_dim","noise_factor","prec_rec","loss"])
+        hyperpar_df = pd.DataFrame(df_list, columns=["encod_dim","noise_factor","prec_rec"])
 
         print_func.print_time("end hyperparameter optimisation")
         return hyperpar_df
 
-
-
-
     def apply_best_hyperpar(self, df):
-        self.ds.xrds.attrs["hyperpar_table"] = df.to_dict("records")
+        self.hyperpar_table = df.to_dict("records")
 
         best_row = df.loc[df['prec_rec'].idxmax()]
-        self.ds.encod_dim = best_row["encod_dim"]
-        self.ds.profile.noise_factor = best_row["noise_factor"]
+        self.best_encod_dim = best_row["encod_dim"]
+        self.best_noise_factor = best_row["noise_factor"]
 
         print('best hyperparameter found:')
         print(best_row)
         print(df)
 
-
-
-
-
-    def get_hyperpar_grid(self, ds, encod_dim, noise_factor):
+    def get_hyperpar_grid(self, adata, encod_dim, noise_factor):
         hyperpar_dict = {}
 
         if encod_dim:
-            hyperpar_dict["encod_dim"] = self._get_par_encod_dim(ds.xrds["X"])
+            hyperpar_dict["encod_dim"] = self._get_par_encod_dim(adata.X)
         else:
-            q = round(ds.xrds["X"].shape[0] / 4) if ds.encod_dim is None else ds.encod_dim
+            q = round(adata.X.shape[0] / 4) 
             hyperpar_dict["encod_dim"] = [q]
 
         if noise_factor:
             hyperpar_dict["noise_factor"] = self._get_par_noise_factors()
         else:
-            hyperpar_dict["noise_factor"] = [ds.profile.noise_factor]
+            hyperpar_dict["noise_factor"] = [0.0]
 
         return ParameterGrid(hyperpar_dict)
-
 
     def _get_par_encod_dim(self, x):
         """
@@ -107,20 +94,5 @@ class Hyperpar_opt():
         par_q = np.unique(np.round(np.exp(np.linspace(start=np.log(a), stop=np.log(b), num=n_steps))))
         return par_q.astype(int).tolist()
 
-
     def _get_par_noise_factors(self):
         return [0, 0.5, 1, 1.5, 2]
-
-
-
-
-
-
-
-
-
-
-
-
-
-

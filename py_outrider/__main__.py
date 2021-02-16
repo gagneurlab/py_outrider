@@ -1,22 +1,15 @@
 import sys, os 
-# dir_path = os.path.dirname(os.path.realpath(__file__))
-# sys.path.append(dir_path) # print(dir_path)
 from pathlib import Path
 
 from . import parser
-from .dataset_handling.create_xarray import Create_xarray
-from .dataset_handling.model_dataset import Model_dataset
-# from .dataset_handling.custom_output import Custom_output # if uncommented reticulate wont recognize this file as a module for some reason
+from .outrider import outrider
 from .hyperpar_opt import Hyperpar_opt
-from .utils import stats_func as st
-from .utils.print_func import print_dict, print_time
-from .utils.xarray_output import xrds_to_zarr
-
+from .utils.print_func import print_time #, print_info_run
+from .utils.io import read_data, create_adata_from_arrays, write_output
 
 def main():
     args = parser.parse_args(sys.argv[1:])
 
-    # print(args)
     if args['input'] is not None:    #
         full_run(args_input=args)
 
@@ -41,76 +34,55 @@ def main():
         #           }
 
         args.update(sample_args)
-        # print_dict(args)
         full_run(args_input=args)
 
 
 def full_run(args_input):
     print_time('parser check for correct input arguments')
-    args_mod = parser.Check_parser(args_input).args_mod
+    args = parser.Check_parser(args_input).args_mod
 
-    print_time('create xarray object out of input data')
-    xrds = Create_xarray(args_mod).xrds
-    print(xrds)
+    print_time('create adata object out of input data')
+    adata = read_data(args['input'], args['sample_anno'], args['float_type'])
+    outrider_args = parser.extract_outrider_args(args) 
+    print(outrider_args)
+    # TODO: print_run_info(adata, outrider_args, args['profile'])
+    
+    # check need for hyper param opt
+    if outrider_args["encod_dim"] is None:
+        print_time('encod_dim is None -> run hyperparameter optimisation')
+        hyper = Hyperpar_opt(adata, **outrider_args)
+        outrider_args["encod_dim"] = hyper.best_encod_dim
+        outrider_args["noise_factor"] = hyper.best_noise_factor
 
     # run outrider model
-    xrds = run_outrider(xrds)
+    adata = outrider(adata, **outrider_args)
 
     # output
     print_time('save model dataset to file')
-    xrds_to_zarr(xrds_obj=xrds, output_path=xrds.attrs["output"])
-
-    if "X_is_outlier" in xrds:
-        pre_rec = st.get_prec_recall(xrds["X_pvalue"].values, xrds["X_is_outlier"].values)
-        print_time(f'precision-recall: { pre_rec["auc"] }')
-
-    # print_time('start creating custom output if specified')
-    # Custom_output(xrds)
+    write_output(adata, filetype=args["output_type"], filename=args["output"])
 
     print_time('finished whole run')
+
     
 def run_from_R_OUTRIDER(X_input, sample_anno_input, args_input):
     print_time('parser check for correct input arguments')
-    args_input = parser.parse_args(args_input)
+    args = parser.parse_args(args_input)
 
-    print_time('create xarray object out of input data')
-    xrds = Create_xarray(X_input=X_input, sample_anno_input=sample_anno_input, args_input=args_input).xrds
-    print(xrds)
-    print(xrds.attrs["profile"].get_names())
-    # print(f'pval distribution: { xrds.attrs["profile"].dis }')
-    # print(f'loss distribution: { xrds.attrs["profile"].loss_dis }')
-    # print(f'preprocessing: { xrds.attrs["profile"].prepro }')
-    # print(f'transformation: { xrds.attrs["profile"].data_trans }')
+    print_time('create adata object out of input data')
+    adata = create_adata_from_arrays(X_input, sample_anno = sample_anno_input, dtype=args['float_type'])
+    outrider_args = parser.extract_outrider_args(args)
+    # TODO: print_run_info(adata, outrider_args, args['profile'])
+    
+    # check need for hyper param opt
+    if outrider_args["encod_dim"] is None:
+        print_time('encod_dim is None -> run hyperparameter optimisation')
+        hyper = Hyperpar_opt(adata, outrider_args)
+        outrider_args["encod_dim"] = hyper.best_encod_dim
+        outrider_args["noise_factor"] = hyper.best_noise_factor
 
     # run outrider model
-    xrds = run_outrider(xrds)
+    adata = outrider(adata, outrider_args)
 
     print_time('finished whole run')
-    return xrds
-
-
-def run_outrider(xrds):
-    print_time('create model dataset class')
-    model_ds = Model_dataset(xrds)
-
-    if xrds.attrs["encod_dim"] is None:
-        print_time('encod_dim is None -> run hyperparameter optimisation')
-        Hyperpar_opt(model_ds)
-
-    print_time('inject noise if specified')
-    model_ds.inject_noise(inj_freq=1, inj_mean=0, inj_sd=1)
-
-    fit_model = model_ds.profile.fit_model(model_ds)
-    print_time('start running model fit')
-    xrds = fit_model.run_model_fit()
-
-    return xrds
-
-
-
-
-
-
-
-
+    return adata
 
