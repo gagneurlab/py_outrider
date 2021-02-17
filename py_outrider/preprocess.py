@@ -1,5 +1,6 @@
 import warnings
 import numpy as np
+import tensorflow as tf
 from tensorflow import math as tfm
 
 ### Preprocessing functionality
@@ -91,21 +92,27 @@ def reverse_transform(adata):
     
     assert "transform_func" in adata.uns.keys(), 'No tranform_func found in adata.uns'
     transform_func = adata.uns["transform_func"]
-    assert transform_func in ('none', 'log', 'log1p'), 'Unknown tranformation function'
     
     if transform_func != 'none':
         adata.layers["X_predicted_no_trans"] = adata.layers["X_predicted"]
         
-    if transform_func == 'log':
-        adata.layers["X_predicted"] = tfm.exp(adata.layers["X_predicted"])
-    elif transform_func == 'log1p':
-        adata.layers["X_predicted"] = tfm.exp(adata.layers["X_predicted"]) - 1
+    adata.layers["X_predicted"] = rev_trans(adata.layers["X_predicted"], adata.obsm["sizefactors"], transform_func)
+    
+    return adata
+    
+@tf.function
+def rev_trans(x_pred, sf, trans_func):
+    assert trans_func in ('none', 'log', 'log1p'), 'Unknown tranformation function'
+    
+    if trans_func == 'log':
+        x_pred = tfm.exp(x_pred)
+    elif trans_func == 'log1p':
+        x_pred = tfm.exp(x_pred) - 1
         
     # multiply sf back (sf=1 if sf_norm=False so no effect)
-    sf = adata.obsm["sizefactors"]
-    adata.layers["X_predicted"] = adata.layers["X_predicted"] * np.expand_dims(sf, 1)
-        
-    return adata
+    x_pred = x_pred * tf.expand_dims(sf, 1)
+    
+    return x_pred
     
 def add_noise(adata, noise_factor):
     # TODO implement

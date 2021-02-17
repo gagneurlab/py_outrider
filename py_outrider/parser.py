@@ -23,8 +23,8 @@ def parse_args(args_input):
     parser.add_argument('-cpu','--num_cpus', type=check_positive_int, default=None, help='Number of cpus used. Default is 1.')
     parser.add_argument('-v','--verbose', type=bool, default=None, help='Print additional output info during training. Default is False.')
     parser.add_argument('-s','--seed', type=int, default=None, help='Seed used for training, negative values (e.g. -1) -> no seed set. Default is 7.')
-    parser.add_argument('-dis','--distribution', default=None, choices=['NB', 'gaussian'], help='[predefined in profile] distribution assumed for the measurement data.')
-    parser.add_argument('-ld','--loss_distribution', default=None, choices=['NB', 'gaussian'], help='[predefined in profile] loss distribution used for training.')
+    parser.add_argument('-dis','--distribution', default=None, choices=['NB', 'gaussian', 'log-gaussian'], help='[predefined in profile] distribution assumed for the measurement data.')
+    parser.add_argument('-ld','--loss_distribution', default=None, choices=['NB', 'gaussian', 'log-gaussian'], help='[predefined in profile] loss distribution used for training.')
     parser.add_argument('-pre','--prepro_func', default=None, choices=['none', 'log'], help='[predefined in profile] preprocess data before input.')
     parser.add_argument('-sf', '--sf_norm', default=None, type=bool, help='[predefined in profile] Boolean value indicating whether sizefactor normalization should be performed.')
     parser.add_argument('-c', '--centering', default=None, type=bool, help='[predefined in profile] Boolean value indicating whether input should be centered before model fitting.')
@@ -35,7 +35,7 @@ def parse_args(args_input):
     parser.add_argument('--dispersion_model', default=None, choices=['ML', 'MoM'], help='[predefined in profile] Sets the model for fitting the dispersion parameters. Either ML for maximum likelihood fit or MoM for methods of moments.')
     parser.add_argument('--optimizer', default=None, choices=['lbfgs'], help='[predefined in profile] Sets the optimizer for model fitting.')
     parser.add_argument('--convergence', default=None, type=check_positive, help='Sets the convergence limit. Default value is 1e-5.')
-    parser.add_argument('--effect_type', default=None, type=str, choices=['none', 'zscores', 'fold_change', 'delta'], help='[predefined in profile] Chooses the type of effect size that is calculated.')
+    parser.add_argument('--effect_type', default=None, nargs="*", choices=['none', 'zscores', 'fold_change', 'delta'], help='[predefined in profile] Chooses the type of effect size that is calculated.')
     parser.add_argument('--fdr_method', default=None, type=str, help='Sets the fdr adjustment method. Must be one of the methods from statsmodels.stats.multitest.multipletests. Defaults to fdr_by.')
     # parser.add_argument('--batch_size', type=int, default=None, help='batch_size used for stochastic training. Default is to not train stochastically.')
     # parser.add_argument('--parallelize_D', action='store_true', dest='parallelize_D', help='If this flag is given, parallelizes fitting of decoder per feature. Default behavior depends on sample size.')
@@ -104,9 +104,9 @@ def construct_profile_args(profile):
         outrider_args['effect_type'] = 'fold_change'
     elif profile == 'protrider':
         outrider_args['prepro_func'] = 'log1p'
-        outrider_args['effect_type'] = 'zscores'
+        outrider_args['effect_type'] = ['zscores', 'fold_change', 'delta']
     elif profile == 'pca':
-        outrider_args['effect_type'] = 'zscores'
+        outrider_args['effect_type'] = ['zscores', 'delta']
         outrider_args['latent_space_model'] = 'PCA'
         outrider_args['decoder_model'] = 'PCA'
         

@@ -49,11 +49,11 @@ class NB(Distribution):
     @staticmethod
     def loss(x_true, x_pred, dispersions, **kwargs):
         # print("Tracing with nb_tf_loss x = ", x, "\nx_pred =", x_pred, "\ndispersions =", dispersions)
-        if dispersions is None:
-            warnings.warn("NB loss: calculate dispersions first to get reliable loss")
-            theta = tf.ones(shape=(x_pred.shape[1]), dtype=x_pred.dtype)
-        else:
-            theta = dispersions
+        # if dispersions is None:
+        #     warnings.warn("NB loss: calculate dispersions first to get reliable loss")
+        #     theta = tf.ones(shape=(x_pred.shape[1]), dtype=x_pred.dtype)
+        # else:
+        theta = dispersions
 
         # handling inf / 0 values (roughly for y < -700 or y > 700)
         #x_pred = check_range_for_log(x_pred)
@@ -91,8 +91,11 @@ class NB(Distribution):
     @tf.function
     def tf_get_pval(cls, X, X_pred, theta, parallel_iterations):
         X_cols = tf.range(tf.shape(X)[1], dtype=tf.int32)
-        pval = tf.map_fn(lambda x: (cls._tf_get_pval_neg_bin(X=X[:, x], X_pred=X_pred[:, x], theta=theta[x])), X_cols,
-                         dtype=X.dtype, parallel_iterations=parallel_iterations)
+        pval = tf.map_fn(lambda x: (cls._tf_get_pval_neg_bin(X=X[:, x], X_pred=X_pred[:, x], theta=theta[x])), 
+                         X_cols,
+                         fn_output_signature=X.dtype,
+                         # dtype=X.dtype, # deprecated
+                         parallel_iterations=parallel_iterations)
         return tf.transpose(pval)
 
 
@@ -137,32 +140,44 @@ class Gaussian(Distribution):
         return tf.keras.losses.MeanSquaredError()(tf.boolean_mask(x_true, x_na), tf.boolean_mask(x_pred, x_na))
         
     @classmethod
-    def calc_pvalues(cls, x_true, x_pred, parallel_iterations=1):
+    def calc_pvalues(cls, x_true, x_pred, parallel_iterations=1, dispersions=None):
         ### pval calculation
+        print("start gaussian pvalue calc ...")
         pvalues = cls.tf_get_pval(x_true, x_pred, parallel_iterations=parallel_iterations)
+        print(f"Got pvalues = {pvalues}")
         return pvalues
 
     @classmethod
     @tf.function
     def tf_get_pval(cls, X, X_pred, parallel_iterations):
+        print(f"_tf_get_pval getting: X = {X}, X_pred = {X_pred}")
         X_cols = tf.range(tf.shape(X)[1], dtype=tf.int32)
-        pval = tf.map_fn(lambda x: (cls._tf_get_pval_gaus(X=X[:, x], X_pred=X_pred[:, x])), X_cols,
-                         dtype=X.dtype, parallel_iterations=parallel_iterations)
+        # # pval = tf.map_fn(lambda x: (cls._tf_get_pval_gaus(X=x[0], X_pred=x[1])), 
+        #                  # [tf.transpose(X), tf.transpose(X_pred)], 
+        pval = tf.map_fn(lambda x: (cls._tf_get_pval_gaus(X=X[:, x], X_pred=X_pred[:, x])),
+                         X_cols,
+                         fn_output_signature=X.dtype,
+                         parallel_iterations=parallel_iterations)
         return tf.transpose(pval)
 
     @classmethod
     @tf.function
     def _tf_get_pval_gaus(cls, X, X_pred):
+        print(f"\t _tf_get_pval_gaus getting: X = {X}, X_pred = {X_pred}")
         return tfh.tf_nan_func(cls._tf_pval_gaus, X=X, X_pred=X_pred)
 
     @staticmethod
     @tf.function
     def _tf_pval_gaus(X, X_pred):
+        print(f"\t\t _tf_pval_gaus getting: X = {X}, X_pred = {X_pred}")
         x_res = X - X_pred
+        print(f"\t\t x_res = {x_res}")
         pvalues_sd = tf.math.reduce_std(x_res)  # != R-version: ddof=1
+        print(f"\t\t pvalues_sd = {pvalues_sd}")
         dis = tfp.distributions.Normal(loc=X_pred, scale=pvalues_sd)
         cdf_values = dis.cdf(X)
         pval = 2 * tfm.minimum(cdf_values, (1 - cdf_values))
+        print(f"\t\t pval = {pval}")
         return pval
     
 
@@ -189,7 +204,7 @@ class Log_Gaussian(Distribution):
         return tf.keras.losses.MeanSquaredError()(tf.boolean_mask(x_log, x_na), tf.boolean_mask(x_pred_log, x_na))
         
     @classmethod
-    def calc_pvalues(cls, x_true, x_pred, parallel_iterations=1):
+    def calc_pvalues(cls, x_true, x_pred, parallel_iterations=1, **kwargs):
         pvalues = cls.tf_get_pval(tfm.log1p(x_true), tfm.log1p(x_pred), parallel_iterations=parallel_iterations)
         return pvalues
 

@@ -48,7 +48,7 @@ def outrider(adata,
         supported options are 'AE' or 'PCA'.
     :param dispersion_model: Name of the model for fitting the dispersion parameters (if any). 
         Currently supported options are 'ML' (maximum likelihood) or 'MoM' (method of moments).
-    :param loss_distribution: Name of the distribution that should be used for calculating the model loss.
+    :param loss_distribution: Name of the distribution that should be used for calculating the model loss. One of 'NB', 'gaussian' or 'log-gaussian'.
     :param optimizer: Name of the optimizer used for fitting the model. Currently only 
         'lbfgs' is implemented.
     :param num_cpus: Number of cores for parallelization.
@@ -56,8 +56,9 @@ def outrider(adata,
     :param iterations: Maximum number of iterations when fitting the model.
     :param convergence: Convergence limit to determine when to stop fitting.
     :param verbose: Boolean value indicating whether additional information should be printed during fitting.
+    :param distribution: The distribution for calculating p values. One of 'NB', 'gaussian' or 'log-gaussian'.
     :param fdr_method: name of pvalue adjustment method (from statsmodels.stats.multitest.multipletests).
-    :param effect_type: the type of method for effect size calculation. Must be either 'none', 'fold-change', 'zscore' or 'delta'.
+    :param effect_type: the type of method for effect size calculation. Must be one or a list of 'none', 'fold-change', 'zscores' or 'delta'.
     :return: An AnnData object annotated with model fit results, pvalues, adjusted pvalues and effect sizes.
     """
     
@@ -91,18 +92,29 @@ def outrider(adata,
     model.fit(adata, initialize=True, iterations=iterations, 
                     convergence=convergence, verbose=verbose)
     print_func.print_time(f'complete model fit time {print_func.get_duration_sec(time.time() - time_ae_start)}')
+    
+    # E_fit = model.encoder.get_encoder()
+    # D_fit, b_fit = model.decoder.get_decoder()
+    # disp_fit = model.dispersion_fit.get_dispersions()
+    # print(f"E_fit[:3, :5] = {E_fit[:3,:5]}")
+    # print(f"D_fit[:3, :5] = {D_fit[:3,:5]}")
+    # print(f"b_fit[:5] = {b_fit[:5]}")
+    # print(f"disp_fit = {disp_fit}")
+    
+    # print(f"adata prior get_loss: {adata}")
     print_func.print_time(f'model_fit ended with loss: {model.get_loss(adata)}')
+    # adata.write("test/adata_test.h5ad")
     
     # 4. call outliers / get (adjusted) pvalues:
-    print_func.print_time('Calculating p values ...')
-    res = model.predict(adata)
-    res = call_outliers(res, 
+    adata = model.predict(adata)
+    # print(f"adata after predict: {adata}")
+    adata = call_outliers(adata, 
                         distribution=distribution,
                         fdr_method=fdr_method, 
                         effect_type=effect_type,
                         num_cpus=num_cpus)
         
-    return res 
+    return adata 
         
         
         
