@@ -5,7 +5,7 @@ from . import parser
 from .outrider import outrider
 from .hyperpar_opt import Hyperpar_opt
 from .utils.print_func import print_time #, print_info_run
-from .utils.io import read_data, create_adata_from_arrays, write_output
+from .utils.io import read_data, create_adata_from_arrays, write_output, write_results_table
 
 def main():
     args = parser.parse_args(sys.argv[1:])
@@ -58,8 +58,11 @@ def full_run(args_input):
     adata = outrider(adata, **outrider_args)
 
     # output
-    print_time('save model dataset to file')
+    print_time('Saving result AnnData object to file')
     write_output(adata, filetype=args["output_type"], filename=args["output"])
+    
+    if args["output_res_table"] is not None:
+        write_results_table(adata, filename=args["output_res_table"])
 
     print_time('finished whole run')
 

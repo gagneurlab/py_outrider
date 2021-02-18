@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import anndata
 
+from .print_func import print_time 
+
 def write_output(adata, filename, filetype='h5ad'):
     assert filetype in ('h5ad', 'csv', 'zarr'), 'Unknown output file type'
     
@@ -18,7 +20,32 @@ def write_output(adata, filename, filetype='h5ad'):
         adata.write_csvs(filename)
     elif filetype == 'zarr':
         adata.write_zarr(filename)
-        
+
+def write_results_table(adata, filename, all=True, alpha=0.05):
+
+    print_time("Writing results table")    
+    sample_dir = {"sample": np.repeat(adata.obs_names, adata.n_vars),
+                  "feature": np.tile(adata.var_names, adata.n_obs),
+                  "pvalue": adata.layers["X_pvalue"].flatten(),
+                  "padj": adata.layers["X_padj"].flatten(),
+                  "raw_value": adata.layers["X_raw"].flatten(),
+                  "preprocessed_value": adata.layers["X_prepro"].flatten(),
+                  "predicted_value": adata.layers["X_predicted"].flatten(),
+                  }
+
+    effect_types = ["fc", "l2fc", "zscore", "delta"]
+    for effect in effect_types: 
+        if "outrider_" + effect in adata.layers.keys():
+            sample_dir[effect] = adata.layers["outrider_" + effect].flatten() 
+
+    sample_dir["aberrant"] = adata.layers["X_padj"].flatten() < alpha 
+    sample_outlier_list = pd.DataFrame(data=sample_dir)
+
+    if all is False:
+        sample_outlier_list = sample_outlier_list.loc[aberrant is True,]
+    sample_outlier_list.to_csv(filename, index=False)
+    
+
 def read_data(input_file, sample_anno_file=None, dtype='float64'):
     assert input_file is not None, 'input_file path specified is None'
     
