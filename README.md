@@ -32,6 +32,16 @@ py_outrider --input protein_intensities.csv --encod_dim 5 --profile protrider --
 
 > Missing values due to missing detection in the mass-spectrometry must be declared as such, e.g. NAN and must not be kept 0, as this will be considered as true value.
 
+# Output
+py_outrider outputs an AnnData object containing the data, fit results, p values etc. (by default as an .h5ad file). 
+To read in the output file, and access e.g. adjusted pvalues, run
+```python
+import anndata
+adata = anndata.read("/path/to/py_outrider_results.h5ad")
+adata.layers["X_padj"]
+```
+
+Additionally, py_outrider writes a results table to a specified csv file if the option `--output_res_tabe /PATH/TO/RESULTS_TABLE.CSV` is set. 
 
 ---
 ## Usage
