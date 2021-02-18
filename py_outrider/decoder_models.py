@@ -4,6 +4,7 @@ import numpy as np
 import copy
 
 from .preprocess import rev_trans
+from .utils import tf_helper_func as tfh
 
 class Decoder_AE():
 
@@ -11,6 +12,7 @@ class Decoder_AE():
         self.loss = loss
         self.D = None
         self.bias = None
+        self.cov = None
         self.sf = None
         self.rev_trans = 'none'
         
@@ -20,8 +22,15 @@ class Decoder_AE():
     def copy(self):
         return copy.copy(self)
     
-    def init(self, encoder, feature_means=None, sf=1, trans_func='none'):
-        self.D = tf.transpose(encoder.E)
+    def init(self, encoder, x_na, feature_means=None, sf=1, trans_func='none', cov=None):
+        nr_cov_oneh_cols = cov.shape[1] if cov is not None else 0
+        D = tf.transpose(encoder.E)
+        if nr_cov_oneh_cols > 0:
+            D = D[:, :-nr_cov_oneh_cols]
+            cov_init_weights = np.zeros(shape=(nr_cov_oneh_cols, D.shape[1]))
+            D = np.concatenate([D, cov_init_weights], axis=0)
+            D = tf.convert_to_tensor(D)
+        self.D = D
         if feature_means is not None:
             self.bias = feature_means
         else:
@@ -30,23 +39,28 @@ class Decoder_AE():
         
         self.sf = sf
         self.rev_trans = trans_func
+        self.x_na = x_na
+        self.cov = cov
 
     @tf.function        
     def decode(self, X_latent):
-        return Decoder_AE._decode(X_latent, self.D, self.bias, self.sf, self.rev_trans)
+        return Decoder_AE._decode(X_latent, self.D, self.bias, self.sf, self.rev_trans, self.x_na, self.cov)
         
     @staticmethod
     @tf.function
-    def _decode(X_latent, D, bias, sf, trans_fun):
-        prediction_no_trans = tf.matmul(tf.convert_to_tensor(X_latent), D)
+    def _decode(X_latent, D, bias, sf, trans_fun, x_na, cov):
+        if cov is not None:
+            X_latent = tf.concat([X_latent, cov], axis=1)
+        prediction_no_trans = tf.matmul(X_latent, D)
         prediction_no_trans = tf.gather(prediction_no_trans, tf.range(bias.shape[0]), axis=1)
         prediction_no_trans = tf.math.add(prediction_no_trans, bias)
         prediction = rev_trans(prediction_no_trans, sf, trans_fun)
+        prediction = tfh.tf_set_nan(prediction, x_na)
         return prediction, prediction_no_trans
         
     @tf.function
     def loss_func_d(self, decoder_params, x_latent, x_true, **kwargs):
-        x_pred = Decoder_AE._decode(x_latent, D=decoder_params[0], bias=decoder_params[1], sf=self.sf, trans_fun=self.rev_trans)[0]
+        x_pred = Decoder_AE._decode(x_latent, D=decoder_params[0], bias=decoder_params[1], sf=self.sf, trans_fun=self.rev_trans, x_na=self.x_na, cov=self.cov)[0]
         return self.loss(x_true, x_pred, **kwargs)
         
     @tf.function
@@ -105,8 +119,17 @@ class Decoder_PCA():
         self.bias = None
         self.loss = loss
         
-    def init(self, encoder, feature_means=None, sf=1, trans_func='none'):
-        self.D = tf.transpose(encoder.E)
+    def get_decoder(self):
+        return self.D, self.bias
+    
+    def init(self, encoder, x_na, feature_means=None, sf=1, trans_func='none', cov=None):
+        nr_cov_oneh_cols = cov.shape[1] if cov is not None else 0
+        D = tf.transpose(encoder.E)
+        if nr_cov_oneh_cols > 0:
+            D = D[:, :-nr_cov_oneh_cols]
+            cov_init_weights = np.zeros(shape=(nr_cov_oneh_cols, D.shape[1]))
+            D = np.concatenate([D, cov_init_weights], axis=0)
+        self.D = D
         if feature_means is not None:
             self.bias = feature_means
         else:
@@ -115,17 +138,35 @@ class Decoder_PCA():
         
         self.sf = sf
         self.rev_trans = trans_func
+        self.x_na = x_na
+        self.cov = cov
         
-    @tf.function
+    @tf.function        
     def decode(self, X_latent):
-        prediction_no_trans = tf.matmul(tf.convert_to_tensor(X_latent), self.D)
-        prediction_no_trans = tf.gather(prediction_no_trans, tf.range(self.bias.shape[0]), axis=1)
-        prediction_no_trans = tf.math.add(prediction_no_trans, self.bias)
-        prediction = rev_trans(prediction_no_trans, self.sf, self.rev_trans)
+        return Decoder_PCA._decode(X_latent, self.D, self.bias, self.sf, self.rev_trans, self.x_na, self.cov)
+        
+    @staticmethod
+    @tf.function
+    def _decode(X_latent, D, bias, sf, trans_fun, x_na, cov):
+        if cov is not None:
+            X_latent = tf.concat([X_latent, cov], axis=1)
+        prediction_no_trans = tf.matmul(X_latent, D)
+        prediction_no_trans = tf.gather(prediction_no_trans, tf.range(bias.shape[0]), axis=1)
+        prediction_no_trans = tf.math.add(prediction_no_trans, bias)
+        prediction = rev_trans(prediction_no_trans, sf, trans_fun)
+        prediction = tfh.tf_set_nan(prediction, x_na)
         return prediction, prediction_no_trans
         
-    def fit(self, **kwargs):
-        pass     
+    @tf.function
+    def loss_func_d(self, decoder_params, x_latent, x_true, **kwargs):
+        x_pred = Decoder_AE._decode(x_latent, D=decoder_params[0], bias=decoder_params[1], sf=self.sf, trans_fun=self.rev_trans, x_na=self.x_na, cov=self.cov)[0]
+        return self.loss(x_true, x_pred, **kwargs)
+    
+    def fit(self, x_latent, x_true, optimizer, n_parallel, **kwargs):
+        return self.loss_func_d([self.D, self.bias], x_latent, x_true, **kwargs)    
+    
+    def copy(self):
+        return copy.copy(self)
     
 
 DECODER_MODELS = {'AE': Decoder_AE, 'PCA': Decoder_PCA}

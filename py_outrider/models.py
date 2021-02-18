@@ -53,53 +53,52 @@ class Autoencoder_Model():
         # tf.config.run_functions_eagerly(True)
         
     def predict(self, adata):
-        x_latent = self.encoder.encode(adata.X)
+        x_in = adata.uns["X_with_cov"] if "X_with_cov" in adata.uns.keys() else adata.X
+        x_latent = self.encoder.encode(x_in)
         adata.obsm["X_latent"] = x_latent.numpy()
-        adata.varm['E'] = self.encoder.get_encoder()
+        if "covariates_oneh" in adata.uns.keys():
+            adata.obsm["X_latent_with_cov"] = np.concatenate([x_latent.numpy(), adata.uns["covariates_oneh"]], axis=1)
+        adata.uns['E'] = self.encoder.get_encoder()
         pred = self.decoder.decode(x_latent)
         adata.layers["X_predicted"] = pred[0].numpy()
         adata.layers["X_predicted_no_trans"] = pred[1].numpy()
-        D, adata.varm['bias'] = self.decoder.get_decoder()
-        adata.varm['D'] = np.transpose(D)
+        adata.uns['D'], adata.uns['bias'] = self.decoder.get_decoder()
         if self.loss_distribution.has_dispersion() is True:
             adata.varm["dispersions"] = self.dispersion_fit.get_dispersions()
         return adata
         
     @tf.function
-    def predict_internal(self, X, E, D, bias, sf, trans_fun):
-        pred = self.decoder._decode(self.encoder._encode(X, E), D, bias, sf, trans_fun)[0]
+    def predict_internal(self, X, E, D, bias, sf, trans_fun, x_na, cov):
+        pred = self.decoder._decode(self.encoder._encode(X, E), D, bias, sf, trans_fun, x_na, cov)[0]
         disp = self.dispersion_fit.get_dispersions()
         return pred, disp 
         
     def get_loss(self, adata):
         adata = self.predict(adata)
-        # print(f'x_true: {adata.layers["X_prepro"]}')
-        # print(f'x_pred: {adata.layers["X_predicted"]}')
-        # print(f'theta: {adata.varm["dispersions"]}')
         if self.loss_distribution.has_dispersion() is True:
             loss = self.loss_func(adata.layers["X_prepro"], adata.layers["X_predicted"], adata.varm["dispersions"])
         else:
             loss = self.loss_func(adata.layers["X_prepro"], adata.layers["X_predicted"])
         return loss
 
-    def init(self, x, x_true, feature_means, sf, trans_func):
+    def init(self, x, x_true, feature_means, sf, trans_func, x_na, cov):
         # init encoder
-        print('Initializing the encoder ...')
+        print_func.print_time('Initializing the encoder ...')
         self.encoder.init(x)
         new_E = self.encoder.get_encoder()
         
         # init decoder
-        print('Initializing the decoder ...')
-        self.decoder.init(self.encoder, feature_means, sf, trans_func)
+        print_func.print_time('Initializing the decoder ...')
+        self.decoder.init(self.encoder, x_na, feature_means, sf, trans_func, cov)
         new_D, new_b = self.decoder.get_decoder()
         
         # init dispersions (if needed)
         if self.loss_distribution.has_dispersion() is True:
-            print('Initializing the dispersions ...')
+            print_func.print_time('Initializing the dispersions ...')
             self.dispersion_fit.init(x_true)
         
         new_disps=self.dispersion_fit.get_dispersions()
-        x_pred = self.predict_internal(x, new_E, new_D, new_b, sf, trans_func)[0].numpy()
+        x_pred = self.predict_internal(x, new_E, new_D, new_b, sf, trans_func, x_na, cov)[0].numpy()
         init_loss = self.loss_func(x_true=x_true, x_pred=x_pred, dispersions=new_disps)
         self.loss_list.add_loss(init_loss.numpy(),
                                 step_name="init_E_D_dispersion", 
@@ -113,23 +112,26 @@ class Autoencoder_Model():
         dispersion_name = self.dispersion_fit.__class__.__name__
         
         # extract needed data
-        x_in = adata.X
+        x_na = np.isfinite(adata.layers["X_raw"])
+        x_in = adata.uns["X_with_cov"] if "X_with_cov" in adata.uns.keys() else adata.X
         x_true = adata.layers["X_prepro"]
         feature_means = adata.varm['means'] if "means" in adata.varm.keys() else None
         sf = adata.obsm["sizefactors"]
         trans_func = adata.uns["transform_func"]
+        cov_oneh = adata.uns["covariates_oneh"] if "covariates_oneh" in adata.uns.keys() else None
+        # print(cov_oneh)
+        # nr_cov_oneh_cols = adata.uns["covariates_oneh"].shape[1] if "covariates_oneh" in adata.uns.keys() else 0
         
         if initialize is True:
-            self.init(x=x_in, x_true=x_true, feature_means=feature_means, sf=sf, trans_func=trans_func)
+            self.init(x=x_in, x_true=x_true, feature_means=feature_means, 
+                      sf=sf, trans_func=trans_func, x_na=x_na, cov=cov_oneh)
 
         for iter in range(iterations):
             print(f'### ITERATION {iter+1}')
             time_iter_start = time.time()
             
             # iteratively update encoder
-            # old_latent = adata.obsm["X_latent"]
             current_dispersions = self.dispersion_fit.get_dispersions()
-            # old_E = self.encoder.get_encoder()
             e_loss = self.encoder.fit(x_in=x_in, 
                                     x_true=x_true, 
                                     decoder=self.decoder.copy(),
@@ -137,17 +139,11 @@ class Autoencoder_Model():
                                     n_parallel=self.n_parallel,
                                     dispersions=current_dispersions)
             new_E = self.encoder.get_encoder()
-            # print(f"E changed in {np.sum(old_E != new_E)} positions")
-            # e_loss = self.get_loss(adata)
-            # new_latent = adata.obsm["X_latent"]
-            # print(f"H changed in {np.sum(old_latent != new_latent)} positions")
-            # print(f"old_H vs. vs. new_H at [5,10]: {old_latent[5,10]} vs. {new_latent[5,10]}")
             self.loss_list.add_loss(e_loss.numpy(),
                                     step_name=encoder_name, 
                                     print_text=f'{encoder_name} - loss:')
             
             # update decoder
-            # old_D, old_b = self.decoder.get_decoder()
             x_latent = self.encoder._encode(x_in, new_E).numpy()
             d_loss = self.decoder.fit(x_latent=x_latent, 
                                     x_true=x_true,
@@ -155,11 +151,6 @@ class Autoencoder_Model():
                                     n_parallel=self.n_parallel,
                                     dispersions=current_dispersions)
             new_D, new_b = self.decoder.get_decoder()
-            # print(f"D changed in {np.sum(old_D != new_D)} positions")
-            # print(f"old_D vs. vs. new_D at [5,10]: {old_D[5,10]} vs. {new_D[5,10]}")
-            # print(f"b changed in {np.sum(old_D != new_D)} positions")
-            # print(f"old_b vs. new_b at [15]: {old_b[15]} vs. {new_b[15]}")
-            # d_loss = self.get_loss(adata)
             self.loss_list.add_loss(d_loss.numpy(),
                                     step_name=decoder_name, 
                                     print_text=f'{decoder_name} - loss:')
@@ -167,13 +158,11 @@ class Autoencoder_Model():
             # update dispersions (if needed)
             steps = 2
             if self.loss_distribution.has_dispersion() is True:
-                x_pred = self.predict_internal(x_in, new_E, new_D, new_b, sf, trans_func)[0].numpy()
+                x_pred = self.predict_internal(x_in, new_E, new_D, new_b, sf, trans_func, x_na, cov_oneh)[0].numpy()
                 dispersion_loss = self.dispersion_fit.fit(x_true=x_true, 
                                                         x_pred=x_pred,
                                                         optimizer='fminbound',
-                                                        # optimizer=self.optimizer,
                                                         n_parallel=self.n_parallel)
-                # dispersion_loss = self.get_loss(adata)
                 self.loss_list.add_loss(dispersion_loss.numpy(),
                                         step_name=dispersion_name, 
                                         print_text=f'{dispersion_name} - loss:')
@@ -188,11 +177,3 @@ class Autoencoder_Model():
                 print_func.print_time(f'model converged at iteration: {iter+1}')
                 break
         
-        # E_final = self.encoder.get_encoder()
-        # D_final, b_final = self.decoder.get_decoder()
-        # disp_final = self.dispersion_fit.get_dispersions()
-        # print(f"E_final[:3, :5] = {E_final[:3,:5]}")
-        # print(f"D_final[:3, :5] = {D_final[:3,:5]}")
-        # print(f"b_final[:5] = {b_final[:5]}")
-        # print(f"disp_final = {disp_final}")
-    

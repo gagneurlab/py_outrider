@@ -22,11 +22,17 @@ def write_output(adata, filename, filetype='h5ad'):
 def read_data(input_file, sample_anno_file=None, dtype='float64'):
     assert input_file is not None, 'input_file path specified is None'
     
-    input_data = pd.read_csv(input_file, sep=",", header=0, index_col=0).fillna(np.nan)
-    input_mat = input_data.to_numpy()
-    adata = anndata.AnnData(X=input_mat, dtype=dtype)
-    adata.obs_names = input_data.index
-    adata.var_names = input_data.columns
+    ext = os.path.splitext(input_file)[-1].lower()
+    assert ext in ['.csv', '.h5ad'], 'input_file has to be either a csv or h5ad file' 
+    
+    if ext == ".csv":
+        input_data = pd.read_csv(input_file, sep=",", header=0, index_col=0).fillna(np.nan)
+        input_mat = input_data.to_numpy()
+        adata = anndata.AnnData(X=input_mat, dtype=dtype)
+        adata.obs_names = input_data.index
+        adata.var_names = input_data.columns
+    else:
+        adata = anndata.read(input_file)
     
     ### use sample annotation if supplied
     if sample_anno_file is not None:

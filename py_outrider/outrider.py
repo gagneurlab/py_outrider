@@ -13,6 +13,7 @@ def outrider(adata,
              data_trans='none', 
              centering=True,
              noise_factor=0.0,
+             covariates=None,
              latent_space_model='AE', # model parameters
              decoder_model='AE',
              dispersion_model='ML',
@@ -41,6 +42,7 @@ def outrider(adata,
         by feature before fitting.
     :param noise_factor: Controls the level of noise added to the input before denoising. 
         Default: 0.0 (no noise added).
+    :param covariates: Specify known covariates that should be included in the fit. Must be a list of column names of adata.obs
     :param encod_dim: Integer value giving the dimension of the latent space.
     :param latent_space_model: Name of the model for fitting the latent space. Currently 
         supported options are 'AE' or 'PCA'.
@@ -65,6 +67,8 @@ def outrider(adata,
     # check function arguments
     assert isinstance(adata, anndata.AnnData), 'adata must be an AnnData instance'
     assert encod_dim > 1, 'encoding_dim must be >= 2'
+    if covariates is not None:
+        assert isinstance(covariates, list), 'covariates must be specified as a list'
     
     # 1. preprocess and prepare data: 
     adata = preprocess(adata, 
@@ -72,7 +76,8 @@ def outrider(adata,
                       sf_norm=sf_norm, 
                       transformation=data_trans,
                       centering=centering,
-                      noise_factor=noise_factor)
+                      noise_factor=noise_factor,
+                      covariates=covariates)
     
     # 2. build autoencoder model: 
     model = Autoencoder_Model(encoding_dim=encod_dim,
@@ -92,22 +97,10 @@ def outrider(adata,
     model.fit(adata, initialize=True, iterations=iterations, 
                     convergence=convergence, verbose=verbose)
     print_func.print_time(f'complete model fit time {print_func.get_duration_sec(time.time() - time_ae_start)}')
-    
-    # E_fit = model.encoder.get_encoder()
-    # D_fit, b_fit = model.decoder.get_decoder()
-    # disp_fit = model.dispersion_fit.get_dispersions()
-    # print(f"E_fit[:3, :5] = {E_fit[:3,:5]}")
-    # print(f"D_fit[:3, :5] = {D_fit[:3,:5]}")
-    # print(f"b_fit[:5] = {b_fit[:5]}")
-    # print(f"disp_fit = {disp_fit}")
-    
-    # print(f"adata prior get_loss: {adata}")
     print_func.print_time(f'model_fit ended with loss: {model.get_loss(adata)}')
-    # adata.write("test/adata_test.h5ad")
     
     # 4. call outliers / get (adjusted) pvalues:
     adata = model.predict(adata)
-    # print(f"adata after predict: {adata}")
     adata = call_outliers(adata, 
                         distribution=distribution,
                         fdr_method=fdr_method, 

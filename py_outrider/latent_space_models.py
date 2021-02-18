@@ -53,12 +53,6 @@ class Encoder_AE():
     @staticmethod
     def _fit_lbfgs(e_init, loss, n_parallel):
 
-        # def lbfgs_input(e):
-        #     return tfp.math.value_and_gradient(
-        #             lambda e: self.loss_func_e(e=e, adata=adata, loss_func=loss_func),
-        #             e)
-    
-        # optim = tfp.optimizer.lbfgs_minimize(lambda e: self.lbfgs_input(e, x_in, x_true, decoder, kwargs),
         optim = tfp.optimizer.lbfgs_minimize(loss,
                                              initial_position=e_init, 
                                              tolerance=1e-8, 
@@ -99,9 +93,17 @@ class Encoder_PCA():
     def init(self, x_in):
         ### nipals if nan values are in matrix
         if np.isnan(x_in).any():
-            nip = nipals.Nipals(x_in)
-            nip.fit(ncomp=self.encoding_dim, maxiter=1500,tol=0.00001 )
-            self.E = np.transpose(nip.loadings.fillna(0).to_numpy())  # for small encod_dim nan weights possible
+            try:
+                ### sometimes fails for big encoding dim for small samples
+                nip = nipals.Nipals(x_in)
+                nip.fit(ncomp=self.encoding_dim, maxiter=1500,tol=0.00001 )
+                self.E = np.transpose(nip.loadings.fillna(0).to_numpy())  # for small encod_dim nan weights possible
+            except:
+                print(f"INFO: nipals failed for encod_dim {encod_dim}, using mean-imputed matrix and PCA which is not ideal")
+                ### TODO emergency solution -> fix otherway but just need starting point
+                fit_df =  pd.DataFrame(x_in)
+                x_in_imputed = fit_df.fillna(fit_df.mean()).to_numpy()
+                self.init(x_in_imputed)
         else:
             pca = PCA(n_components=self.encoding_dim, svd_solver='full')
             pca.fit(x_in) # X shape: n_samples x n_features
@@ -110,15 +112,19 @@ class Encoder_PCA():
         
     @tf.function
     def encode(self, X):
-        return tfh.tf_nan_matmul(X, self.E)
-     
-    # def encode(self, adata):
-    #     latent = tfh.tf_nan_matmul(adata.X, self.E)
-    #     adata.obsm['X_latent'] = latent
-    #     adata.varm['E'] = self.E
-    #     return adata
+        return Encoder_PCA._encode(X, self.E)
         
-    def fit(self, **kwargs):
-        pass
+    @staticmethod
+    @tf.function
+    def _encode(X, E):
+        return tfh.tf_nan_matmul(X, E)
+     
+    @tf.function
+    def loss_func_e(self, E, x_in, x_true, decoder, **kwargs):
+        x_pred = decoder.decode(Encoder_PCA._encode(x_in, E))[0]
+        return self.loss(x_true=x_true, x_pred=x_pred, **kwargs)
+     
+    def fit(self, x_in, x_true, decoder, optimizer, n_parallel, **kwargs):
+        return self.loss_func_e(self.E, x_in, x_true, decoder, **kwargs)
         
 LATENT_SPACE_MODELS = {'AE': Encoder_AE, 'PCA': Encoder_PCA}

@@ -18,7 +18,7 @@ def parse_args(args_input):
     parser.add_argument('-p','--profile', default='outrider', choices=['outrider', 'protrider', 'pca'], help='Choose which pre-defined implementation should be used.')
     parser.add_argument('-q','--encod_dim', type=int, default=None, help='Number of encoding dimensions, if None: runs hyperparameter optimization to determine best encoding dimension.')#, required=True)
     parser.add_argument('-cov','--covariates', default=None, nargs='*', help='List of covariate names in sample_anno, can either be columns filled with 0 and 1, multiple numbers or strings (will be automatically converted to one-hot encoded matrix for training).' )
-    parser.add_argument('-i','--iterations', type=check_positive_int, default=None, help='[predefined in profile] Number of maximal training iterations.')
+    parser.add_argument('-i','--iterations', type=check_positive_or_zero_int, default=None, help='[predefined in profile] Number of maximal training iterations.')
     parser.add_argument('-fl','--float_type', default=None, choices=['float32', 'float64'], help='[predefined in profile] Which float type should be used, highly advised to keep float64 which may take longer, but accuracy is strongly impaired by float32.')
     parser.add_argument('-cpu','--num_cpus', type=check_positive_int, default=None, help='Number of cpus used. Default is 1.')
     parser.add_argument('-v','--verbose', type=bool, default=None, help='Print additional output info during training. Default is False.')
@@ -55,6 +55,15 @@ def check_positive(value):
         raise argparse.ArgumentTypeError(f"{value} is an invalid positive value" )
     return value
 
+def check_positive_or_zero_int(value):
+    ivalue = int(value)
+    return check_positive_or_zero(ivalue)
+
+def check_positive_or_zero(value):
+    if value < 0:
+        raise argparse.ArgumentTypeError(f"{value} is an invalid positive or zero value" )
+    return value
+
 
 def extract_outrider_args(args):
     
@@ -65,8 +74,8 @@ def extract_outrider_args(args):
     outrider_params = ['prepro_func', 'sf_norm', 'data_trans', 'centering',
                        'noise_factor', 'encod_dim', 'latent_space_model',
                        'decoder_model', 'dispersion_model', 'loss_distribution',
-                       'optimizer', 'num_cpus', 'seed', 'iterations', 
-                       'convergence', 'verbose', 'distribution',
+                       'covariates', 'optimizer', 'num_cpus', 'seed', 
+                       'iterations', 'convergence', 'verbose', 'distribution',
                        'fdr_method','effect_type']
     for param in outrider_params:
         if args[param] is not None:
@@ -85,8 +94,9 @@ def construct_profile_args(profile):
                           'encod_dim': None,
                           'latent_space_model': 'AE',
                           'decoder_model': 'AE',
-                          'dispersion_model': 'ML',
+                          'dispersion_model': 'ML', # ignored if not NB
                           'loss_distribution': 'gaussian',
+                          'covariates': None,
                           'optimizer': 'lbfgs',
                           'num_cpus': 1,
                           'seed': 7,
@@ -109,6 +119,7 @@ def construct_profile_args(profile):
         outrider_args['effect_type'] = ['zscores', 'delta']
         outrider_args['latent_space_model'] = 'PCA'
         outrider_args['decoder_model'] = 'PCA'
+        outrider_args['sf_norm'] = False
         
     return outrider_args
 

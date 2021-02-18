@@ -1,15 +1,19 @@
 import warnings
+import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow import math as tfm
 
-### Preprocessing functionality
+from .utils import print_func
+
+### Preprocessing functionalities
 def preprocess(adata, 
                prepro_func='none',
                transformation='none',
                sf_norm=True,
                centering=True, 
-               noise_factor=0.0):
+               noise_factor=0.0,
+               covariates=None):
     # store previous object in raw
     adata.raw = adata
     
@@ -32,6 +36,9 @@ def preprocess(adata,
     # add noise if requested
     adata = add_noise(adata, noise_factor)
     
+    # prepare covariates for inclusion in fit
+    adata = prepare_covariates(adata, covariates)
+        
     return adata
         
 def center(adata):
@@ -116,6 +123,44 @@ def rev_trans(x_pred, sf, trans_func):
     
 def add_noise(adata, noise_factor):
     # TODO implement
+    return adata
+
+def prepare_covariates(adata, covariates=None):
+    
+    if covariates is not None:
+        assert isinstance(covariates, list), "covariates has to be a list of strings"
+        one_hot_encoding = []
+        for cov in covariates:
+            assert cov in adata.obs.columns, f"Did not find column '{cov}' in adata.obs"
+        
+        cov_sample = adata.obs[covariates].copy()
+
+        ### transform each cov column to the respective 0|1 code
+        for c in cov_sample:
+            col = cov_sample[c].astype("category")
+            if len(col.cat.categories) == 1:
+                cov_sample.drop(c, axis=1, inplace=True, errors="ignore")
+            elif len(col.cat.categories) == 2:
+                only_01 = [True if x in [0, 1] else False for x in col.cat.categories]
+                if all(only_01) is True:
+                    # print(f"only_01: {c}")
+                    pass
+                else:
+                    # print(f"2 cat: {c}")
+                    oneh = pd.get_dummies(cov_sample[c])
+                    cov_sample[c] = oneh.iloc[:, 0]
+            else:
+                # print(f">2 cat: {c}")
+                oneh = pd.get_dummies(cov_sample[c])
+                oneh.columns = [c + "_" + str(x) for x in oneh.columns]
+                cov_sample.drop(c, axis=1, inplace=True, errors="ignore")
+                cov_sample = pd.concat([cov_sample, oneh], axis=1)
+        
+        print_func.print_time("Including given covariates as:")
+        print(cov_sample)
+        adata.uns["covariates_oneh"] = np.array(cov_sample.values, dtype=adata.X.dtype)
+        adata.uns["X_with_cov"] = np.concatenate([adata.X, cov_sample.values], axis=1)  
+    
     return adata
 
 def inject_outliers(adata, inj_freq=1e-3, inj_mean=3, inj_sd=1.6):

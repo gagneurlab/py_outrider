@@ -142,18 +142,13 @@ class Gaussian(Distribution):
     @classmethod
     def calc_pvalues(cls, x_true, x_pred, parallel_iterations=1, dispersions=None):
         ### pval calculation
-        print("start gaussian pvalue calc ...")
         pvalues = cls.tf_get_pval(x_true, x_pred, parallel_iterations=parallel_iterations)
-        print(f"Got pvalues = {pvalues}")
         return pvalues
 
     @classmethod
     @tf.function
     def tf_get_pval(cls, X, X_pred, parallel_iterations):
-        print(f"_tf_get_pval getting: X = {X}, X_pred = {X_pred}")
         X_cols = tf.range(tf.shape(X)[1], dtype=tf.int32)
-        # # pval = tf.map_fn(lambda x: (cls._tf_get_pval_gaus(X=x[0], X_pred=x[1])), 
-        #                  # [tf.transpose(X), tf.transpose(X_pred)], 
         pval = tf.map_fn(lambda x: (cls._tf_get_pval_gaus(X=X[:, x], X_pred=X_pred[:, x])),
                          X_cols,
                          fn_output_signature=X.dtype,
@@ -163,21 +158,16 @@ class Gaussian(Distribution):
     @classmethod
     @tf.function
     def _tf_get_pval_gaus(cls, X, X_pred):
-        print(f"\t _tf_get_pval_gaus getting: X = {X}, X_pred = {X_pred}")
         return tfh.tf_nan_func(cls._tf_pval_gaus, X=X, X_pred=X_pred)
 
     @staticmethod
     @tf.function
     def _tf_pval_gaus(X, X_pred):
-        print(f"\t\t _tf_pval_gaus getting: X = {X}, X_pred = {X_pred}")
         x_res = X - X_pred
-        print(f"\t\t x_res = {x_res}")
         pvalues_sd = tf.math.reduce_std(x_res)  # != R-version: ddof=1
-        print(f"\t\t pvalues_sd = {pvalues_sd}")
         dis = tfp.distributions.Normal(loc=X_pred, scale=pvalues_sd)
         cdf_values = dis.cdf(X)
         pval = 2 * tfm.minimum(cdf_values, (1 - cdf_values))
-        print(f"\t\t pval = {pval}")
         return pval
     
 
