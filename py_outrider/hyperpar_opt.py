@@ -10,7 +10,6 @@ from .preprocess import inject_outliers # TODO
 class Hyperpar_opt():
 
     def __init__(self, adata, **kwargs):
-        self.adata = adata.copy()
         self.hyperpar_table = None
         self.best_encod_dim = None
         self.best_noise_factor = None
@@ -18,12 +17,12 @@ class Hyperpar_opt():
         del kwargs['noise_factor']
 
         # inject artifical outliers
-        self.adata = inject_outliers(self.adata, inj_freq=1e-3, inj_mean=3, inj_sd=1.6)
+        self.adata = inject_outliers(adata, inj_freq=1e-3, inj_mean=3, inj_sd=1.6, **kwargs)
 
         ### get all hyperparamters
-        hyperpar_grid = self.get_hyperpar_grid(self.adata, encod_dim = True, noise_factor = False)  # noise factor TRUE
+        hyperpar_grid = self.get_hyperpar_grid(self.adata, encod_dim = True, noise_factor = True)  # noise factor False
         self.hyperpar_table = self.run_hyperpar_opt(self.adata, hyperpar_grid, **kwargs)
-        self.apply_best_hyperpar(hyperpar_table)
+        self.apply_best_hyperpar(self.hyperpar_table)
 
     def run_hyperpar_opt(self, adata, par_grid, **kwargs):
         print_func.print_time("start hyperparameter optimisation")
@@ -33,17 +32,17 @@ class Hyperpar_opt():
             print(p)
 
             ### set hyperpar
-            hyperpar_data = adata.copy()
-            encod_dim = p["encod_dim"]
+            encod_dim = int(p["encod_dim"])
             noise_factor = p["noise_factor"]
             
-            res = outrider(hyperpar_data, 
+            # hyperpar_data = adata.copy()
+            res = outrider(adata, 
                            encod_dim=encod_dim, 
                            noise_factor=noise_factor, 
                            **kwargs)
 
-            pre_rec = st.get_prec_recall(hyperpar_data.layers["X_pvalue"], hyperpar_data.layers["X_is_outlier"])["auc"]
-            df_list.append([p["encod_dim"], p["noise_factor"], pre_rec])
+            pre_rec = st.get_prec_recall(adata.layers["X_pvalue"], adata.layers["X_is_outlier"])["auc"]
+            df_list.append([encod_dim, noise_factor, pre_rec])
 
         hyperpar_df = pd.DataFrame(df_list, columns=["encod_dim","noise_factor","prec_rec"])
 
@@ -54,11 +53,12 @@ class Hyperpar_opt():
         self.hyperpar_table = df.to_dict("records")
 
         best_row = df.loc[df['prec_rec'].idxmax()]
-        self.best_encod_dim = best_row["encod_dim"]
+        self.best_encod_dim = int(best_row["encod_dim"])
         self.best_noise_factor = best_row["noise_factor"]
 
-        print('best hyperparameter found:')
+        print_func.print_time('best hyperparameter found:')
         print(best_row)
+        print_func.print_time('full hyperparameter optimization results:')
         print(df)
 
     def get_hyperpar_grid(self, adata, encod_dim, noise_factor):
@@ -95,4 +95,4 @@ class Hyperpar_opt():
         return par_q.astype(int).tolist()
 
     def _get_par_noise_factors(self):
-        return [0, 0.5, 1, 1.5, 2]
+        return [0, 0.5, 1] # 1.5, 2

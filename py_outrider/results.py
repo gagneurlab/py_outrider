@@ -29,8 +29,11 @@ def call_outliers(adata,
                              dispersions=dispersions,
                              parallel_iterations=num_cpus)
     adata.layers["X_pvalue"] = pvalues.numpy()
+    # print(f'adata.layers["X_pvalue"] without na size = {adata.layers["X_pvalue"][~np.isfinite(adata.layers["X_pvalue"])].size}')
+    
     print_func.print_time('Calculating adjusted p values ...')
     adata = calc_adjusted_pvalues(adata, method=fdr_method)
+    
     print_func.print_time('Calculating effect sizes ...')
     adata = calc_effect(adata, effect_type=effect_type, distribution=distr)
     return adata

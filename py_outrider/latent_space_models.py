@@ -3,6 +3,7 @@ from nipals import nipals
 import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
+import pandas as pd
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -99,11 +100,12 @@ class Encoder_PCA():
                 nip.fit(ncomp=self.encoding_dim, maxiter=1500,tol=0.00001 )
                 self.E = np.transpose(nip.loadings.fillna(0).to_numpy())  # for small encod_dim nan weights possible
             except:
-                print(f"INFO: nipals failed for encod_dim {encod_dim}, using mean-imputed matrix and PCA which is not ideal")
+                print(f"INFO: nipals failed for encod_dim {self.encoding_dim}, using mean-imputed matrix and PCA which is not ideal")
                 ### TODO emergency solution -> fix otherway but just need starting point
                 fit_df =  pd.DataFrame(x_in)
                 x_in_imputed = fit_df.fillna(fit_df.mean()).to_numpy()
                 self.init(x_in_imputed)
+                return None
         else:
             pca = PCA(n_components=self.encoding_dim, svd_solver='full')
             pca.fit(x_in) # X shape: n_samples x n_features

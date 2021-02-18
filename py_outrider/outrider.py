@@ -28,8 +28,12 @@ def outrider(adata,
              distribution='gaussian',  # outlier calling options
              fdr_method='fdr_by',
              effect_type='zscore'):
-    """
-    Runs the OUTRIDER algorithm on the input data.
+    """py_outrider API.
+    
+    Runs the OUTRIDER method on the input data. Uses a denoising autoencoder 
+    approach to fit expected values and calls outliers based on calculated 
+    p values.
+    
     :param data: AnnData object
     :param prepro_func: Name of the function that should be applied to the input 
         data before fitting the model. Currently only 'none' (no preprocessing in this case), 

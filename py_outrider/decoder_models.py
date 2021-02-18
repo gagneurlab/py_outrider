@@ -3,7 +3,7 @@ import tensorflow_probability as tfp
 import numpy as np
 import copy
 
-from .preprocess import rev_trans
+from .preprocess import rev_trans_tf
 from .utils import tf_helper_func as tfh
 
 class Decoder_AE():
@@ -54,7 +54,7 @@ class Decoder_AE():
         prediction_no_trans = tf.matmul(X_latent, D)
         prediction_no_trans = tf.gather(prediction_no_trans, tf.range(bias.shape[0]), axis=1)
         prediction_no_trans = tf.math.add(prediction_no_trans, bias)
-        prediction = rev_trans(prediction_no_trans, sf, trans_fun)
+        prediction = rev_trans_tf(prediction_no_trans, sf, trans_fun)
         prediction = tfh.tf_set_nan(prediction, x_na)
         return prediction, prediction_no_trans
         
@@ -153,7 +153,7 @@ class Decoder_PCA():
         prediction_no_trans = tf.matmul(X_latent, D)
         prediction_no_trans = tf.gather(prediction_no_trans, tf.range(bias.shape[0]), axis=1)
         prediction_no_trans = tf.math.add(prediction_no_trans, bias)
-        prediction = rev_trans(prediction_no_trans, sf, trans_fun)
+        prediction = rev_trans_tf(prediction_no_trans, sf, trans_fun)
         prediction = tfh.tf_set_nan(prediction, x_na)
         return prediction, prediction_no_trans
         

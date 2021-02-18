@@ -40,11 +40,11 @@ def get_z_score(X_logfc):
 
 
 def get_ROC_AUC(X_pvalue, X_is_outlier):
-    score = X_pvalue[~np.isnan(X_pvalue)]
-    label = X_is_outlier[~np.isnan(X_is_outlier)]
+    score = X_pvalue[~np.logical_or(np.isnan(X_pvalue), np.isnan(X_is_outlier))]
+    label = X_is_outlier[~np.logical_or(np.isnan(X_pvalue), np.isnan(X_is_outlier))]
     label = np.invert(label != 0).astype('int')  # makes outlier 0, other 1
 
-    if np.sum(label) == 0:
+    if np.sum(np.abs(label)) == 0:
         warnings.warn("no injected outliers found -> no ROC AUC calculation possible")
 
     fpr, tpr, _ = roc_curve(label, score)
@@ -53,10 +53,10 @@ def get_ROC_AUC(X_pvalue, X_is_outlier):
 
 
 def get_prec_recall(X_pvalue, X_is_outlier):
-    score = -X_pvalue[~np.isnan(X_pvalue)]
-    label = X_is_outlier[~np.isnan(X_is_outlier)]
+    score = -X_pvalue[~np.logical_or(np.isnan(X_pvalue), np.isnan(X_is_outlier))]
+    label = X_is_outlier[~np.logical_or(np.isnan(X_pvalue), np.isnan(X_is_outlier))]
 
-    if np.sum(label) == 0:
+    if np.sum(np.abs(label)) == 0:
         warnings.warn("no injected outliers found -> no precision-recall calculation possible")
 
     label = (label != 0).astype('int')

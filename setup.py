@@ -5,24 +5,22 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="py_outrider", 
-    version="0.1.0",
+    version="0.0.1",
     author="Stefan Loipfinger, Ines Scheller",
     author_email="scheller@in.tum.de",
-    description="Python backend package for OUTRIDER R package",
+    description="Python backend package for OUTRIDER2 R package",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://gitlab.cmm.in.tum.de/gagneurlab/py_outrider/",
     packages=['py_outrider'],
-    install_requires=['tensorflow>=2.1.0',
-                      'tensorflow-probability>=0.8.0',
-                      'scikit-learn',
-                      'statsmodels',
-                      'xarray',
-                      'zarr',
-                      'matplotlib',
-                      'numpy',
-                      'pandas',
-                      'nipals'
+    install_requires=['tensorflow>=2.3.0',
+                      'tensorflow-probability>=0.10.0',
+                      'scikit-learn>=0.23.1',
+                      'statsmodels>=0.11.1',
+                      'numpy>=1.19.2',
+                      'pandas>=1.1.5',
+                      'anndata>=0.6.22',
+                      'nipals>=0.5.2'
                       ],
     entry_points = {
         "console_scripts": ['py_outrider = py_outrider.__main__:main']

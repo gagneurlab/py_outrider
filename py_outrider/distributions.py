@@ -85,6 +85,9 @@ class NB(Distribution):
     @classmethod
     def calc_pvalues(cls, x_true, x_pred, dispersions, parallel_iterations=1):
         pvalues = cls.tf_get_pval(x_true, x_pred, dispersions, parallel_iterations=parallel_iterations)
+        # print(f'adata.layers["X_prepro"] without na size = {adata.layers["X_prepro"][~np.isfinite(adata.layers["X_prepro"])].size}')
+        # print(f'adata.layers["X_predicted"] without na size = {adata.layers["X_predicted"][~np.isfinite(adata.layers["X_predicted"])].size}')
+        # print(f'adata.varm["dispersions"] without na size = {adata.varm["dispersions"][~np.isfinite(adata.varm["dispersions"])].size}')
         return pvalues
 
     @classmethod
