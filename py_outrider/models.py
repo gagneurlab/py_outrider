@@ -53,7 +53,7 @@ class Autoencoder_Model():
         # tf.config.run_functions_eagerly(True)
         
     def predict(self, adata):
-        x_in = adata.uns["X_with_cov"] if "X_with_cov" in adata.uns.keys() else adata.X
+        x_in = adata.uns["X_AE_input"] 
         x_latent = self.encoder.encode(x_in)
         adata.obsm["X_latent"] = x_latent.numpy()
         if "covariates_oneh" in adata.uns.keys():
@@ -113,14 +113,13 @@ class Autoencoder_Model():
         
         # extract needed data
         x_na = np.isfinite(adata.layers["X_raw"])
-        x_in = adata.uns["X_with_cov"] if "X_with_cov" in adata.uns.keys() else adata.X
+        x_in = adata.uns["X_AE_input"] 
         x_true = adata.layers["X_prepro"]
         feature_means = adata.varm['means'] if "means" in adata.varm.keys() else None
         sf = adata.obsm["sizefactors"]
         trans_func = adata.uns["transform_func"]
         cov_oneh = adata.uns["covariates_oneh"] if "covariates_oneh" in adata.uns.keys() else None
         # print(cov_oneh)
-        # nr_cov_oneh_cols = adata.uns["covariates_oneh"].shape[1] if "covariates_oneh" in adata.uns.keys() else 0
         
         if initialize is True:
             self.init(x=x_in, x_true=x_true, feature_means=feature_means, 

@@ -38,12 +38,14 @@ def preprocess(adata,
     
     # prepare covariates for inclusion in fit
     adata = prepare_covariates(adata, covariates)
+    
+    # put input matrix back to adata.X
+    adata.X = adata.layers["X_raw"]
         
     return adata
         
 def center(adata):
     adata.varm['means'] = np.nanmean(adata.X, axis=0)
-    adata.layers["X_uncentered"] = adata.X
     adata.X = adata.X - adata.varm['means']
     return adata
     
@@ -51,6 +53,7 @@ def sf_normalize(adata):
     adata = calc_sizefactors(adata)
     sf = adata.obsm["sizefactors"]
     adata.X = adata.X / np.expand_dims(sf, 1)
+    adata.layers["X_sf_norm"] = adata.X
     return adata
 
 def calc_sizefactors(adata):
@@ -78,19 +81,19 @@ def prepro(adata, prepro_func):
         adata.X = vst(adata.X) # TODO implement
         
     adata.layers["X_prepro"] = adata.X
+    adata.uns["prepro_func"] = prepro_func
     return adata
     
 def transform(adata, transform_func):
     assert transform_func in ('none', 'log', 'log1p'), 'Unknown tranformation function'
     
-    if transform_func != 'none':
-        adata.layers["X_no_trans"] = adata.X
-        
     if transform_func == 'log':
         adata.X = np.log(adata.X)
+        adata.layers["X_transformed"] = adata.X
     elif transform_func == 'log1p':
         adata.X = np.log1p(adata.X)
-        
+        adata.layers["X_transformed"] = adata.X
+    
     adata.uns["transform_func"] = transform_func
     
     return adata
@@ -159,7 +162,9 @@ def prepare_covariates(adata, covariates=None):
         print_func.print_time("Including given covariates as:")
         print(cov_sample)
         adata.uns["covariates_oneh"] = np.array(cov_sample.values, dtype=adata.X.dtype)
-        adata.uns["X_with_cov"] = np.concatenate([adata.X, cov_sample.values], axis=1)  
+        adata.uns["X_AE_input"] = np.concatenate([adata.X, cov_sample.values], axis=1)  
+    else:
+        adata.uns["X_AE_input"] = adata.X
     
     return adata
 

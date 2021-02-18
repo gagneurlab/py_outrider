@@ -41,6 +41,27 @@ adata = anndata.read("/path/to/py_outrider_results.h5ad")
 adata.layers["X_padj"]
 ```
 
+Output matrices include:
+
+|Name                  |Description                                                                                                                                     |
+|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+|`X_pvalue`            |calculated p values                                                                                                                             |
+|`X_padj`              |caluclated adjusted p values                                                                                                                    |
+|`outrider_fc`         |calculated fold-changes                                                                                                                         |
+|`outrider_l2fc`       |calculated log2 fold-changes                                                                                                                    |
+|`outrider_zscore`     |calculated zscores                                                                                                                              |
+|`outrider_delta`      |calculated delta values (obs - exp)                                                                                                             |
+|`X_raw`               |input matrix (same as `adata.X`)                                                                                                                |
+|`X_prepro`            |contains the result of applying the preprocessing function (in `adata.uns["prepro_func"]`) to `X_raw` (equal to `X_raw` if no preprocessing)    |
+|`X_sf_norm`           |sizefactor normalization applied to `X_prepro`                                                                                                  |
+|`X_transformed`       |contains the result of applying the transformation function (in `adata.uns["transform_func"]`) to `X_sf_norm` (or `X_prepro` when sf_norm=False)|
+|`X_AE_input`          |input matrix to the AE model, including covariates if requested (`X_transformed` centered feature-wise if centering=True)                       |
+|`X_predicted_no_trans`|output of AE model before reverse transforming (compare with `X_transformed`)                                                                   |
+|`X_predicted`         |expected values, output of AE model after reverse transforming and multiplying with sizefactors (compare with `X_prepro`)                       |
+|`X_latent`            |computed latent space (samples x encod_dim); access with `adata.obsm["X_latent"]`                                                               |
+|`dispersions`         |calculated dispersions (= theta for NB); access with `adata.varm["dispersions"]`                                                                |
+
+
 Additionally, py_outrider writes a results table to a specified csv file if the option `--output_res_tabe /PATH/TO/RESULTS_TABLE.CSV` is set. 
 
 ---
