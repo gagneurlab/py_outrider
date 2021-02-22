@@ -19,7 +19,7 @@ setuptools.setup(
                       'statsmodels>=0.11.1',
                       'numpy>=1.19.2',
                       'pandas>=1.1.5',
-                      'anndata==0.6.22',
+                      'anndata>=0.7.0',
                       'nipals>=0.5.2'
                       ],
     entry_points = {

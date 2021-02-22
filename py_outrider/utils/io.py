@@ -54,8 +54,7 @@ def read_data(input_file, sample_anno_file=None, dtype='float64'):
     
     if ext == ".csv":
         input_data = pd.read_csv(input_file, sep=",", header=0, index_col=0).fillna(np.nan)
-        input_mat = input_data.to_numpy()
-        adata = anndata.AnnData(X=input_mat, dtype=dtype)
+        adata = anndata.AnnData(X=input_data.values, dtype=dtype)
         adata.obs_names = input_data.index
         adata.var_names = input_data.columns
     else:

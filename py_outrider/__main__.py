@@ -41,11 +41,12 @@ def full_run(args_input):
     print_time('parser check for correct input arguments')
     args = parser.Check_parser(args_input).args_mod
 
-    print_time('create adata object out of input data')
-    adata = read_data(args['input'], args['sample_anno'], args['float_type'])
+    print_time('parsed the following settings:')
     outrider_args = parser.extract_outrider_args(args) 
     print(outrider_args)
-    # TODO: print_run_info(adata, outrider_args, args['profile'])
+    
+    print_time('create adata object out of input data')
+    adata = read_data(args['input'], args['sample_anno'], outrider_args['float_type'])
     
     # check need for hyper param opt
     if outrider_args["encod_dim"] is None:
@@ -61,7 +62,7 @@ def full_run(args_input):
     adata = outrider(adata, **outrider_args)
 
     # output
-    print_time('Saving result AnnData object to file')
+    print_time(f'Saving result AnnData object to file {args["output"]}')
     write_output(adata, filetype=args["output_type"], filename=args["output"])
     
     if args["output_res_table"] is not None:

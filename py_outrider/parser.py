@@ -83,7 +83,7 @@ def extract_outrider_args(args):
                        'covariates', 'optimizer', 'batch_size', 'num_cpus', 
                        'parallelize_decoder_by_feature', 'seed', 'iterations', 
                        'convergence', 'verbose', 'distribution', 'fdr_method',
-                       'effect_type']
+                       'effect_type', 'float_type']
     for param in outrider_params:
         if args[param] is not None:
             outrider_args[param] = args[param]
@@ -108,6 +108,7 @@ def construct_profile_args(profile):
                           'parallelize_decoder_by_feature': True,
                           'batch_size': None,
                           'num_cpus': 1,
+                          'float_type': "float64",
                           'seed': 7,
                           'iterations': 15,
                           'convergence': 1e-5,

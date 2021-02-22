@@ -86,11 +86,13 @@ def prepro(adata, prepro_func):
             prepro_func = lambda x: x
         # elif prepro_func == 'vst':
         #     prepro_func = vst # TODO implement
+    else:
+        adata.uns["prepro_func_name"] = prepro_func.__name__
     
     adata.X = prepro_func(adata.X)
     
     adata.layers["X_prepro"] = adata.X
-    adata.uns["prepro_func"] = prepro_func
+    # adata.uns["prepro_func"] = prepro_func
     return adata
     
 def transform(adata, transform_func):

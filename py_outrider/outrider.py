@@ -24,6 +24,7 @@ def outrider(adata,
              parallelize_decoder_by_feature=True,
              batch_size=None,
              num_cpus=1,
+             float_type="float64",
              seed=7,
              iterations=15,     # training options
              convergence=1e-5, 
@@ -78,6 +79,9 @@ def outrider(adata,
     :param batch_size: Batch size used during model fitting. Default: 
         None (updates after all samples)
     :param num_cpus: Number of cores for parallelization.
+    :param float_type: Specifies which float type should be used, 
+        highly advised to keep float64 which may take longer, but 
+        accuracy is strongly impaired by float32. Default: float64
     :param seed: Sets the seed of the random generator.
     :param iterations: Maximum number of iterations when fitting the 
         model.
@@ -127,7 +131,7 @@ def outrider(adata,
                                      batch_size=batch_size,
                                      num_cpus=num_cpus,
                                      seed=seed,
-                                     float_type=adata.X.dtype.name,
+                                     float_type=float_type, #adata.X.dtype.name,
                                      verbose=verbose)
     
     # 3. fit model: 
