@@ -6,6 +6,7 @@ from tensorflow import math as tfm
 import anndata
 
 from .utils import print_func
+from .utils.float_limits import check_range_exp
 
 ### Preprocessing functionalities
 def preprocess(adata, 
@@ -71,32 +72,42 @@ def _calc_size_factor_per_sample(sample_values, loggeomeans):
     return sf_sample
 
 def prepro(adata, prepro_func):
-    assert prepro_func in ('none', 'log', 'log1p', 'vst'), 'Unknown prepro function'
     adata.layers["X_raw"] = adata.X
-        
-    if prepro_func == 'log':
-        adata.X = np.log(adata.X)
-    elif prepro_func == 'log1p':
-        adata.X = np.log1p(adata.X)
-    elif prepro_func == 'vst':
-        adata.X = vst(adata.X) # TODO implement
-        
+    
+    if isinstance(prepro_func, str):
+        assert prepro_func in ('none', 'log', 'log1p'), 'Unknown prepro function'
+    
+        adata.uns["prepro_func_name"] = prepro_func
+        if prepro_func == 'log':
+            prepro_func = np.log
+        elif prepro_func == 'log1p':
+            prepro_func = np.log1p
+        elif prepro_func == 'none':
+            prepro_func = lambda x: x
+        # elif prepro_func == 'vst':
+        #     prepro_func = vst # TODO implement
+    
+    adata.X = prepro_func(adata.X)
+    
     adata.layers["X_prepro"] = adata.X
     adata.uns["prepro_func"] = prepro_func
     return adata
     
 def transform(adata, transform_func):
+    
     assert transform_func in ('none', 'log', 'log1p'), 'Unknown tranformation function'
-    
-    if transform_func == 'log':
-        adata.X = np.log(adata.X)
-        adata.layers["X_transformed"] = adata.X
-    elif transform_func == 'log1p':
-        adata.X = np.log1p(adata.X)
-        adata.layers["X_transformed"] = adata.X
-    
     adata.uns["transform_func"] = transform_func
     
+    if transform_func != 'none':
+        
+        if transform_func == 'log':
+            transform_func = np.log
+        elif transform_func == 'log1p':
+            transform_func = np.log1p
+        
+        adata.X = transform_func(adata.X)
+        adata.layers["X_transformed"] = adata.X
+        
     return adata
     
 def reverse_transform(adata):
@@ -115,8 +126,10 @@ def rev_trans(x_pred, sf, trans_func):
     assert trans_func in ('none', 'log', 'log1p'), 'Unknown tranformation function'
     
     if trans_func == 'log':
+        x_pred = check_range_exp(x_pred)
         x_pred = np.exp(x_pred)
     elif trans_func == 'log1p':
+        x_pred = check_range_exp(x_pred)
         x_pred = np.exp(x_pred) -1
         
     # multiply sf back (sf=1 if sf_norm=False so no effect)
@@ -129,9 +142,11 @@ def rev_trans_tf(x_pred, sf, trans_func):
     assert trans_func in ('none', 'log', 'log1p'), 'Unknown tranformation function'
     
     if trans_func == 'log':
+        x_pred = check_range_exp(x_pred)
         x_pred = tfm.exp(x_pred)
     elif trans_func == 'log1p':
-        x_pred = tfm.exp(x_pred) - 1
+        x_pred = check_range_exp(x_pred)
+        x_pred = tfm.exp(x_pred) #- 1
         
     # multiply sf back (sf=1 if sf_norm=False so no effect)
     x_pred = x_pred * tf.expand_dims(sf, 1)

@@ -35,6 +35,7 @@ class Encoder_AE():
         
     @tf.function
     def loss_func_e(self, encoder_params, x_in, x_true, decoder, **kwargs):
+        # print("Tracing loss_func_e with ... \nself = ", self, "\nencoder_params = ", encoder_params, "\nx_in = ", x_in, "\nx_true = ", x_true, "\ndecoder = ", decoder, "\nkwargs = ", kwargs)
         E = tf.reshape(encoder_params, tf.shape(self.E))
         x_pred = decoder.decode(Encoder_AE._encode(x_in, E))[0]
         return self.loss(x_true=x_true, x_pred=x_pred, **kwargs)
@@ -60,7 +61,6 @@ class Encoder_AE():
                                              max_iterations=100, #500, #150,
                                              num_correction_pairs=10, 
                                              parallel_iterations=n_parallel)
-        # print(f"E optim converged: {optim.converged}")
         return optim.position
     
     def fit(self, x_in, x_true, decoder, optimizer, n_parallel, **kwargs):
@@ -70,12 +70,8 @@ class Encoder_AE():
             e_init = tf.reshape(self.E, shape=[tf.size(self.E), ])
             loss = lambda x_e: self.lbfgs_input(e=x_e, x_in=x_in, x_true=x_true, decoder=decoder, **kwargs)
             
-            # print(f"E loss init: {self.loss_func_e(e_init, x_in, x_true, decoder, **kwargs)}")
-            
             new_E = Encoder_AE._fit_lbfgs(e_init, loss, n_parallel)
             self.E = tf.reshape(new_E, self.E.shape)
-            
-            # print(f"E loss final: {self.loss_func_e(tf.reshape(self.E, shape=[tf.size(self.E), ]), x_in, x_true, decoder, **kwargs)}")
             
         return self.loss_func_e(tf.reshape(self.E, shape=[tf.size(self.E), ]), x_in, x_true, decoder, **kwargs)
             

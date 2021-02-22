@@ -1,6 +1,7 @@
 import time
 import tensorflow as tf
 import numpy as np
+import warnings
 
 from .utils import tf_init
 from .utils.loss_list import Loss_list
@@ -20,6 +21,8 @@ class Autoencoder_Model():
                  dispersion_fit='ML', 
                  loss_distribution='gaussian',
                  optimizer='lbfgs', 
+                 parallelize_by_feature=False,
+                 batch_size=None,
                  num_cpus=1, 
                  verbose=False,
                  seed=None,
@@ -41,10 +44,16 @@ class Autoencoder_Model():
         self.decoder = decoder(loss=self.loss_func)
         self.dispersion_fit = dispersion_fit(loss_distribution)
         
-        # train params (only passed to fit func?)
+        # train params 
         self.optimizer = optimizer
-        self.batch_size = None
+        self.parallelize_by_feature = parallelize_by_feature
         self.n_parallel = num_cpus
+        if batch_size is not None:
+            batch_size = int(batch_size)
+            if batch_size < 1:
+                warnings.warn(f"batch_size={batch_size} <= 0 interpreted as None")
+                batch_size = None
+        self.batch_size = batch_size
         
         # init tf
         tf_init.init_tf_config(num_cpus=num_cpus, verbose=verbose)
@@ -53,18 +62,24 @@ class Autoencoder_Model():
         # tf.config.run_functions_eagerly(True)
         
     def predict(self, adata):
+        # encoding
         x_in = adata.uns["X_AE_input"] 
         x_latent = self.encoder.encode(x_in)
         adata.obsm["X_latent"] = x_latent.numpy()
         if "covariates_oneh" in adata.uns.keys():
             adata.obsm["X_latent_with_cov"] = np.concatenate([x_latent.numpy(), adata.uns["covariates_oneh"]], axis=1)
         adata.uns['E'] = self.encoder.get_encoder()
+        
+        # decoding        
         pred = self.decoder.decode(x_latent)
         adata.layers["X_predicted"] = pred[0].numpy()
         adata.layers["X_predicted_no_trans"] = pred[1].numpy()
         adata.uns['D'], adata.uns['bias'] = self.decoder.get_decoder()
+        
+        # dispersions
         if self.loss_distribution.has_dispersion() is True:
             adata.varm["dispersions"] = self.dispersion_fit.get_dispersions()
+            
         return adata
         
     @tf.function
@@ -147,6 +162,7 @@ class Autoencoder_Model():
             d_loss = self.decoder.fit(x_latent=x_latent, 
                                     x_true=x_true,
                                     optimizer=self.optimizer, 
+                                    parallelize_by_feature=self.parallelize_by_feature,
                                     n_parallel=self.n_parallel,
                                     dispersions=current_dispersions)
             new_D, new_b = self.decoder.get_decoder()

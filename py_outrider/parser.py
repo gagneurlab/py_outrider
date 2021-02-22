@@ -33,13 +33,17 @@ def parse_args(args_input):
     parser.add_argument('--decoder_model', default=None, choices=['AE', 'PCA'], help='[predefined in profile] Sets the model for fitting the decoder.')
     parser.add_argument('--dispersion_model', default=None, choices=['ML', 'MoM'], help='[predefined in profile] Sets the model for fitting the dispersion parameters. Either ML for maximum likelihood fit or MoM for methods of moments. Has no effect for loss distributions that do not have dispersion parameters.')
     parser.add_argument('--optimizer', default=None, choices=['lbfgs'], help='[predefined in profile] Sets the optimizer for model fitting. Currently only L-BFGS is implemented.')
-    parser.add_argument('--convergence', default=None, type=check_positive, help='Sets the convergence limit. Default value is 1e-5.')
+    parser.add_argument('--convergence', default=None, type=check_positive_float    , help='Sets the convergence limit. Default value is 1e-5.')
     parser.add_argument('--effect_type', default=None, nargs="*", choices=['none', 'zscores', 'fold_change', 'delta'], help='[predefined in profile] Chooses the type of effect size that is calculated. Specifying multiple options is possible.')
     parser.add_argument('--fdr_method', default=None, type=str, help='Sets the fdr adjustment method. Must be one of the methods from statsmodels.stats.multitest.multipletests. Defaults to fdr_by.')
-    # parser.add_argument('--batch_size', type=int, default=None, help='batch_size used for stochastic training. Default is to not train stochastically.')
-    # parser.add_argument('--parallelize_D', action='store_true', dest='parallelize_D', help='If this flag is given, parallelizes fitting of decoder per feature. Default behavior depends on sample size.')
-    # parser.add_argument('--no_parallelize_D', action='store_false', dest='parallelize_D', help='If this flag is given, decoder fit will not be parallelized per feature. Default behavior depends on sample size.')
-    # parser.set_defaults(parallelize_D=None)
+    parser.add_argument('--batch_size', type=int, default=None, help='batch_size used for model fitting. Default is to use all samples.')
+    parser.add_argument('--parallelize_D', action='store_true', dest='parallelize_decoder_by_feature', help='If this flag is set, parallelizes fitting of decoder per feature. Default: True (do parallelize by feature).')
+    parser.add_argument('--no_parallelize_D', action='store_false', dest='parallelize_decoder_by_feature', help='If this flag is set, decoder fit will not be parallelized per feature. Default: do parallelize by feature.')
+    parser.set_defaults(parallelize_decoder_by_feature=None)
+    
+    # hyper par opt parameters
+    parser.add_argument('--max_iter_hyper', default=15, type=check_positive_or_zero_int, help='Number of maximial training iterations during hyper parameter optimization. Default: 15')
+    parser.add_argument('--convergence_hyper', default=1e-5, type=check_positive_float, help='Convergence limit used during hyper parameter optimization. Default: 1e-5')
 
     args = parser.parse_args(args_input)
     return vars(args)
@@ -47,6 +51,10 @@ def parse_args(args_input):
 def check_positive_int(value):
     ivalue = int(value)
     return check_positive(ivalue)
+    
+def check_positive_float(value):
+    fvalue = float(value)
+    return check_positive(fvalue)
 
 def check_positive(value):
     if value <= 0:
@@ -72,9 +80,10 @@ def extract_outrider_args(args):
     outrider_params = ['prepro_func', 'sf_norm', 'data_trans', 'centering',
                        'noise_factor', 'encod_dim', 'latent_space_model',
                        'decoder_model', 'dispersion_model', 'loss_distribution',
-                       'covariates', 'optimizer', 'num_cpus', 'seed', 
-                       'iterations', 'convergence', 'verbose', 'distribution',
-                       'fdr_method','effect_type']
+                       'covariates', 'optimizer', 'batch_size', 'num_cpus', 
+                       'parallelize_decoder_by_feature', 'seed', 'iterations', 
+                       'convergence', 'verbose', 'distribution', 'fdr_method',
+                       'effect_type']
     for param in outrider_params:
         if args[param] is not None:
             outrider_args[param] = args[param]
@@ -96,6 +105,8 @@ def construct_profile_args(profile):
                           'loss_distribution': 'gaussian',
                           'covariates': None,
                           'optimizer': 'lbfgs',
+                          'parallelize_decoder_by_feature': True,
+                          'batch_size': None,
                           'num_cpus': 1,
                           'seed': 7,
                           'iterations': 15,

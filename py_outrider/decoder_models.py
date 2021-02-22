@@ -52,7 +52,6 @@ class Decoder_AE():
         if cov is not None:
             X_latent = tf.concat([X_latent, cov], axis=1)
         prediction_no_trans = tf.matmul(X_latent, D)
-        prediction_no_trans = tf.gather(prediction_no_trans, tf.range(bias.shape[0]), axis=1)
         prediction_no_trans = tf.math.add(prediction_no_trans, bias)
         prediction = rev_trans_tf(prediction_no_trans, sf, trans_fun)
         prediction = tfh.tf_set_nan(prediction, x_na)
@@ -60,17 +59,25 @@ class Decoder_AE():
         
     @tf.function
     def loss_func_d(self, decoder_params, x_latent, x_true, **kwargs):
-        x_pred = Decoder_AE._decode(x_latent, D=decoder_params[0], bias=decoder_params[1], sf=self.sf, trans_fun=self.rev_trans, x_na=self.x_na, cov=self.cov)[0]
+        if "x_na" in kwargs:
+            x_na = kwargs.pop("x_na")
+        else:
+            x_na = self.x_na
+        x_pred = Decoder_AE._decode(x_latent, D=decoder_params[0], bias=decoder_params[1], sf=self.sf, trans_fun=self.rev_trans, x_na=x_na, cov=self.cov)[0]
         return self.loss(x_true, x_pred, **kwargs)
         
     @tf.function
-    def lbfgs_input(self, b_and_D, x_latent, x_true, **kwargs):
-        b_and_D = tf.reshape(b_and_D, [self.D.shape[0] + 1, self.D.shape[1]])
-        x_D = b_and_D[1:, :]
-        x_b = b_and_D[0, :]
+    def lbfgs_loss_and_gradients(self, b_and_D, x_latent, x_true, single_feature=False, **kwargs):
+        if single_feature is True:
+            x_b = b_and_D[0]
+            x_D = tf.expand_dims(b_and_D[1:],1)
+        else:
+            b_and_D = tf.reshape(b_and_D, [self.D.shape[0] + 1, self.D.shape[1]])
+            x_b = b_and_D[0, :]
+            x_D = b_and_D[1:, :]
         loss = self.loss_func_d(decoder_params=[x_D, x_b], x_latent=x_latent, x_true=x_true, **kwargs)
-        # gradients = tf.gradients(loss, [x_b, x_D])[0]
         gradients = tf.gradients(loss, b_and_D)[0]
+        return loss, tf.clip_by_value(tf.reshape(gradients, [-1]), -100., 100.)
         # x_D = tf.Variable(x_d)
         # x_b = tf.Variable(x_b)
         # with tf.GradientTape() as tape:
@@ -79,35 +86,75 @@ class Decoder_AE():
         # print(f"D Loss: {loss}")
         # print(f"D Gradients: {gradients}")
         # gradients = tf.concat([tf.expand_dims(gradients[0], 0), gradients[1]], axis=0)
-        return loss, tf.clip_by_value(tf.reshape(gradients, [-1]), -100., 100.)
         
     @staticmethod
-    def _fit_lbfgs(b_and_D_init, loss, n_parallel):
+    def _fit_lbfgs(b_and_D_init, loss_and_gradients, n_parallel):
         
-        optim = tfp.optimizer.lbfgs_minimize(loss, 
+        optim = tfp.optimizer.lbfgs_minimize(loss_and_gradients, 
                                              initial_position=b_and_D_init, 
                                              tolerance=1e-8, 
                                              max_iterations=100, #300, #100,
                                              num_correction_pairs=10, 
                                              parallel_iterations = n_parallel)
-        # print(f"D optim converged: {optim.converged}")                                                 
         return optim.position
+        
+    @staticmethod
+    @tf.function(experimental_relax_shapes=True)
+    def _fit_lbfgs_by_feature(input_tensors, loss_gradients, x_latent): # input_tensors = (D, b, x_true, dispersions)
+        
+        # print("Tracing single D fit with tensors = ", input_tensors)
+        D_i, b_i, x_i, dispersions_i, x_na_i = input_tensors
+        b_and_D = tf.concat([tf.expand_dims(b_i, 0), D_i], axis=0)
+        
+        @tf.function
+        def loss_gradients_feature(b_and_D):
+            return loss_gradients(b_and_D, 
+                                  x_latent=x_latent, 
+                                  x_true=tf.expand_dims(x_i, 1), 
+                                  dispersions=dispersions_i, 
+                                  x_na=tf.expand_dims(x_na_i, 1), 
+                                  single_feature=True)
+        
+        optim = tfp.optimizer.lbfgs_minimize(loss_gradients_feature, 
+                                             initial_position=b_and_D, 
+                                             tolerance=1e-6, 
+                                             max_iterations=50, #100
+                                             num_correction_pairs=10)
+        return optim.position
+        
+    @staticmethod
+    @tf.function(experimental_relax_shapes=True)
+    def get_optim_results_feature(tensors_to_vectorize, fit_func_lbfgs_feature, n_parallel):
+        # print("Tracing get_optim_results_feature with ... \ntensors = ", tensors_to_vectorize, "\nfit_func = ", fit_func_lbfgs_feature, "\nn_parallel = ", n_parallel)
+        return tf.map_fn(fit_func_lbfgs_feature,
+                         tensors_to_vectorize,
+                         fn_output_signature=tensors_to_vectorize[2].dtype,
+                         parallel_iterations=n_parallel)
     
-    def fit(self, x_latent, x_true, optimizer, n_parallel, **kwargs):
+    def fit(self, x_latent, x_true, optimizer, n_parallel, parallelize_by_feature, **kwargs):
         
         if optimizer == "lbfgs":
-            b_and_D_init = tf.concat([tf.expand_dims(self.bias, 0), self.D], axis=0)
-            b_and_D_init = tf.reshape(b_and_D_init, [-1])  ### flatten
-            loss = lambda b_and_D: self.lbfgs_input(b_and_D=b_and_D, x_latent=x_latent, x_true=x_true, **kwargs)
-            # print(f"D loss init: {self.loss_func_d([self.D, self.bias], x_latent, x_true, **kwargs)}")
+            if parallelize_by_feature is True:
+                
+                @tf.function
+                def fit_func_lbfgs_feature(t):
+                    return self._fit_lbfgs_by_feature(input_tensors=t, loss_gradients=self.lbfgs_loss_and_gradients, x_latent=x_latent)
+                    
+                tensors_to_vectorize = (tf.transpose(self.D), self.bias, tf.transpose(x_true), kwargs["dispersions"], tf.transpose(self.x_na)) #tensors_to_vectorize = (D, b, x_true, dispersions, x_na)
+                optim_results = self.get_optim_results_feature(tensors_to_vectorize, fit_func_lbfgs_feature=fit_func_lbfgs_feature, n_parallel=n_parallel)
+                b_and_D_out = tf.transpose(optim_results)
+                
+            else:
+                b_and_D_init = tf.concat([tf.expand_dims(self.bias, 0), self.D], axis=0)
+                b_and_D_init = tf.reshape(b_and_D_init, [-1])  ### flatten
             
-            optim_results = Decoder_AE._fit_lbfgs(b_and_D_init, loss, n_parallel)
-                                            
-            b_and_D_out = tf.reshape(optim_results, [self.D.shape[0] + 1, self.D.shape[1]])
-            # print(f"b_and_D_out shape: {b_and_D_out.shape[0]}, {b_and_D_out.shape[1]}")
-            self.D = tf.convert_to_tensor(b_and_D_out[1:, :])
+                loss_and_gradients = lambda b_and_D: self.lbfgs_loss_and_gradients(b_and_D=b_and_D, x_latent=x_latent, x_true=x_true, single_feature=False, **kwargs)
+            
+                optim_results = Decoder_AE._fit_lbfgs(b_and_D_init, loss_and_gradients, n_parallel)
+                b_and_D_out = tf.reshape(optim_results, [self.D.shape[0] + 1, self.D.shape[1]])
+            
             self.bias = tf.convert_to_tensor(b_and_D_out[0, :])
-            # print(f"D loss final: {self.loss_func_d([self.D, self.bias], x_latent, x_true, **kwargs)}")
+            self.D = tf.convert_to_tensor(b_and_D_out[1:, :])
                  
         return self.loss_func_d([self.D, self.bias], x_latent, x_true, **kwargs)    
         
@@ -151,7 +198,6 @@ class Decoder_PCA():
         if cov is not None:
             X_latent = tf.concat([X_latent, cov], axis=1)
         prediction_no_trans = tf.matmul(X_latent, D)
-        prediction_no_trans = tf.gather(prediction_no_trans, tf.range(bias.shape[0]), axis=1)
         prediction_no_trans = tf.math.add(prediction_no_trans, bias)
         prediction = rev_trans_tf(prediction_no_trans, sf, trans_fun)
         prediction = tfh.tf_set_nan(prediction, x_na)

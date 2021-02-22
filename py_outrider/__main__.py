@@ -50,7 +50,10 @@ def full_run(args_input):
     # check need for hyper param opt
     if outrider_args["encod_dim"] is None:
         print_time('encod_dim is None -> run hyperparameter optimisation')
-        hyper = Hyperpar_opt(adata, **outrider_args)
+        hyper_args = outrider_args.copy()
+        hyper_args["iterations"] = args["max_iter_hyper"] # set iterations during hyper param opt
+        hyper_args["convergence"] = args["convergence_hyper"] # set convergence limit during hyper param opt
+        hyper = Hyperpar_opt(adata, **hyper_args)
         outrider_args["encod_dim"] = hyper.best_encod_dim
         outrider_args["noise_factor"] = hyper.best_noise_factor
 

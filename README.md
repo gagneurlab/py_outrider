@@ -79,7 +79,10 @@ usage: py_outrider [-h] [-in INPUT] [-sa SAMPLE_ANNO] [-o OUTPUT]
                    [--decoder_model {AE,PCA}] [--dispersion_model {ML,MoM}]
                    [--optimizer {lbfgs}] [--convergence CONVERGENCE]
                    [--effect_type [{none,zscores,fold_change,delta} [{none,zscores,fold_change,delta} ...]]]
-                   [--fdr_method FDR_METHOD]
+                   [--fdr_method FDR_METHOD] [--batch_size BATCH_SIZE]
+                   [--parallelize_D] [--no_parallelize_D]
+                   [--max_iter_hyper MAX_ITER_HYPER]
+                   [--convergence_hyper CONVERGENCE_HYPER]
 
 Run py_outrider to detect aberrant events in omics data.
 
@@ -179,6 +182,20 @@ optional arguments:
                         methods from
                         statsmodels.stats.multitest.multipletests. Defaults to
                         fdr_by.
+  --batch_size BATCH_SIZE
+                        batch_size used for model fitting. Default is to use
+                        all samples.
+  --parallelize_D       If this flag is set, parallelizes fitting of decoder
+                        per feature. Default: True (do parallelize by
+                        feature).
+  --no_parallelize_D    If this flag is set, decoder fit will not be
+                        parallelized per feature. Default: do parallelize by
+                        feature.
+  --max_iter_hyper MAX_ITER_HYPER
+                        Number of maximial training iterations during hyper
+                        parameter optimization. Default: 15
+  --convergence_hyper CONVERGENCE_HYPER
+
 
 ```
 

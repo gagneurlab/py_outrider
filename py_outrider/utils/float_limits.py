@@ -28,17 +28,18 @@ def check_range_for_log(t):
         
 def check_range_exp(t):
     if tf.is_tensor(t):
-        t = tf.minimum(t, np.log(np.finfo(t.numpy().dtype).max / 1000))
-        t = tf.maximum(t, np.log(np.finfo(t.numpy().dtype).tiny * 1000))
+        t = tf.minimum(t, np.log(np.finfo(t.dtype.name).max / 1000))
+        t = tf.maximum(t, np.log(np.finfo(t.dtype.name).tiny * 1000))
+        return t
     else:
-        t = np.minimum(t, np.log(np.finfo(t.numpy().dtype).max / 1000))
-        t = np.maximum(t, np.log(np.finfo(t.numpy().dtype).tiny * 1000))
-    return t
+        t = np.minimum(t, np.log(np.finfo(t.dtype.name).max / 1000))
+        t = np.maximum(t, np.log(np.finfo(t.dtype.name).tiny * 1000))
+        return t
 
 
 ### avoid p-values == 0
 def replace_zeroes_min(df):
-    #min_nonzero = np.min(df[np.nonzero(df)])  # trick to make it lowest p-value -> shitty approach
+    #min_nonzero = np.min(df[np.nonzero(df)])  # trick to make it lowest p-value
     # df[df == 0] = min_nonzero
     df[df == 0] = 1e-100    # TODO not ideal
     return df
