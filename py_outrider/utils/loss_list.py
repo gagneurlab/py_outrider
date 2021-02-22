@@ -1,4 +1,4 @@
-import tensorflow as tf  # 2.0.0
+import tensorflow as tf  
 from tensorflow import math as tfm
 import tensorflow_probability as tfp
 import pandas as pd

@@ -96,14 +96,16 @@ class Decoder_AE():
                                              max_iterations=100, #300, #100,
                                              num_correction_pairs=10, 
                                              parallel_iterations = n_parallel)
-        return optim.position
+        return optim.position  
         
     @staticmethod
     @tf.function(experimental_relax_shapes=True)
     def _fit_lbfgs_by_feature(input_tensors, loss_gradients, x_latent): # input_tensors = (D, b, x_true, dispersions)
         
         # print("Tracing single D fit with tensors = ", input_tensors)
-        D_i, b_i, x_i, dispersions_i, x_na_i = input_tensors
+        D_i, b_i, x_i, x_na_i = input_tensors[0:4]
+        dispersions_i = input_tensors[4] if len(input_tensors) == 5 else None
+        
         b_and_D = tf.concat([tf.expand_dims(b_i, 0), D_i], axis=0)
         
         @tf.function
@@ -126,6 +128,7 @@ class Decoder_AE():
     @tf.function(experimental_relax_shapes=True)
     def get_optim_results_feature(tensors_to_vectorize, fit_func_lbfgs_feature, n_parallel):
         # print("Tracing get_optim_results_feature with ... \ntensors = ", tensors_to_vectorize, "\nfit_func = ", fit_func_lbfgs_feature, "\nn_parallel = ", n_parallel)
+        # return tf.vectorized_map(fit_func_lbfgs_feature, tensors_to_vectorize)
         return tf.map_fn(fit_func_lbfgs_feature,
                          tensors_to_vectorize,
                          fn_output_signature=tensors_to_vectorize[2].dtype,
@@ -140,7 +143,10 @@ class Decoder_AE():
                 def fit_func_lbfgs_feature(t):
                     return self._fit_lbfgs_by_feature(input_tensors=t, loss_gradients=self.lbfgs_loss_and_gradients, x_latent=x_latent)
                     
-                tensors_to_vectorize = (tf.transpose(self.D), self.bias, tf.transpose(x_true), kwargs["dispersions"], tf.transpose(self.x_na)) #tensors_to_vectorize = (D, b, x_true, dispersions, x_na)
+                if kwargs["dispersions"] is not None:
+                    tensors_to_vectorize = (tf.transpose(self.D), self.bias, tf.transpose(x_true), tf.transpose(self.x_na), kwargs["dispersions"]) #tensors_to_vectorize = (D, b, x_true, x_na, dispersions)
+                else:
+                    tensors_to_vectorize = (tf.transpose(self.D), self.bias, tf.transpose(x_true), tf.transpose(self.x_na)) #tensors_to_vectorize = (D, b, x_true, x_na)
                 optim_results = self.get_optim_results_feature(tensors_to_vectorize, fit_func_lbfgs_feature=fit_func_lbfgs_feature, n_parallel=n_parallel)
                 b_and_D_out = tf.transpose(optim_results)
                 

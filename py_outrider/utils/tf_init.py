@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-
 def init_tf_config(num_cpus, verbose):
     """
     prepares all configuration to make tensorflow run in parallel or use gpu if available

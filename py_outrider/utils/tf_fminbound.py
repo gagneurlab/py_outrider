@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-
 @tf.function(experimental_relax_shapes=True)
 def tf_fminbound(func, x1, x2, args=(), xtol=1e-5, maxfun=500):
     """

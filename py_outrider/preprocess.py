@@ -154,8 +154,8 @@ def rev_trans_tf(x_pred, sf, trans_func):
     return x_pred
 
 def prepare_covariates(adata, covariates=None):
-    
     if covariates is not None:
+        assert isinstance(adata, anndata.AnnData), 'adata must be an AnnData instance'
         assert isinstance(covariates, list), "covariates has to be a list of strings"
         one_hot_encoding = []
         for cov in covariates:
@@ -185,7 +185,7 @@ def prepare_covariates(adata, covariates=None):
                 cov_sample = pd.concat([cov_sample, oneh], axis=1)
         
         print_func.print_time("Including given covariates as:")
-        print(cov_sample)
+        print(cov_sample.head())
         adata.uns["covariates_oneh"] = np.array(cov_sample.values, dtype=adata.X.dtype)
         adata.uns["X_AE_input"] = np.concatenate([adata.X, cov_sample.values], axis=1)  
     else:
@@ -244,7 +244,9 @@ def inject_outliers(adata, inj_freq=1e-3, inj_mean=3, inj_sd=1.6, **kwargs):
     print_func.print_time(f"Injecting {nr_out} outliers (freq = {nr_out/adata.X.size})")
     
     # return new AnnData object with injected outliers
-    adata_with_outliers = anndata.AnnData(X=X_injected, dtype=adata.X.dtype)
+    adata_with_outliers = anndata.AnnData(X=X_injected, 
+                                          dtype=adata.X.dtype,
+                                          obs=adata.obs)
     adata_with_outliers.layers["X_is_outlier"] = outlier_mask
     adata_with_outliers.layers["X_injected_zscore"] = inj_zscores
     return adata_with_outliers

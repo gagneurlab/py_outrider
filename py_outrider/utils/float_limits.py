@@ -1,4 +1,4 @@
-import tensorflow as tf    # 2.0.0
+import tensorflow as tf    
 import numpy as np
 
 
