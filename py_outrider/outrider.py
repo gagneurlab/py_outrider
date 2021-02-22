@@ -32,7 +32,7 @@ def outrider(adata,
              verbose=False,
              distribution='gaussian',  # outlier calling options
              fdr_method='fdr_by',
-             effect_type='zscore',
+             effect_type='zscores',
              alpha = 0.05,
              effect_cutoffs={}):
     """py_outrider API.
@@ -95,7 +95,7 @@ def outrider(adata,
         statsmodels.stats.multitest.multipletests).
     :param effect_type: the type of method for effect size calculation.
         Must be one or a list of several of the following: 'none', 
-        'fold-change', 'zscores' or 'delta'.
+        'fold_change', 'zscores' or 'delta'.
     :param alpha: The significance level for calling outliers. 
         Default: 0.05
     :param effect_cutoffs: Cutoffs to use on effect types for 
