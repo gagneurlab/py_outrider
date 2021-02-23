@@ -46,7 +46,7 @@ class Loss_list():
         :return: tuple: has loss_list converged, are given loss_list[1] columns converged
         """
         if len(loss_list) > last_iter:
-            l_short = loss_list[len(loss_list) - (last_iter + 1): len(loss_list) - 1]
+            l_short = loss_list[(len(loss_list) - last_iter) : len(loss_list)]
             l_curr = loss_list[-1]
             loss_conv = np.abs(l_curr - l_short) < conv_limit
             meas_conv = tf.reduce_all(loss_conv, axis=0)

@@ -5,8 +5,8 @@ from statsmodels.stats.multitest import multipletests
 
 from .preprocess import preprocess
 from .models import Autoencoder_Model
-from .utils import print_func
 from .distributions import DISTRIBUTIONS
+from .utils import print_func
 
 def outrider(adata,
              encod_dim,  
@@ -30,7 +30,8 @@ def outrider(adata,
              convergence=1e-5, 
              initialize=True, 
              verbose=False,
-             distribution='gaussian',  # outlier calling options
+             do_call_outliers=True,    # outlier calling options
+             distribution='gaussian',  
              fdr_method='fdr_by',
              effect_type='zscores',
              alpha = 0.05,
@@ -101,6 +102,8 @@ def outrider(adata,
     :param effect_cutoffs: Cutoffs to use on effect types for 
         calling outliers. Must be a dict with keys specifying the 
         effect type and values specifying the cutoff. Default: {} 
+    :param do_call_outliers: If False, no pvalue calculation and 
+        outlier calling will be done. Default: True
     :return: An AnnData object annotated with model fit results, 
         pvalues, adjusted pvalues, aberrant state and effect sizes.
     """
@@ -131,26 +134,27 @@ def outrider(adata,
                                      batch_size=batch_size,
                                      num_cpus=num_cpus,
                                      seed=seed,
-                                     float_type=float_type, #adata.X.dtype.name,
+                                     float_type=float_type, 
                                      verbose=verbose)
     
     # 3. fit model: 
     time_ae_start = time.time()
-    print_func.print_time('start model fitting')
+    print_func.print_time('Start model fitting')
     model.fit(adata, initialize=True, iterations=iterations, 
                     convergence=convergence, verbose=verbose)
     print_func.print_time(f'complete model fit time {print_func.get_duration_sec(time.time() - time_ae_start)}')
-    print_func.print_time(f'model_fit ended with loss: {model.get_loss(adata)}')
+    print_func.print_time(f'model fit ended with loss: {model.get_loss(adata)}')
+    adata = model.predict(adata)
     
     # 4. call outliers / get (adjusted) pvalues:
-    adata = model.predict(adata)
-    adata = call_outliers(adata, 
-                        distribution=distribution,
-                        fdr_method=fdr_method, 
-                        effect_type=effect_type,
-                        alpha=alpha,
-                        effect_cutoffs=effect_cutoffs,
-                        num_cpus=num_cpus)
+    if do_call_outliers:
+        adata = call_outliers(adata, 
+                              distribution=distribution,
+                              fdr_method=fdr_method, 
+                              effect_type=effect_type,
+                              alpha=alpha,
+                              effect_cutoffs=effect_cutoffs,
+                              num_cpus=num_cpus)
         
     return adata 
         

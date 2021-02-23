@@ -19,6 +19,7 @@ def preprocess(adata,
     assert isinstance(adata, anndata.AnnData), 'adata must be an AnnData instance'
     
     # preprocess
+    print_func.print_time("Preprocessing input ...")
     adata.raw = adata
     adata = prepro(adata, prepro_func)
     
@@ -41,7 +42,7 @@ def preprocess(adata,
     # prepare covariates for inclusion in fit
     adata = prepare_covariates(adata, covariates)
     
-    # put input matrix back to adata.X
+    # put input matrix back to adata.X (AE input is in X_AE_input)
     adata.X = adata.layers["X_raw"]
         
     return adata

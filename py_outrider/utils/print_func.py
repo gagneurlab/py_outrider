@@ -8,7 +8,7 @@ def print_time(text, tf_print=False):
     if tf_print:
         tf.print('### ' + time.strftime("%c") + '   ' + text)
     else:
-        print('### ' + time.strftime("%c") + '   ' + text)
+        print('### ' + time.strftime("%c") + '   ' + text, flush=True)
 
 
 def print_dict(d):

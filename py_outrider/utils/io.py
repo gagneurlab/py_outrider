@@ -100,9 +100,8 @@ def create_adata_from_arrays(X_input, sample_anno=None, dtype='float64'):
     adata = anndata.AnnData(X=X_input, dtype=dtype)
     
     ### use sample annotation if supplied
-    if sample_anno_file is not None:
-        adata = sort_sample_anno(sample_anno, adata)
-        # TODO consider known covariates
+    if sample_anno is not None:
+        adata.obs = sort_sample_anno(sample_anno, adata)
     
     return adata
     
