@@ -133,7 +133,7 @@ def rev_trans(x_pred, sf, trans_func):
         x_pred = np.exp(x_pred)
     elif trans_func == 'log1p':
         x_pred = check_range_exp(x_pred)
-        x_pred = np.exp(x_pred) -1
+        x_pred = np.exp(x_pred) #-1
         
     # multiply sf back (sf=1 if sf_norm=False so no effect)
     x_pred = x_pred * np.expand_dims(sf, 1)

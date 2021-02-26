@@ -17,7 +17,12 @@ class Decoder_AE():
         self.rev_trans = 'none'
         
     def get_decoder(self):
-        return self.D.numpy(), self.bias.numpy()
+        D, bias = self.D, self.bias
+        if tf.is_tensor(D):
+            D = D.numpy()
+        if tf.is_tensor(bias):
+            bias = bias.numpy()
+        return D, bias
         
     def copy(self):
         return copy.copy(self)
@@ -173,7 +178,12 @@ class Decoder_PCA():
         self.loss = loss
         
     def get_decoder(self):
-        return self.D, self.bias
+        D, bias = self.D, self.bias
+        if tf.is_tensor(D):
+            D = D.numpy()
+        if tf.is_tensor(bias):
+            bias = bias.numpy()
+        return D, bias
     
     def init(self, encoder, x_na, feature_means=None, sf=1, trans_func='none', cov=None):
         nr_cov_oneh_cols = cov.shape[1] if cov is not None else 0

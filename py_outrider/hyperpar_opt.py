@@ -18,6 +18,7 @@ class Hyperpar_opt():
 
         # inject artifical outliers
         self.adata = inject_outliers(adata, inj_freq=1e-3, inj_mean=3, inj_sd=1.6, **kwargs)
+        kwargs["prepro_func"] = "none"
 
         ### get all hyperparamters
         hyperpar_grid = self.get_hyperpar_grid(self.adata, encod_dim = True, noise_factor = True)  # noise factor False

@@ -25,8 +25,8 @@ def parse_args(args_input):
     parser.add_argument('-dis','--distribution', default=None, choices=['NB', 'gaussian', 'log-gaussian'], help='[predefined in profile] distribution assumed for the measurement data.')
     parser.add_argument('-ld','--loss_distribution', default=None, choices=['NB', 'gaussian', 'log-gaussian'], help='[predefined in profile] loss distribution used for training.')
     parser.add_argument('-pre','--prepro_func', default=None, choices=['none', 'log'], help='[predefined in profile] preprocessing function applied to input data. Distribution should be applicable for the preprocessed data.')
-    parser.add_argument('-sf', '--sf_norm', default=None, type=bool, help='[predefined in profile] Boolean value indicating whether sizefactor normalization should be performed.')
-    parser.add_argument('-c', '--centering', default=None, type=bool, help='[predefined in profile] Boolean value indicating whether input should be centered before model fitting.')
+    parser.add_argument('-sf', '--sf_norm', default=None, type=str2bool, help='[predefined in profile] Boolean value indicating whether sizefactor normalization should be performed.')
+    parser.add_argument('-c', '--centering', default=None, type=str2bool, help='[predefined in profile] Boolean value indicating whether input should be centered before model fitting.')
     parser.add_argument('-dt','--data_trans', default=None, choices=['log1p', 'log', 'none'], help='[predefined in profile] transformation function applied to preprocessed input data to create input for AE model.')
     parser.add_argument('-nf','--noise_factor', default=None, type=float, help='[predefined in profile] factor which defines the amount of noise applied for a denoising autoencoder model.')
     parser.add_argument('--latent_space_model', default=None, choices=['AE', 'PCA'], help='[predefined in profile] Sets the model for fitting the latent space.')
@@ -69,6 +69,16 @@ def check_positive_or_zero(value):
     if value < 0:
         raise argparse.ArgumentTypeError(f"{value} is an invalid positive or zero value" )
     return value
+    
+def str2bool(value):
+    if isinstance(value, bool):
+       return value
+    if value.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif value.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
 def extract_outrider_args(args):

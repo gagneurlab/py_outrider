@@ -17,7 +17,10 @@ class Encoder_AE():
         self.loss = loss
         
     def get_encoder(self):
-        return self.E.numpy()
+        if tf.is_tensor(self.E):
+            return self.E.numpy()
+        else:
+            return self.E
     
     def init(self, x_in):
         e_pca = Encoder_PCA(self.encoding_dim, self.loss)
@@ -85,7 +88,10 @@ class Encoder_PCA():
         self.loss = loss # ignored in pca fit
         
     def get_encoder(self):
-        return self.E
+        if tf.is_tensor(self.E):
+            return self.E.numpy()
+        else:
+            return self.E
         
     def init(self, x_in):
         ### nipals if nan values are in matrix
