@@ -54,10 +54,10 @@ class Loss_list():
             converged
         """
         if len(loss_list) > last_iter:
-            l_short = loss_list[(len(loss_list) - last_iter):len(loss_list)]
+            l_short = loss_list[-(last_iter+1):-1]
             l_curr = loss_list[-1]
             loss_conv = np.abs(l_curr - l_short) < conv_limit
-            meas_conv = tf.reduce_all(loss_conv, axis=0)
+            meas_conv = np.all(loss_conv, axis=0)  # tf.reduce_all
 
             if np.size(loss_list[0]) > 1:
                 num_converged = tfm.count_nonzero(meas_conv)
@@ -70,10 +70,11 @@ class Loss_list():
                     num_converged.numpy()) + '/' + str(
                     (len(meas_conv) - num_converged).numpy())
             else:
-                conv = meas_conv is True
+                conv = bool(meas_conv) is True
                 if verbose:
                     print((f'### loss_converged: {meas_conv}'
-                           f'   last {last_iter} losses: {l_short}'))
+                           f'   last {last_iter}+1 losses: '
+                           f'{loss_list[-(last_iter+1):]}'))
                 return conv, str(conv)
         return False, str(False)
 
