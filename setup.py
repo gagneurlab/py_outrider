@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="py_outrider", 
-    version="0.0.1",
+    name="py_outrider",
+    version="0.1.0",
     author="Stefan Loipfinger, Ines Scheller",
     author_email="scheller@in.tum.de",
     description="Python backend package for OUTRIDER2 R package",
@@ -22,7 +22,7 @@ setuptools.setup(
                       'anndata>=0.7.0',
                       'nipals>=0.5.2'
                       ],
-    entry_points = {
+    entry_points={
         "console_scripts": ['py_outrider = py_outrider.__main__:main']
     },
     classifiers=[

@@ -26,7 +26,8 @@ def tf_set_nan(t, x_na):
 @tf.function
 def tf_nan_func(func, **kwargs):
     """
-    takes function with X as input parameter and applies function only on finite values,
+    takes function with X as input parameter and applies function only on
+    finite values,
     helpful for tf value calculation which can not deal with nan values
     :param func: function call with argument X
     :param kwargs: other arguments for func
@@ -36,15 +37,11 @@ def tf_nan_func(func, **kwargs):
     empty_t = tf.cast(tf.fill(mask.shape, np.nan), dtype=kwargs["X"].dtype)
 
     for i in kwargs:
-        if kwargs[i].shape!=():  # workaround of tf.rank(kwargs[i]) > 0, avoid scalar value in mask
-            kwargs[i] = tf.boolean_mask(kwargs[i], tfm.is_finite(kwargs[i]))  # keep only finite
+        # workaround of tf.rank(kwargs[i]) > 0, avoid scalar value in mask
+        if kwargs[i].shape != ():
+            # keep only finite
+            kwargs[i] = tf.boolean_mask(kwargs[i], tfm.is_finite(kwargs[i]))
     res_func = func(**kwargs)
 
     full_t = tf.tensor_scatter_nd_update(empty_t, tf.where(mask), res_func)
     return full_t
-
-
-
-
-
-

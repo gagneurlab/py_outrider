@@ -74,14 +74,15 @@ usage: py_outrider [-h] [-in INPUT] [-sa SAMPLE_ANNO] [-o OUTPUT]
                    [-fl {float32,float64}] [-cpu NUM_CPUS] [-v VERBOSE]
                    [-s SEED] [-dis {NB,gaussian,log-gaussian}]
                    [-ld {NB,gaussian,log-gaussian}] [-pre {none,log}]
-                   [-sf SF_NORM] [-c CENTERING] [-dt {sf,log,none}]
+                   [-sf SF_NORM] [-c CENTERING] [-dt {log1p,log,none}]
                    [-nf NOISE_FACTOR] [--latent_space_model {AE,PCA}]
                    [--decoder_model {AE,PCA}] [--dispersion_model {ML,MoM}]
-                   [--optimizer {lbfgs}] [--convergence CONVERGENCE]
-                   [--effect_type [{none,zscores,fold_change,delta} [{none,zscores,fold_change,delta} ...]]]
-                   [--fdr_method FDR_METHOD] [--batch_size BATCH_SIZE]
+                   [--optimizer {lbfgs}] [--batch_size BATCH_SIZE]
+                   [--nr_latent_space_features NR_LATENT_SPACE_FEATURES]
                    [--parallelize_D] [--no_parallelize_D]
-                   [--max_iter_hyper MAX_ITER_HYPER]
+                   [--convergence CONVERGENCE]
+                   [--effect_type [{none,zscores,fold_change,delta} [{none,zscores,fold_change,delta} ...]]]
+                   [--fdr_method FDR_METHOD] [--max_iter_hyper MAX_ITER_HYPER]
                    [--convergence_hyper CONVERGENCE_HYPER]
 
 Run py_outrider to detect aberrant events in omics data.
@@ -149,7 +150,7 @@ optional arguments:
   -c CENTERING, --centering CENTERING
                         [predefined in profile] Boolean value indicating
                         whether input should be centered before model fitting.
-  -dt {sf,log,none}, --data_trans {sf,log,none}
+  -dt {log1p,log,none}, --data_trans {log1p,log,none}
                         [predefined in profile] transformation function
                         applied to preprocessed input data to create input for
                         AE model.
@@ -171,6 +172,20 @@ optional arguments:
                         dispersion parameters.
   --optimizer {lbfgs}   [predefined in profile] Sets the optimizer for model
                         fitting. Currently only L-BFGS is implemented.
+  --batch_size BATCH_SIZE
+                        batch_size used for model fitting. Default is to use
+                        all samples.
+  --nr_latent_space_features NR_LATENT_SPACE_FEATURES
+                        Limits the number of features used for fitting the
+                        latent space to the specified number k. The k most
+                        variable features will be selected. Default is to use
+                        all features.
+  --parallelize_D       If this flag is set, parallelizes fitting of decoder
+                        per feature. Default: True (do parallelize by
+                        feature).
+  --no_parallelize_D    If this flag is set, decoder fit will not be
+                        parallelized per feature. Default: do parallelize by
+                        feature.
   --convergence CONVERGENCE
                         Sets the convergence limit. Default value is 1e-5.
   --effect_type [{none,zscores,fold_change,delta} [{none,zscores,fold_change,delta} ...]]
@@ -182,21 +197,12 @@ optional arguments:
                         methods from
                         statsmodels.stats.multitest.multipletests. Defaults to
                         fdr_by.
-  --batch_size BATCH_SIZE
-                        batch_size used for model fitting. Default is to use
-                        all samples.
-  --parallelize_D       If this flag is set, parallelizes fitting of decoder
-                        per feature. Default: True (do parallelize by
-                        feature).
-  --no_parallelize_D    If this flag is set, decoder fit will not be
-                        parallelized per feature. Default: do parallelize by
-                        feature.
   --max_iter_hyper MAX_ITER_HYPER
                         Number of maximial training iterations during hyper
                         parameter optimization. Default: 15
   --convergence_hyper CONVERGENCE_HYPER
-
-
+                        Convergence limit used during hyper parameter
+                        optimization. Default: 1e-5
 ```
 
 

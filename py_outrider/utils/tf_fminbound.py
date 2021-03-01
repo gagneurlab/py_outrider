@@ -1,9 +1,11 @@
 import tensorflow as tf
 
+
 @tf.function(experimental_relax_shapes=True)
 def tf_fminbound(func, x1, x2, args=(), xtol=1e-5, maxfun=500):
     """
-    bounded minimization for scalar functions (TensorFlow implemention based on fminbound from scipy.optimize:
+    bounded minimization for scalar functions (TensorFlow implemention based on
+    fminbound from scipy.optimize:
     https://github.com/scipy/scipy/blob/adc4f4f7bab120ccfab9383aba272954a0a12fb0/scipy/optimize/optimize.py#L1675.
     :param func: function which returns value to be minimized
     :param x1: lower optimization limit
@@ -13,7 +15,6 @@ def tf_fminbound(func, x1, x2, args=(), xtol=1e-5, maxfun=500):
     :param maxfun: maximum number of function evaluations
     :return: parameter value which minimizes objective function
     """
-    # print("Tracing tf_fminbound with func = ", func, "\n\tx1 = ", x1, "\n\tx2 =", x2, "\n\targs =", args, "\n\txtol = ", xtol, "\n\tmaxfun = ", maxfun)
     x1 = tf.keras.backend.cast_to_floatx(x1)
     x2 = tf.keras.backend.cast_to_floatx(x2)
     xatol = tf.keras.backend.cast_to_floatx(xtol)
@@ -47,12 +48,15 @@ def tf_fminbound(func, x1, x2, args=(), xtol=1e-5, maxfun=500):
             e = rat
 
             # Check for acceptability of parabola
-            if (tf.abs(p) < tf.abs(0.5 * q * r)) and (p > q * (a - xf)) and (p < q * (b - xf)):
+            if (tf.abs(p) < tf.abs(0.5 * q * r)) and (p > q * (a - xf)) and (
+                    p < q * (b - xf)):
+
                 rat = (p + 0.0) / q
                 x = xf + rat
 
                 if ((x - a) < tol2) or ((b - x) < tol2):
-                    si = tf.sign(xm - xf) + tf.keras.backend.cast_to_floatx((xm - xf) == 0)
+                    si = tf.sign(xm - xf) + tf.keras.backend.cast_to_floatx(
+                        (xm - xf) == 0)
                     rat = tol1 * si
             else:  # do a golden section step
                 golden = True

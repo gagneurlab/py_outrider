@@ -1,9 +1,7 @@
 import numpy as np
 
 
-
-
-### first estimation of theta step
+# first estimation of theta step
 def robust_mom_theta(x, theta_min, theta_max, mu_min=0.1):
     mue = trim_mean(x, proportiontocut=0.125, axis=0)
     mue = np.maximum(mue, mu_min)
@@ -19,9 +17,7 @@ def robust_mom_theta(x, theta_min, theta_max, mu_min=0.1):
     return re_th
 
 
-
-
-### from https://github.com/scipy/scipy/blob/adc4f4f7bab120ccfab9383aba272954a0a12fb0/scipy/stats/stats.py#L3180-L3247
+# from https://github.com/scipy/scipy/blob/adc4f4f7bab120ccfab9383aba272954a0a12fb0/scipy/stats/stats.py#L3180-L3247 # noqa
 def trim_mean(a, proportiontocut, axis=0):
     a = np.asarray(a)
 
