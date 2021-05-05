@@ -149,7 +149,7 @@ def outrider(adata,
     # 3. fit model:
     time_ae_start = time.time()
     print_func.print_time('Start model fitting')
-    model.fit(adata, initialize=True, iterations=iterations,
+    model.fit(adata, initialize=initialize, iterations=iterations,
               convergence=convergence, verbose=verbose)
     print_func.print_time(
             'complete model fit time '

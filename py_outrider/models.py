@@ -32,6 +32,9 @@ class Autoencoder_Model():
                  seed=None,
                  float_type='float64'):
 
+        self.encoder_model_name = encoder
+        self.decoder_model_name = decoder
+        self.dispersion_model_name = dispersion_fit
         encoder = LATENT_SPACE_MODELS[encoder]
         decoder = DECODER_MODELS[decoder]
         dispersion_fit = DISPERSION_MODELS[dispersion_fit]
@@ -79,7 +82,7 @@ class Autoencoder_Model():
         nr_samples = adata.n_obs
         sample_idx = np.arange(nr_samples)
 
-        if batch_size is None:
+        if batch_size is None or batch_size >= n_samples:
             return [sample_idx]
 
         np.random.shuffle(sample_idx)
@@ -195,9 +198,29 @@ class Autoencoder_Model():
         else:
             cov_oneh = None
 
-        if initialize is True:
+        if initialize:
             self.init(x=x_in, x_true=x_true, feature_means=feature_means,
                       sf=sf, trans_func=trans_func, x_na=x_na, cov=cov_oneh)
+        else:
+            if "E" in adata.uns.keys():
+                self.encoder.E = adata.uns["E"]
+                self.encoder.encoding_dim = adata.uns["E"].shape[1]
+                self.encoder.loss = self.loss_func
+            else:
+                raise ValueError("No encoding matrix E found in adata.uns.",
+                                 "This is required when initialize=False")
+            if "D" in adata.uns.keys():
+                self.decoder.D = tf.convert_to_tensor(adata.uns["D"], dtype=x_in.dtype)
+                self.decoder.bias = tf.convert_to_tensor(adata.uns["bias"])
+                self.decoder.loss = self.loss_func
+                self.decoder.cov = cov_oneh
+                self.decoder.sf = sf
+                self.decoder.rev_trans = trans_func
+            else:
+                raise ValueError("No decoding matrix D found in adata.uns.",
+                                 "This is required when initialize=False")
+            if "dispersions" in adata.varm.keys():
+                self.dispersion_fit.dispersions = tf.convert_to_tensor(adata.varm["dispersions"])
 
         # subset to most variable features for encoder fitting if requested
         features = get_k_most_variable_features(adata,
