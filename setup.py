@@ -1,4 +1,4 @@
-import setuptools
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -12,7 +12,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://gitlab.cmm.in.tum.de/gagneurlab/py_outrider/",
-    packages=['py_outrider'],
+    # packages=['py_outrider'],
+    packages = find_packages(),
     install_requires=['tensorflow>=2.3.0',
                       'tensorflow-probability>=0.10.0',
                       'scikit-learn>=0.23.1',
