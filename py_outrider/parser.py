@@ -75,7 +75,8 @@ def parse_args(args_input):
         choices=['NB', 'gaussian', 'log-gaussian'],
         help='[predefined in profile] loss distribution used for training.')
     parser.add_argument(
-        '-pre', '--prepro_func', default=None, choices=['none', 'log'],
+        '-pre', '--prepro_func', default=None,
+        choices=['none', 'log', 'log2', 'log1p'],
         help='[predefined in profile] preprocessing function applied to '
              'input data. Distribution should be applicable for the '
              'preprocessed data.')
@@ -256,7 +257,7 @@ def construct_profile_args(profile):
         outrider_args['distribution'] = 'NB'
         outrider_args['effect_type'] = 'fold_change'
     elif profile == 'protrider':
-        outrider_args['prepro_func'] = 'log1p'
+        outrider_args['prepro_func'] = 'log2'
         outrider_args['noise_factor'] = 0.5
         outrider_args['effect_type'] = ['zscores', 'fold_change', 'delta']
     elif profile == 'pca':

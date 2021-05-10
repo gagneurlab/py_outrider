@@ -47,9 +47,10 @@ def outrider(adata,
     :param data: AnnData object
     :param prepro_func: Function or name of the function that should be
         applied to the input data before fitting the model. Currently
-        only 'none' (no preprocessing in this case), 'log' and 'log1p'
-        are valid function names. If a function itself is supplied, it
-        will be applied to adata.X and has to output another array.
+        only 'none' (no preprocessing in this case), 'log', 'log2' and 
+        'log1p' are valid function names. If a function itself is 
+        supplied, it will be applied to adata.X and has to output 
+        another array.
     :param sf_norm: Boolean value indicating whether size factor
         normalization (as in DESeq2) should be applied.
     :param data_trans: Name of the function that should be applied to

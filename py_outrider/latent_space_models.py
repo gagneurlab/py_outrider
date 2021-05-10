@@ -139,6 +139,13 @@ class Encoder_PCA():
     def _encode(X, E):
         return tfh.tf_nan_matmul(X, E)
 
+    def subset(self, features):
+        if tf.is_tensor(self.E):
+            self.E = self.E.numpy()[features, :]
+        else:
+            self.E = self.E[features, :]
+        return self
+
     @tf.function
     def loss_func_e(self, E, x_in, x_true, decoder, **kwargs):
         x_pred = decoder.decode(Encoder_PCA._encode(x_in, E))[0]

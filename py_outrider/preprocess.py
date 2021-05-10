@@ -84,7 +84,7 @@ def prepro(adata, prepro_func):
     adata.layers["X_raw"] = adata.X
 
     if isinstance(prepro_func, str):
-        assert prepro_func in ('none', 'log', 'log1p'), (
+        assert prepro_func in ('none', 'log', 'log1p', 'log2'), (
             'Unknown prepro function')
 
         adata.uns["prepro_func_name"] = prepro_func
@@ -92,6 +92,8 @@ def prepro(adata, prepro_func):
             prepro_func = np.log
         elif prepro_func == 'log1p':
             prepro_func = np.log1p
+        elif prepro_func == 'log2':
+            prepro_func = np.log2
         elif prepro_func == 'none':
             prepro_func = lambda x: x
         # elif prepro_func == 'vst':
