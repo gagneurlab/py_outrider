@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+setup(
     name="py_outrider",
     version="0.1.0",
     author="Stefan Loipfinger, Ines Scheller",
@@ -11,9 +11,8 @@ setuptools.setup(
     description="Python backend package for OUTRIDER2 R package",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://gitlab.cmm.in.tum.de/gagneurlab/py_outrider/",
-    # packages=['py_outrider'],
-    packages = find_packages(),
+    url="https://github.com/gagneurlab/py_outrider/",
+    packages=find_packages(),
     install_requires=['tensorflow>=2.3.0',
                       'tensorflow-probability>=0.10.0',
                       'scikit-learn>=0.23.1',
