@@ -9,7 +9,7 @@ or you run it using the following conda environment: `conda activate outrider2`
 
 (It is recommended to use `Tensorflow`>2.0.2, which fixed some rather significant runtime issues.)
 
-Then, run `pip install -e /path/to/py_outrider_root_dir/` to install py_outrider in this environment. 
+Then, run `pip install git+https://github.com/gagneurlab/py_outrider.git` to install py_outrider in this environment. 
 To check available options, run
 ```sh
 py_outrider --help
