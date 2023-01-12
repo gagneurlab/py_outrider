@@ -1,16 +1,19 @@
 name: py_outrider
+channels:
+  - conda-forge
+  - bioconda
 dependencies:
-  - python=3.6
-  - matplotlib==3.2.1
-  - numpy=1.19.2
-  - pandas=1.1.5
-  - pip=20.3.3
-  - scikit-learn==0.23.1
-  - statsmodels==0.11.1
-  - tensorflow==2.1.0
-  - tensorflow-probability==0.8.0
-  - xarray==0.15.1
-  - zarr==2.3.2
-  - pip: 
-    - nipals==0.5.2
-
+  - python>=3.6
+  - anndata>=0.7.0
+  - matplotlib>=3.2.1
+  - numpy>=1.19.2
+  - pandas>=1.1.5
+  - pip>=20.3.3
+  - scikit-learn>=0.23.1
+  - statsmodels>=0.11.1
+  - tensorflow>=2.3.0
+  - tensorflow-probability>=0.10.0
+  - xarray>=0.15.1
+  - zarr>=2.3.2
+  - pip:
+    - nipals>=0.5.2
